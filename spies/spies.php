@@ -1,6 +1,13 @@
 <?php
 namespace Spies;
 
+class PassedArgument {
+	public $index = 0;
+	public function __construct( $index ) {
+		$this->index = $index;
+	}
+}
+
 class Spy {
 	public $function_name = null;
 
@@ -14,6 +21,10 @@ class Spy {
 		if ( $function_name ) {
 			$this->create_global_function( $function_name );
 		}
+	}
+
+	public static function passed_arg( $index ) {
+		return new PassedArgument( $index );
 	}
 
 	private static function get_called_functions_for( $function_name ) {
@@ -106,17 +117,24 @@ class Spy {
 	}
 
 	private static function get_return_for( $function_name, $args ) {
-		$value = array_reduce( self::$global_functions[ $function_name ]['conditional_return'], function( $carry, $data ) use ( $args ) {
+		$conditional_return = array_reduce( self::$global_functions[ $function_name ]['conditional_return'], function( $carry, $data ) use ( $args ) {
 			if ( self::do_args_match( $data['args'], $args ) ) {
 				return $data['return'];
 			}
 			return $carry;
 		} );
-		if ( isset( $value ) ) {
-			return $value;
+		if ( isset( $conditional_return ) ) {
+			if ( $conditional_return instanceof PassedArgument ) {
+				return $args[ $conditional_return->index ];
+			}
+			return $conditional_return;
 		}
 		if ( isset( self::$global_functions[ $function_name ]['return'] ) ) {
-			return self::$global_functions[ $function_name ]['return'];
+			$return = self::$global_functions[ $function_name ]['return'];
+			if ( $return instanceof PassedArgument ) {
+				return $args[ $return->index ];
+			}
+			return $return;
 		}
 		return null;
 	}
