@@ -7,6 +7,9 @@ class Expectation {
 	public $to_be_called;
 	public $to_have_been_called;
 
+	public $negation = null;
+	public $expected_args = null;
+
 	public static $delayed_expectations = [];
 
 	public function __construct( $spy ) {
@@ -35,6 +38,13 @@ class Expectation {
 		self::$delayed_expectations[] = $func;
 	}
 
+	public function __get( $key ) {
+		if ( $key === 'not' ) {
+			$this->negation = true;
+			return $this;
+		}
+	}
+
 	public function with() {
 		$args = func_get_args();
 		$this->expected_args = $args;
@@ -51,6 +61,10 @@ class Expectation {
 			if ( count( $called_functions ) > 1 ) {
 				$description .= 'it was called with each of these sets of arguments ' . json_encode( $called_functions );
 			}
+			if ( $this->negation ) {
+				\PHPUnit_Framework_Assert::assertFalse( $result, $description );
+				return;
+			}
 			\PHPUnit_Framework_Assert::assertTrue( $result, $description );
 		} );
 		return $this;
@@ -60,6 +74,10 @@ class Expectation {
 		self::delay_expectation( function() {
 			$result = $this->spy->was_called();
 			$description = 'Expected ' . $this->spy->function_name . ' to be called but it was not called at all.';
+			if ( $this->negation ) {
+				\PHPUnit_Framework_Assert::assertFalse( $result, $description );
+				return;
+			}
 			\PHPUnit_Framework_Assert::assertTrue( $result, $description );
 		} );
 		return $this;
@@ -86,6 +104,13 @@ class Expectation {
 				$description .= 'with the arguments ' . json_encode( $this->expected_args ) . ' ';
 			}
 			$description .= 'but it was called ' . $actual . ' times';
+			if ( $actual > 0 ) {
+				$description .= ' with each of these sets of arguments ' . json_encode( $called_functions );
+			}
+			if ( $this->negation ) {
+				\PHPUnit_Framework_Assert::assertNotEquals( $count, $actual, $description );
+				return;
+			}
 			\PHPUnit_Framework_Assert::assertEquals( $count, $actual, $description );
 		} );
 		return $this;
