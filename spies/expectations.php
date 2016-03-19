@@ -1,6 +1,10 @@
 <?php
 namespace Spies;
 
+class AnyValue {
+	public $value = 'ANYTHING';
+}
+
 class Expectation {
 	private $spy = null;
 
@@ -19,6 +23,10 @@ class Expectation {
 		$this->spy = $spy;
 		$this->to_be_called = $this;
 		$this->to_have_been_called = $this;
+	}
+
+	public static function any() {
+		return new AnyValue();
 	}
 
 	public static function finish_spying() {
@@ -102,7 +110,7 @@ class Expectation {
 			$description = 'Expected ' . $this->spy->function_name . ' to be called ' . $count . ' times ';
 			if ( isset( $this->expected_args ) ) {
 				$actual = count( array_filter( $called_functions, function( $call ) {
-					return ( $call['args'] === $this->expected_args );
+					return ( Spy::do_args_match( $call['args'], $this->expected_args ) );
 				} ) );
 				$description .= 'with the arguments ' . json_encode( $this->expected_args ) . ' ';
 			}

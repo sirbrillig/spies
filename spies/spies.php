@@ -61,7 +61,7 @@ class Spy {
 		$args = func_get_args();
 		$called_functions = self::get_called_functions_for( $this->function_name );
 		$matching_calls = array_filter( $called_functions, function( $call ) use ( $args ) {
-			return ( $call[ 'args' ] === $args );
+			return ( self::do_args_match( $call[ 'args' ], $args ) );
 		} );
 		return ( count( $matching_calls ) > 0 );
 	}
@@ -74,13 +74,37 @@ class Spy {
 		return self::get_return_for( $function_name, $args );
 	}
 
+	public static function do_args_match( $a, $b ) {
+		if ( $a === $b ) {
+			return true;
+		}
+		$index = 0;
+		foreach( $a as $arg ) {
+			if ( ! self::do_vals_match( $arg, $b[ $index ] ) ) {
+				return false;
+			}
+			$index ++;
+		}
+		return true;
+	}
+
+	private static function do_vals_match( $a, $b ) {
+		if ( $a === $b ) {
+			return true;
+		}
+		if ( $a instanceof \Spies\AnyValue || $b instanceof \Spies\AnyValue ) {
+			return true;
+		}
+		return false;
+	}
+
 	private static function record_function_call( $function_name, $args ) {
 		self::$called_functions[ $function_name ][] = [ 'args' => $args ];
 	}
 
 	private static function get_return_for( $function_name, $args ) {
 		$value = array_reduce( self::$global_functions[ $function_name ]['conditional_return'], function( $carry, $data ) use ( $args ) {
-			if ( $data['args'] === $args ) {
+			if ( self::do_args_match( $data['args'], $args ) ) {
 				return $data['return'];
 			}
 			return $carry;
