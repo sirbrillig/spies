@@ -13,6 +13,9 @@ class Expectation {
 	public static $delayed_expectations = [];
 
 	public function __construct( $spy ) {
+		if ( is_string( $spy ) ) {
+			throw new \Exception( 'Expectations require a Spy but you passed a string: ' . $spy );
+		}
 		$this->spy = $spy;
 		$this->to_be_called = $this;
 		$this->to_have_been_called = $this;
