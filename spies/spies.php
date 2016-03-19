@@ -25,6 +25,9 @@ class Spy {
 
 	public static function clear_all_spies() {
 		self::$called_functions = [];
+		foreach( array_keys( self::$global_functions ) as $function_name ) {
+			self::$global_functions[ $function_name ] = [ 'conditional_return' => [], 'return' => null ];
+		}
 	}
 
 	public function get_called_functions() {
