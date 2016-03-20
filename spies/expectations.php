@@ -56,6 +56,12 @@ class Expectation {
 		}
 	}
 
+	private function format_arguments_for_output( $called_functions ) {
+		return implode( ", ", array_map( function( $call ) {
+			return json_encode( $call['args'] );
+		}, $called_functions ) );
+	}
+
 	public function with() {
 		$args = func_get_args();
 		$this->expected_args = $args;
@@ -64,13 +70,13 @@ class Expectation {
 			$description = 'Expected ' . $this->spy->function_name . ' to be called with ' . json_encode( $args ) . ' but instead ';
 			$called_functions = $this->spy->get_called_functions();
 			if ( count( $called_functions ) === 1 ) {
-				$description .= 'it was called with ' . json_encode( $called_functions[0] );
+				$description .= 'it was called with ' . $this->format_arguments_for_output( [ $called_functions[0] ] );
 			}
 			if ( count( $called_functions ) === 0 ) {
 				$description .= 'it was not called at all.';
 			}
 			if ( count( $called_functions ) > 1 ) {
-				$description .= 'it was called with each of these sets of arguments ' . json_encode( $called_functions );
+				$description .= 'it was called with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
 			}
 			if ( $this->negation ) {
 				\PHPUnit_Framework_Assert::assertFalse( $result, $description );
@@ -116,7 +122,7 @@ class Expectation {
 			}
 			$description .= 'but it was called ' . $actual . ' times';
 			if ( $actual > 0 ) {
-				$description .= ' with each of these sets of arguments ' . json_encode( $called_functions );
+				$description .= ' with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
 			}
 			if ( $this->negation ) {
 				\PHPUnit_Framework_Assert::assertNotEquals( $count, $actual, $description );
