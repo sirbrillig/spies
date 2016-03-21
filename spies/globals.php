@@ -23,3 +23,9 @@ if ( ! function_exists( 'finish_spying' ) ) {
 		return \Spies\Expectation::finish_spying();
 	}
 }
+
+if ( ! function_exists( 'mock_object' ) ) {
+	function mock_object() {
+		return \Spies\MockObject::mock_object();
+	}
+}

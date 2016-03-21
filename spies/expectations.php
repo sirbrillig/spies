@@ -74,7 +74,7 @@ class Expectation {
 		$this->expected_args = $args;
 		self::delay_expectation( function() use ( $args ) {
 			$result = call_user_func_array( [ $this->spy, 'was_called_with' ], $args );
-			$description = 'Expected "' . $this->spy->function_name . '" to be called with ' . json_encode( $args ) . ' but instead ';
+			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called with ' . json_encode( $args ) . ' but instead ';
 			$called_functions = $this->spy->get_called_functions();
 			if ( count( $called_functions ) === 1 ) {
 				$description .= 'it was called with ' . $this->format_arguments_for_output( [ $called_functions[0] ] );
@@ -97,7 +97,7 @@ class Expectation {
 	public function to_be_called() {
 		self::delay_expectation( function() {
 			$result = $this->spy->was_called();
-			$description = 'Expected "' . $this->spy->function_name . '" to be called but it was not called at all.';
+			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called but it was not called at all.';
 			if ( $this->negation ) {
 				\PHPUnit_Framework_Assert::assertFalse( $result, $description );
 				return;
@@ -120,7 +120,7 @@ class Expectation {
 		self::delay_expectation( function() use ( $count ) {
 			$called_functions = $this->spy->get_called_functions();
 			$actual = count( $called_functions );
-			$description = 'Expected "' . $this->spy->function_name . '" to be called ' . $count . ' times ';
+			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called ' . $count . ' times ';
 			if ( isset( $this->expected_args ) ) {
 				$actual = count( array_filter( $called_functions, function( $call ) {
 					return ( Spy::do_args_match( $call['args'], $this->expected_args ) );
