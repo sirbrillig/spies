@@ -8,84 +8,136 @@ class PassedArgument {
 	}
 }
 
+
+/**
+ * Ways to create a global function spy:
+ *
+ * $spy = get_spy_for( 'add_one ');
+ * expect_spy( $spy )->to_be_called->with( 5 );
+ * add_one( 5 );
+ *
+ * Or:
+ *
+ * $spy = get_spy_for( 'add_one ');
+ * add_one( 5 );
+ * expect_spy( $spy )->to_have_been_called->with( 5 );
+ *
+ * Ways to create a global function stub (which is also a spy):
+ *
+ * mock_function( 'add_one' )->with( 5 )->and_return( 6 );
+ * mock_function( 'add_one' )->with( 6 )->and_return( 7 );
+ *
+ * Or:
+ *
+ * $spy = mock_function( 'add_one' );
+ * $spy->when_called->with( 5 )->will_return( 6 );
+ * $spy->when_called->with( 6 )->will_return( 7 );
+ */
 class Spy {
 	public $function_name = null;
 
-	public static $called_functions = [];
+	public $when_called = null;
+
+	private $call_record = [];
+
+	// A record of all the currently defined global spies, which we need to find
+	// when the spied functions are triggered. Keyed by function name.
+	public static $global_spies = [];
+
+	// A record of all the functions we have globally defined.
 	public static $global_functions = [];
 
+	// The Stub argument expectations
 	private $with_arguments = null;
 
-	public function __construct( $function_name = null ) {
+	// The Stub function return values
+	private $return_value = null;
+	private $conditional_returns = [];
+
+	public function __construct( $function_name ) {
 		$this->function_name = $function_name;
-		if ( $function_name ) {
-			$this->create_global_function( $function_name );
+		$this->when_called = $this;
+		$this->create_global_function( $function_name );
+		self::$global_spies[ $function_name ] = $this;
+	}
+
+	public static function get_spy_for( $function_name ) {
+		$spy = self::get_global_spy( $function_name );
+		if ( isset( $spy ) ) {
+			return $spy;
 		}
+		return new Spy( $function_name );
+	}
+
+	public static function stub_function( $function_name ) {
+		return get_spy_for( $function_name );
 	}
 
 	public static function passed_arg( $index ) {
 		return new PassedArgument( $index );
 	}
 
-	private static function get_called_functions_for( $function_name ) {
-		if ( ! isset( self::$called_functions[ $function_name ] ) ) {
-			throw new \Exception( 'No spies found for the function ' . $function_name );
+	private static function get_global_spy( $function_name ) {
+		if ( ! isset( self::$global_spies[ $function_name ] ) ) {
+			return null;
 		}
-		return self::$called_functions[ $function_name ];
+		return self::$global_spies[ $function_name ];
 	}
 
 	public static function clear_all_spies() {
-		self::$called_functions = [];
-		foreach( array_keys( self::$global_functions ) as $function_name ) {
-			self::$global_functions[ $function_name ] = [ 'conditional_return' => [], 'return' => null ];
-		}
+		self::$global_spies = [];
+	}
+
+	public function clear_call_record() {
+		$this->call_record = [];
 	}
 
 	public function get_called_functions() {
-		return self::get_called_functions_for( $this->function_name );
+		return $this->call_record;
+	}
+
+	public function will_return( $value ) {
+		return $this->and_return( $value );
 	}
 
 	public function and_return( $value ) {
-		self::get_called_functions_for( $this->function_name );
 		if ( isset( $this->with_arguments ) ) {
-			self::$global_functions[ $this->function_name ]['conditional_return'][] = [ 'return' => $value, 'args' => $this->with_arguments ];
-			return;
+			$this->conditional_returns[] = [ 'args' => $this->with_arguments, 'return' => $value ];
+			$this->with_arguments = null;
 		}
-		self::$global_functions[ $this->function_name ]['return'] = $value;
+		$this->return_value = $value;
+		return $this;
 	}
 
 	public function with() {
-		self::get_called_functions_for( $this->function_name );
 		$args = func_get_args();
 		$this->with_arguments = $args;
 		return $this;
 	}
 
 	public function was_called() {
-		$called_functions = self::get_called_functions_for( $this->function_name );
-		return ( count( $called_functions ) > 0 );
+		return ( count( $this->get_called_functions() ) > 0 );
 	}
 
 	public function was_called_times( $times ) {
-		$called_functions = self::get_called_functions_for( $this->function_name );
-		return ( count( $called_functions ) === $times );
+		return ( count( $this->get_called_functions() ) === $times );
 	}
 
 	public function was_called_with() {
 		$args = func_get_args();
-		$called_functions = self::get_called_functions_for( $this->function_name );
-		$matching_calls = array_filter( $called_functions, function( $call ) use ( $args ) {
+		$matching_calls = array_filter( $this->get_called_functions(), function( $call ) use ( $args ) {
 			return ( self::do_args_match( $call[ 'args' ], $args ) );
 		} );
 		return ( count( $matching_calls ) > 0 );
 	}
 
 	public static function handle_call_for( $function_name, $args ) {
-		if ( ! isset( self::$called_functions[ $function_name ] ) ) {
+		$spy = self::get_global_spy( $function_name );
+		if ( ! isset( $spy ) ) {
 			throw new \Exception( 'Call to undefined function ' . $function_name );
 		}
-		self::record_function_call( $function_name, $args );
-		return self::get_return_for( $function_name, $args );
+		$spy->record_function_call( $args );
+		return $spy->get_return_for( $args );
 	}
 
 	public static function do_args_match( $a, $b ) {
@@ -112,25 +164,27 @@ class Spy {
 		return false;
 	}
 
-	private static function record_function_call( $function_name, $args ) {
-		self::$called_functions[ $function_name ][] = [ 'args' => $args ];
+	public function record_function_call( $args ) {
+		$this->call_record[] = [ 'args' => $args ];
 	}
 
-	private static function get_return_for( $function_name, $args ) {
-		$conditional_return = array_reduce( self::$global_functions[ $function_name ]['conditional_return'], function( $carry, $data ) use ( $args ) {
-			if ( self::do_args_match( $data['args'], $args ) ) {
-				return $data['return'];
+	public function get_return_for( $args ) {
+		if ( $this->conditional_returns ) {
+			$conditional_return = array_reduce( $this->conditional_returns, function( $carry, $condition ) use ( $args ) {
+				if ( self::do_args_match( $condition['args'], $args ) ) {
+					return $condition['return'];
+				}
+				return $carry;
+			} );
+			if ( $conditional_return ) {
+				if ( $conditional_return instanceof PassedArgument ) {
+					return $args[ $conditional_return->index ];
+				}
+				return $conditional_return;
 			}
-			return $carry;
-		} );
-		if ( isset( $conditional_return ) ) {
-			if ( $conditional_return instanceof PassedArgument ) {
-				return $args[ $conditional_return->index ];
-			}
-			return $conditional_return;
 		}
-		if ( isset( self::$global_functions[ $function_name ]['return'] ) ) {
-			$return = self::$global_functions[ $function_name ]['return'];
+		if ( isset( $this->return_value ) ) {
+			$return = $this->return_value;
 			if ( $return instanceof PassedArgument ) {
 				return $args[ $return->index ];
 			}
@@ -139,13 +193,18 @@ class Spy {
 		return null;
 	}
 
+	/**
+ 	 * @SuppressWarnings(PHPMD.EvalExpression)
+	 */
 	private function create_global_function( $function_name ) {
-		if ( isset( self::$called_functions[ $function_name ] ) ) {
-			self::$called_functions[ $function_name ] = [];
+		// If we already have a spy for this function, just reset its call record.
+		if ( isset( self::$global_spies[ $function_name ] ) ) {
+			self::$global_spies[ $function_name ]->clear_call_record();
 			return;
 		}
+		// If we don't have a spy, but we have defined this global function before,
+		// do nothing.
 		if ( isset( self::$global_functions[ $function_name ] ) ) {
-			self::$called_functions[ $function_name ] = [];
 			return;
 		}
 		if ( function_exists( $function_name ) ) {
@@ -157,8 +216,8 @@ function $function_name() {
 }
 EOF;
 		eval( $function_eval );
-		self::$global_functions[ $function_name ] = [ 'conditional_return' => [], 'return' => null ];
-		self::$called_functions[ $function_name ] = [];
+		// Save the name of this function so we know that we already defined it.
+		self::$global_functions[ $function_name ] = true;
 	}
 }
 

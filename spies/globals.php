@@ -2,19 +2,19 @@
 
 if ( ! function_exists( 'mock_function' ) ) {
 	function mock_function( $function_name ) {
-		return new \Spies\Spy( $function_name );
+		return \Spies\Spy::stub_function( $function_name );
 	}
 }
 
 if ( ! function_exists( 'get_spy_for' ) ) {
 	function get_spy_for( $function_name ) {
-		return new \Spies\Spy( $function_name );
+		return \Spies\Spy::get_spy_for( $function_name );
 	}
 }
 
 if ( ! function_exists( 'expect_spy' ) ) {
 	function expect_spy( $spy ) {
-		return new \Spies\Expectation( $spy );
+		return \Spies\Expectation::expect_spy( $spy );
 	}
 }
 
