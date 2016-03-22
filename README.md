@@ -111,7 +111,13 @@ function test_calculation() {
 
 To complete an expectation during a test, and to keep functions in the global scope from interfering with one another, it's **very important** to call `\Spies\finish_spying()` after each test.
 
-You can use expectations before or after the code that is being tested. There's syntactic sugar to make it sound right either way. The following two are the same:
+`finish_spying()` does three things:
+
+1. Calls `verify()` on each Expectation. `expect_spy()` only prepares the expectation. It is not tested until `verify()` is called.
+2. Clears all current Spies and mocked functions.
+3. Clears all current Expectations.
+
+Because Expectations are only evaluated when we call `finish_spying()`, you can use expectations before or after the code that is being tested. There's syntactic sugar to make it sound right either way. The following two are the same:
 
 ```php
 function tearDown() {
