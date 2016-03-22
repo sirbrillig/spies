@@ -204,11 +204,22 @@ class Spy {
 	/**
 	 * Instruct this spy to return the first argument when called
 	 *
-	 * Alias for `and_return( \Spies\Spy::passed_arg( 1 ) )`
+	 * Alias for `and_return( \Spies\Spy::passed_arg( 0 ) )`
 	 *
 	 * @return Spy This Spy
 	 */
 	public function and_return_first_argument() {
+		return $this->and_return( Spy::passed_arg( 0 ) );
+	}
+
+	/**
+	 * Instruct this spy to return the second argument when called
+	 *
+	 * Alias for `and_return( \Spies\Spy::passed_arg( 1 ) )`
+	 *
+	 * @return Spy This Spy
+	 */
+	public function and_return_second_argument() {
 		return $this->and_return( Spy::passed_arg( 1 ) );
 	}
 
@@ -235,6 +246,13 @@ class Spy {
 	 * the return value only when the arguments specified in `with` are used.
 	 *
 	 * mock_function( 'add_one' )->with( 4 )->and_return( 5 );
+	 *
+	 * If the return value is a function, that function will be called as a
+	 * substitute for the original function with all the arguments.
+	 *
+	 * mock_function( 'add_one' )->and_return( function( $a ) {
+	 *   return $a + 1;
+	 * } );
  	 *
 	 * @param mixed $value The value to return when this spy is called
 	 * @return Spy This Spy
@@ -362,20 +380,24 @@ class Spy {
 				return $carry;
 			} );
 			if ( $conditional_return ) {
-				if ( $conditional_return instanceof PassedArgument ) {
-					return $args[ $conditional_return->index ];
-				}
-				return $conditional_return;
+				return $this->filter_return_for( $conditional_return, $args );
 			}
 		}
 		if ( isset( $this->return_value ) ) {
 			$return = $this->return_value;
-			if ( $return instanceof PassedArgument ) {
-				return $args[ $return->index ];
-			}
-			return $return;
+			return $this->filter_return_for( $return, $args );
 		}
 		return null;
+	}
+
+	private function filter_return_for( $return, $args ) {
+		if ( $return instanceof PassedArgument ) {
+			return $args[ $return->index ];
+		}
+		if ( is_callable( $return ) ) {
+			return call_user_func_array( $return, $args );
+		}
+		return $return;
 	}
 
 	/**
