@@ -202,6 +202,17 @@ class Spy {
 	}
 
 	/**
+	 * Instruct this spy to return the first argument when called
+	 *
+	 * Alias for `and_return( \Spies\Spy::passed_arg( 1 ) )`
+	 *
+	 * @return Spy This Spy
+	 */
+	public function and_return_first_argument() {
+		return $this->and_return( Spy::passed_arg( 1 ) );
+	}
+
+	/**
 	 * Instruct this spy to return a particular value
 	 *
 	 * Alias for `and_return`.
