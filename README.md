@@ -70,7 +70,7 @@ function test_calculation() {
 }
 ```
 
-## Stubs
+## Stubs and Mocks
 
 ```php
 \Spies\stub_function( 'get_color' )->and_return( 'green' );
@@ -83,8 +83,6 @@ get_color(); // Returns 'green'
 
 add_one( 5 ); // Returns 6
 ```
-
-## Mocks
 
 ```php
 \Spies\stub_function( 'add_one' )->and_return( function( $a ) {
