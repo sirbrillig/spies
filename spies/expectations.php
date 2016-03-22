@@ -14,7 +14,9 @@ class Expectation {
 	public $negation = null;
 	public $expected_args = null;
 
-	public static $delayed_expectations = [];
+	public $delayed_expectations = [];
+
+	public static $global_expectations = [];
 
 	public function __construct( $spy ) {
 		if ( is_string( $spy ) ) {
@@ -26,6 +28,7 @@ class Expectation {
 		$this->spy = $spy;
 		$this->to_be_called = $this;
 		$this->to_have_been_called = $this;
+		self::$global_expectations[] = $this;
 	}
 
 	public static function expect_spy( $spy ) {
@@ -36,24 +39,39 @@ class Expectation {
 		return new AnyValue();
 	}
 
-	public static function finish_spying() {
-		self::resolve_delayed_expectations();
-		\Spies\Spy::clear_all_spies();
-	}
-
 	public static function resolve_delayed_expectations() {
-		array_map( function( $func ) {
-			call_user_func( $func );
-		}, self::$delayed_expectations );
-		self::clear_all_expectations();
+		array_map( function( $expectation ) {
+			$expectation->verify();
+		}, self::$global_expectations );
 	}
 
 	public static function clear_all_expectations() {
-		self::$delayed_expectations = [];
+		self::$global_expectations = [];
 	}
 
-	public static function delay_expectation( $func ) {
-		self::$delayed_expectations[] = $func;
+	/**
+ 	 * Delay an expected behavior
+	 *
+	 * This will store a function to be run when `verify` is called on this
+	 * Expectation. You can delay as many behavior functions as you like. Each
+	 * behavior function should throw an Exception if it fails.
+	 *
+	 * Also adds this Expectation to a global list which allows all Expectations
+	 * to be verified using `resolve_delayed_expectations` (and thus `finish_spying`).
+	 *
+	 * @param function $behavior A function that describes the expected behavior
+	 */
+	private function delay_expectation( $behavior ) {
+		$this->delayed_expectations[] = $behavior;
+	}
+
+	/**
+ 	 * Verify all behaviors in this Expectation
+	 */
+	public function verify() {
+		array_map( function( $func ) {
+			call_user_func( $func );
+		}, $this->delayed_expectations );
 	}
 
 	public function __get( $key ) {
@@ -72,7 +90,7 @@ class Expectation {
 	public function with() {
 		$args = func_get_args();
 		$this->expected_args = $args;
-		self::delay_expectation( function() use ( $args ) {
+		$this->delay_expectation( function() use ( $args ) {
 			$result = call_user_func_array( [ $this->spy, 'was_called_with' ], $args );
 			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called with ' . json_encode( $args ) . ' but instead ';
 			$called_functions = $this->spy->get_called_functions();
@@ -95,7 +113,7 @@ class Expectation {
 	}
 
 	public function to_be_called() {
-		self::delay_expectation( function() {
+		$this->delay_expectation( function() {
 			$result = $this->spy->was_called();
 			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called but it was not called at all.';
 			if ( $this->negation ) {
@@ -117,7 +135,7 @@ class Expectation {
 	}
 
 	public function times( $count ) {
-		self::delay_expectation( function() use ( $count ) {
+		$this->delay_expectation( function() use ( $count ) {
 			$called_functions = $this->spy->get_called_functions();
 			$actual = count( $called_functions );
 			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called ' . $count . ' times ';
