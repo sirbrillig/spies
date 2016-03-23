@@ -26,6 +26,7 @@ $spy( 'hello', 'world' );
 
 $spy->was_called(); // Returns true
 $spy->was_called_times( 1 ); // Returns true
+$spy->was_called_times( 2 ); // Returns false
 $spy->was_called_with( 'hello', 'world' ); // Returns true
 $spy->was_called_with( 'goodbye', 'world' ); // Returns false
 ```
@@ -54,7 +55,8 @@ function test_calculation() {
 	$spy = new \Spies\Spy();
 	addition( $spy, 2, 3 );
 
-	\Spies\expect_spy( $spy )->to_have_been_called->with( 2, 3 ); // Passes
+	$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 2, 3 ); // Passes
+	$expectation->verify();
 }
 ```
 
@@ -66,7 +68,8 @@ function test_calculation() {
 
 	add_together( 2, 3 );
 
-	\Spies\expect_spy( $add_one )->to_have_been_called->with( 2, 3 ); // Passes
+	$expectation = \Spies\expect_spy( $add_one )->to_have_been_called->with( 2, 3 ); // Passes
+	$expectation->verify();
 }
 ```
 
@@ -104,6 +107,7 @@ function test_calculation() {
 
 	\Spies\expect_spy( $add_one )->to_have_been_called(); // Passes
 	\Spies\expect_spy( $add_one )->to_have_been_called->with( 2 ); // Fails
+	\Spies\finish_spying(); // Verifies all Expectations
 }
 ```
 
@@ -142,6 +146,24 @@ function test_calculation() {
 	$add_one = \Spies\get_spy_for( 'add_together' );
 
 	\Spies\expect_spy( $add_one )->to_be_called->with( 2, 3 ); // Passes
+
+	add_together( 2, 3 );
+}
+```
+
+## Argument lists
+
+If you use `with()` to test an Expectation, sometimes you don't care about the value of an argument. In this case you can use `\Spies\Expectation::any()` in place of that argument:
+
+```php
+function tearDown() {
+	\Spies\finish_spying();
+}
+
+function test_calculation() {
+	$add_one = \Spies\get_spy_for( 'add_together' );
+
+	\Spies\expect_spy( $add_one )->to_be_called->with( \Spies\Expectation::any(), \Spies\Expectation::any() ); // Passes
 
 	add_together( 2, 3 );
 }
