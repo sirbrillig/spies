@@ -2,24 +2,28 @@
 namespace Spies;
 
 class Expectation {
-	private $spy = null;
-
+	// Syntactic sugar; these just return the Expectation
 	public $to_be_called;
 	public $to_have_been_called;
 
-	public $negation = null;
-	public $expected_args = null;
-
-	public $delayed_expectations = [];
+	// If true, `verify()` will throw Exceptions instead of using PHPUnit_Framework_Assert
+	public $throw_exceptions = false;
+	// If true, `verify()` will return an error description instead of using PHPUnit_Framework_Assert
+	public $silent_failures = false;
 
 	public static $global_expectations = [];
 
+	private $spy = null;
+	private $negation = null;
+	private $expected_args = null;
+	private $delayed_expectations = [];
+
 	public function __construct( $spy ) {
 		if ( is_string( $spy ) ) {
-			throw new \Exception( 'Expectations require a Spy but I was passed a string: ' . $spy );
+			throw new \InvalidArgumentException( 'Expectations require a Spy but I was passed a string: ' . $spy );
 		}
 		if ( ! $spy instanceof Spy ) {
-			throw new \Exception( 'Expectations require a Spy' );
+			throw new \InvalidArgumentException( 'Expectations require a Spy' );
 		}
 		$this->spy = $spy;
 		$this->to_be_called = $this;
@@ -46,30 +50,9 @@ class Expectation {
 	}
 
 	/**
- 	 * Delay an expected behavior
-	 *
-	 * This will store a function to be run when `verify` is called on this
-	 * Expectation. You can delay as many behavior functions as you like. Each
-	 * behavior function should throw an Exception if it fails.
-	 *
-	 * Also adds this Expectation to a global list which allows all Expectations
-	 * to be verified using `resolve_delayed_expectations` (and thus `finish_spying`).
-	 *
-	 * @param function $behavior A function that describes the expected behavior
+	 * Magic function so that the `not` property can be used to negate this
+	 * Expectation.
 	 */
-	private function delay_expectation( $behavior ) {
-		$this->delayed_expectations[] = $behavior;
-	}
-
-	/**
- 	 * Verify all behaviors in this Expectation
-	 */
-	public function verify() {
-		array_map( function( $func ) {
-			call_user_func( $func );
-		}, $this->delayed_expectations );
-	}
-
 	public function __get( $key ) {
 		if ( $key === 'not' ) {
 			$this->negation = true;
@@ -77,12 +60,37 @@ class Expectation {
 		}
 	}
 
-	private function format_arguments_for_output( $called_functions ) {
-		return implode( ", ", array_map( function( $call ) {
-			return json_encode( $call['args'] );
-		}, $called_functions ) );
+	/**
+ 	 * Verify all behaviors in this Expectation
+	 *
+	 * By default it will use PHPUnit_Framework_Assert to create assertions for
+	 * each behavior.
+	 *
+	 * If `throw_exceptions` is set to true, instead it will throw an exception
+	 * for each failure.
+	 *
+	 * If `silent_failures` is set to true, instead it will return the description
+	 * of the first failure it finds, or null if all behaviors passed.
+	 *
+	 * @return string|null The first failure description if there is a failure
+	 */
+	public function verify() {
+		foreach( $this->delayed_expectations as $behavior ) {
+			$description = call_user_func( $behavior );
+			if ( $description ) {
+				return $description;
+			}
+		}
 	}
 
+	/**
+	 * Set expected arguments
+	 *
+	 * Expectations will be evaluated when `verify()` is called.
+	 *
+	 * @param mixed $arg... The arguments we expect
+	 * @return Expectation This Expectation to allow chaining
+	 */
 	public function with() {
 		$args = func_get_args();
 		$this->expected_args = $args;
@@ -100,36 +108,66 @@ class Expectation {
 				$description .= 'it was called with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
 			}
 			if ( $this->negation ) {
-				\PHPUnit_Framework_Assert::assertFalse( $result, $description );
-				return;
+				return $this->assertFalse( $result, $description );
 			}
-			\PHPUnit_Framework_Assert::assertTrue( $result, $description );
+			return $this->assertTrue( $result, $description );
 		} );
 		return $this;
 	}
 
+	/**
+ 	 * Set the expectation that the Spy was called
+	 *
+	 * Expectations will be evaluated when `verify()` is called.
+	 *
+	 * @return Expectation This Expectation to allow chaining
+	 */
 	public function to_be_called() {
 		$this->delay_expectation( function() {
 			$result = $this->spy->was_called();
 			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called but it was not called at all.';
 			if ( $this->negation ) {
-				\PHPUnit_Framework_Assert::assertFalse( $result, $description );
-				return;
+				return $this->assertFalse( $result, $description );
 			}
-			\PHPUnit_Framework_Assert::assertTrue( $result, $description );
+			return $this->assertTrue( $result, $description );
 		} );
 		return $this;
 	}
 
+	/**
+ 	 * Set the expectation that the Spy was called
+	 *
+	 * Alias for `to_be_called`
+	 *
+	 * Expectations will be evaluated when `verify()` is called.
+	 *
+	 * @return Expectation This Expectation to allow chaining
+	 */
 	public function to_have_been_called() {
 		$args = func_get_args();
 		return call_user_func_array( [ $this, 'to_be_called' ], $args );
 	}
 
+	/**
+	 * Set the expectation that the Spy was called once
+	 *
+	 * Alias for `times(1)`
+	 *
+	 * Expectations will be evaluated when `verify()` is called.
+	 *
+	 * @return Expectation This Expectation to allow chaining
+	 */
 	public function once() {
 		return $this->times( 1 );
 	}
 
+	/**
+	 * Set the expectation that the Spy was called a number of times
+	 *
+	 * Expectations will be evaluated when `verify()` is called.
+	 *
+	 * @return Expectation This Expectation to allow chaining
+	 */
 	public function times( $count ) {
 		$this->delay_expectation( function() use ( $count ) {
 			$called_functions = $this->spy->get_called_functions();
@@ -146,11 +184,84 @@ class Expectation {
 				$description .= ' with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
 			}
 			if ( $this->negation ) {
-				\PHPUnit_Framework_Assert::assertNotEquals( $count, $actual, $description );
-				return;
+				return $this->assertNotEquals( $count, $actual, $description );
 			}
-			\PHPUnit_Framework_Assert::assertEquals( $count, $actual, $description );
+			return $this->assertEquals( $count, $actual, $description );
 		} );
 		return $this;
+	}
+
+	/**
+ 	 * Delay an expected behavior
+	 *
+	 * This will store a function to be run when `verify` is called on this
+	 * Expectation. You can delay as many behavior functions as you like. Each
+	 * behavior function should throw an Exception if it fails.
+	 *
+	 * Also adds this Expectation to a global list which allows all Expectations
+	 * to be verified using `resolve_delayed_expectations` (and thus `finish_spying`).
+	 *
+	 * @param function $behavior A function that describes the expected behavior
+	 */
+	private function delay_expectation( $behavior ) {
+		$this->delayed_expectations[] = $behavior;
+	}
+
+	private function format_arguments_for_output( $called_functions ) {
+		return implode( ", ", array_map( function( $call ) {
+			return json_encode( $call['args'] );
+		}, $called_functions ) );
+	}
+
+	private function assertTrue( $value, $description ) {
+		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
+			\PHPUnit_Framework_Assert::assertTrue( $value, $description );
+			return;
+		}
+		if ( ! $value ) {
+			if ( $this->silent_failures ) {
+				return $description;
+			}
+			throw new UnmetExpectationException( $description );
+		}
+	}
+
+	private function assertFalse( $value, $description ) {
+		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
+			\PHPUnit_Framework_Assert::assertFalse( $value, $description );
+			return;
+		}
+		if ( $value ) {
+			if ( $this->silent_failures ) {
+				return $description;
+			}
+			throw new UnmetExpectationException( $description );
+		}
+	}
+
+	private function assertEquals( $a, $b, $description ) {
+		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
+			\PHPUnit_Framework_Assert::assertEquals( $a, $b, $description );
+			return;
+		}
+		if ( $a !== $b ) {
+			if ( $this->silent_failures ) {
+				return $description;
+			}
+			throw new UnmetExpectationException( $description );
+		}
+	}
+
+	private function assertNotEquals( $a, $b, $description ) {
+		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
+			\PHPUnit_Framework_Assert::assertNotEquals( $a, $b, $description );
+			return;
+		}
+		if ( $a === $b ) {
+			if ( $this->silent_failures ) {
+				return $description;
+			}
+			throw new UnmetExpectationException( $description );
+		}
 	}
 }
