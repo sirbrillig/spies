@@ -1,10 +1,6 @@
 <?php
 namespace Spies;
 
-class AnyValue {
-	public $value = 'ANYTHING';
-}
-
 class Expectation {
 	private $spy = null;
 
