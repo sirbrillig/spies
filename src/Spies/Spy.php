@@ -277,9 +277,12 @@ class Spy {
 	 * @return Spy This spy
 	 */
 	public function with() {
-		$args = func_get_args();
-		$this->with_arguments = $args;
+		$this->set_arguments( func_get_args() );
 		return $this;
+	}
+
+	private function set_arguments( $args ) {
+		$this->with_arguments = $args;
 	}
 
 	/**
