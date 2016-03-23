@@ -75,24 +75,50 @@ function test_calculation() {
 
 ## Stubs and Mocks
 
+You can create stubs with the `\Spies\stub_function` method. A stub is a fake function that can be called like a real function except that you control its behavior.
+
+Stubs can also be used to mock a global function, just like a Spy. In fact, a stub is also a Spy, which means you can query it for any information you like.
+
+There are a few basic behaviors you can program into a stub:
+
+1. You can simply use one to replace a global function (it will return null).
+2. You can use one to return a specific value when called.
+3. You can use one to return a specific value when called with specific arguments.
+4. You can use one to return one of the arguments it was passed.
+5. You can use one to call a substitute function.
+
+Here's just setting a return value:
 ```php
 \Spies\stub_function( 'get_color' )->and_return( 'green' );
 
 get_color(); // Returns 'green'
 ```
 
+Here's returning a value with certain arguments:
 ```php
-\Spies\stub_function( 'add_one' )->with( 5 )->and_return( 6 );
+\Spies\stub_function( 'add_one' )->when_called->with( 5 )->will_return( 6 );
+\Spies\stub_function( 'add_one' )->when_called->with( 1 )->will_return( 2 );
 
 add_one( 5 ); // Returns 6
+add_one( 1 ); // Returns 2
 ```
 
+Here's one returning one of its arguments:
+```php
+\Spies\stub_function( 'get_first' )->when_called->will_return( \Spies\passed_arg( 0 ) );
+
+get_first( 5, 6, 7 ); // Returns 5
+get_first( 1, 2, 3 ); // Returns 1
+```
+
+Here's one returning the result of a substitute function:
 ```php
 \Spies\stub_function( 'add_one' )->and_return( function( $a ) {
 	return $a + 1;
 } );
 
 add_one( 5 ); // Returns 6
+add_one( 1 ); // Returns 2
 ```
 
 # Objects

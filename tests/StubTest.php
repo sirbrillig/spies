@@ -39,7 +39,7 @@ class StubTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function test_stub_and_return_passed_arg_will_return_the_passed_argument_with_the_appropriate_index() {
-		\Spies\mock_function( 'test_stub' )->and_return( \Spies\Spy::passed_arg( 1 ) );
+		\Spies\mock_function( 'test_stub' )->and_return( \Spies\passed_arg( 1 ) );
 		$this->assertEquals( 'bar', test_stub( 'foo', 'bar' ) );
 	}
 

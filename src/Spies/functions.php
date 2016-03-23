@@ -30,3 +30,11 @@ function mock_object() {
 function make_spy() {
 	return new \Spies\Spy();
 }
+
+function any() {
+	return new \Spies\AnyValue();
+}
+
+function passed_arg( $index ) {
+	return new \Spies\PassedArgument( $index );
+}
