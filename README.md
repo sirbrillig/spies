@@ -123,13 +123,17 @@ add_one( 1 ); // Returns 2
 
 # Objects
 
+Sometimes you need to create a whole object with stubs as functions. In that case you can use `\Spies\mock_object()` which will return an object that can be passed around. The object by default has no methods, but you can use `add_method()` to add some. `add_method()` returns a stub (which, remember, is also a Spy), so you can program its behavior or query it for expectations.
+
 ```php
 function test_calculation() {
 	$adder = \Spies\mock_object();
 	$add_one = $adder->add_method( 'add_one' )->that_returns( 5 );
+	$add_one = $adder->add_method( 'add_one' )->when_called->with( 6 )->will_return( 7 );
 
 	$calculator = new Calculator( $adder );
 	$calculator->add_one( 4 ); // Returns 5
+	$calculator->add_one( 6 ); // Returns 7
 
 	\Spies\expect_spy( $add_one )->to_have_been_called(); // Passes
 	\Spies\expect_spy( $add_one )->to_have_been_called->with( 2 ); // Fails
