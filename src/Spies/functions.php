@@ -26,3 +26,7 @@ function finish_spying() {
 function mock_object() {
 	return \Spies\MockObject::mock_object();
 }
+
+function make_spy() {
+	return new \Spies\Spy();
+}
