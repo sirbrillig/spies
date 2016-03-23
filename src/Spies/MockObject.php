@@ -18,7 +18,7 @@ class MockObject {
 			throw new \Exception( 'The function "' . $function_name . '" added to this mock object was not a function' );
 		}
 		if ( $function instanceof Spy ) {
-			$function->function_name = $function_name;
+			$function->set_function_name( $function_name );
 		}
 		$this->$function_name = $function;
 		return $function;

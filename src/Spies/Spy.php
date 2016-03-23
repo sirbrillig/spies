@@ -150,6 +150,10 @@ class Spy {
 		return 'anonymous function';
 	}
 
+	public function set_function_name( $function_name ) {
+		$this->function_name = $function_name;
+	}
+
 	/**
 	 * Call this mocked function.
 	 *
