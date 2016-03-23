@@ -337,6 +337,9 @@ class Spy {
 		if ( $a === $b ) {
 			return true;
 		}
+		if ( count( $a ) !== count( $b ) ) {
+			return false;
+		}
 		$index = 0;
 		foreach( $a as $arg ) {
 			if ( ! self::do_vals_match( $arg, $b[ $index ] ) ) {
