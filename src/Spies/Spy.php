@@ -305,7 +305,7 @@ class Spy {
 	public function was_called_with() {
 		$args = func_get_args();
 		$matching_calls = array_filter( $this->get_called_functions(), function( $call ) use ( $args ) {
-			return ( self::do_args_match( $call[ 'args' ], $args ) );
+			return ( Helpers::do_args_match( $call[ 'args' ], $args ) );
 		} );
 		return ( count( $matching_calls ) > 0 );
 	}
@@ -321,38 +321,6 @@ class Spy {
 			throw new \Exception( 'Call to undefined function ' . $function_name );
 		}
 		return $spy->call_with_array( $args );
-	}
-
-	/**
-	 * Compare argument lists
-	 *
-	 * You should not need to call this directly.
-	 */
-	public static function do_args_match( $a, $b ) {
-		if ( $a === $b ) {
-			return true;
-		}
-		if ( count( $a ) !== count( $b ) ) {
-			return false;
-		}
-		$index = 0;
-		foreach( $a as $arg ) {
-			if ( ! self::do_vals_match( $arg, $b[ $index ] ) ) {
-				return false;
-			}
-			$index ++;
-		}
-		return true;
-	}
-
-	private static function do_vals_match( $a, $b ) {
-		if ( $a === $b ) {
-			return true;
-		}
-		if ( $a instanceof \Spies\AnyValue || $b instanceof \Spies\AnyValue ) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -372,7 +340,7 @@ class Spy {
 	public function get_return_for( $args ) {
 		if ( $this->conditional_returns ) {
 			$conditional_return = array_reduce( $this->conditional_returns, function( $carry, $condition ) use ( $args ) {
-				if ( self::do_args_match( $condition['args'], $args ) ) {
+				if ( Helpers::do_args_match( $condition['args'], $args ) ) {
 					return $condition['return'];
 				}
 				return $carry;

@@ -137,7 +137,7 @@ class Expectation {
 			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called ' . $count . ' times ';
 			if ( isset( $this->expected_args ) ) {
 				$actual = count( array_filter( $called_functions, function( $call ) {
-					return ( Spy::do_args_match( $call['args'], $this->expected_args ) );
+					return ( Helpers::do_args_match( $call['args'], $this->expected_args ) );
 				} ) );
 				$description .= 'with the arguments ' . json_encode( $this->expected_args ) . ' ';
 			}
