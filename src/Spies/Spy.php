@@ -337,6 +337,20 @@ class Spy {
 		return ( count( $matching_calls ) > 0 );
 	}
 
+	public function was_called_before( $spy ) {
+		$call_record = $this->get_called_functions();
+		if ( count( $call_record ) < 1 ) {
+			return false;
+		}
+		$this_spy_time_stamp = $call_record[0]['time'];
+		$target_call_record = $spy->get_called_functions();
+		if ( count( $target_call_record ) < 1 ) {
+			return false;
+		}
+		$target_spy_time_stamp = $target_call_record[0]['time'];
+		return ( $this_spy_time_stamp < $target_spy_time_stamp );
+	}
+
 	/**
 	 * Handle a global spy function call
 	 *
@@ -356,7 +370,7 @@ class Spy {
 	 * You should not need to call this directly.
 	 */
 	private function record_function_call( $args ) {
-		$this->call_record[] = [ 'args' => $args ];
+		$this->call_record[] = [ 'args' => $args, 'time' => microtime() ];
 	}
 
 	/**

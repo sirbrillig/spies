@@ -97,4 +97,43 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy( 'foo' );
 		$this->assertFalse( $spy->was_called_with( 'foo', 'bar', 'baz' ) );
 	}
+
+	public function test_spy_was_called_before_returns_true_if_called_before_target_spy() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$spy_1( 'foo' );
+		$spy_2( 'bar' );
+		$this->assertTrue( $spy_1->was_called_before( $spy_2 ) );
+	}
+
+	public function test_spy_was_called_before_returns_false_if_called_after_target_spy() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$spy_2( 'bar' );
+		$spy_1( 'foo' );
+		$this->assertFalse( $spy_1->was_called_before( $spy_2 ) );
+	}
+
+	public function test_spy_was_called_before_returns_false_if_the_first_spy_was_not_called() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$spy_2( 'bar' );
+		$this->assertFalse( $spy_1->was_called_before( $spy_2 ) );
+	}
+
+	public function test_spy_was_called_before_returns_false_if_the_second_spy_was_not_called() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$spy_1( 'bar' );
+		$this->assertFalse( $spy_1->was_called_before( $spy_2 ) );
+	}
+
+	public function test_spy_was_called_before_returns_true_if_called_before_target_spy_even_if_called_again_later() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$spy_1( 'foo' );
+		$spy_2( 'bar' );
+		$spy_1( 'foo' );
+		$this->assertTrue( $spy_1->was_called_before( $spy_2 ) );
+	}
 }
