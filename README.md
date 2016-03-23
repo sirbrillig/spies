@@ -162,7 +162,7 @@ WP_Mock::userFunction( 'wp_insert_post' )->with( $new_post_args )->andReturn( 4 
 
 Here's the same thing using `Spies`:
 ```php
-\Spies\mock_function( 'wp_insert_post' )->with( $new_post_args )->and_return( 4 );
+\Spies\mock_function( 'wp_insert_post' )->when_called->with( $new_post_args )->will_return( 4 );
 
 $wp_insert_post = \Spies\get_spy_for( 'wp_insert_post' );
 \Spies\expect_spy( $wp_insert_post )->to_be_called->with( $new_post_args )->once();
