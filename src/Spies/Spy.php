@@ -32,11 +32,8 @@ namespace Spies;
  * $spy->when_called->with( 6 )->will_return( 7 );
  */
 class Spy {
-	public $function_name = null;
-
+	// Syntactic sugar, will just return $this
 	public $when_called = null;
-
-	private $call_record = [];
 
 	// A record of all the currently defined global spies, which we need to find
 	// when the spied functions are triggered. Keyed by function name.
@@ -45,9 +42,10 @@ class Spy {
 	// A record of all the functions we have globally defined.
 	public static $global_functions = [];
 
+	private $function_name = null;
+	private $call_record = [];
 	// The Stub argument expectations
 	private $with_arguments = null;
-
 	// The Stub function return values
 	private $return_value = null;
 	private $conditional_returns = [];
@@ -72,17 +70,13 @@ class Spy {
 	}
 
 	/**
- 	 * Return the function name
+	 * Spy on a global function
 	 *
-	 * @return string The function name
+	 * Creates the global function if it has not already been created.
+	 *
+	 * @param string $function_name The global function name
+	 * @return Spy The Spy
 	 */
-	public function get_function_name() {
-		if ( isset( $this->function_name ) ) {
-			return $this->function_name;
-		}
-		return 'anonymous function';
-	}
-
 	public static function get_spy_for( $function_name ) {
 		$spy = self::get_global_spy( $function_name );
 		if ( isset( $spy ) ) {
@@ -91,10 +85,27 @@ class Spy {
 		return new Spy( $function_name );
 	}
 
+	/**
+	 * Create a stub for a global function
+	 *
+	 * Creates the global function if it has not already been created.
+	 *
+	 * @param string $function_name The global function name
+	 * @return Spy The Spy
+	 */
 	public static function stub_function( $function_name ) {
 		return get_spy_for( $function_name );
 	}
 
+	/**
+	 * Generator for PassedArgument
+	 *
+	 * Use this as an argument to `and_return` or its aliases to cause the stub to
+	 * return one of the arguments passed to the stub.
+	 *
+	 * @param integer $index The index of the argument to return
+	 * @return PassedArgument
+	 */
 	public static function passed_arg( $index ) {
 		return new PassedArgument( $index );
 	}
@@ -125,6 +136,18 @@ class Spy {
 	 */
 	public static function clear_all_spies() {
 		self::$global_spies = [];
+	}
+
+	/**
+ 	 * Return the function name
+	 *
+	 * @return string The function name
+	 */
+	public function get_function_name() {
+		if ( isset( $this->function_name ) ) {
+			return $this->function_name;
+		}
+		return 'anonymous function';
 	}
 
 	/**
@@ -237,7 +260,7 @@ class Spy {
 	 * If the function `with` has been used on this Spy, this function will assign
 	 * the return value only when the arguments specified in `with` are used.
 	 *
-	 * mock_function( 'add_one' )->with( 4 )->and_return( 5 );
+	 * mock_function( 'add_one' )->when_called->with( 4 )->will_return( 5 );
 	 *
 	 * If the return value is a function, that function will be called as a
 	 * substitute for the original function with all the arguments.
@@ -328,7 +351,7 @@ class Spy {
 	 *
 	 * You should not need to call this directly.
 	 */
-	public function record_function_call( $args ) {
+	private function record_function_call( $args ) {
 		$this->call_record[] = [ 'args' => $args ];
 	}
 
@@ -337,7 +360,7 @@ class Spy {
 	 *
 	 * You should not need to call this directly.
 	 */
-	public function get_return_for( $args ) {
+	private function get_return_for( $args ) {
 		if ( $this->conditional_returns ) {
 			$conditional_return = array_reduce( $this->conditional_returns, function( $carry, $condition ) use ( $args ) {
 				if ( Helpers::do_args_match( $condition['args'], $args ) ) {
