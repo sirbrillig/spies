@@ -35,13 +35,6 @@ class Spy {
 	// Syntactic sugar, will just return $this
 	public $when_called = null;
 
-	// A record of all the currently defined global spies, which we need to find
-	// when the spied functions are triggered. Keyed by function name.
-	public static $global_spies = [];
-
-	// A record of all the functions we have globally defined.
-	public static $global_functions = [];
-
 	private $function_name = null;
 	private $call_record = [];
 	// The Stub argument expectations
@@ -52,11 +45,7 @@ class Spy {
 
 	public function __construct( $function_name = null ) {
 		$this->when_called = $this;
-		if ( $function_name ) {
-			$this->function_name = $function_name;
-			$this->create_global_function( $function_name );
-			self::$global_spies[ $function_name ] = $this;
-		}
+		$this->function_name = $function_name;
 	}
 
 	/**
@@ -78,11 +67,11 @@ class Spy {
 	 * @return Spy The Spy
 	 */
 	public static function get_spy_for( $function_name ) {
-		$spy = self::get_global_spy( $function_name );
+		$spy = GlobalSpies::get_global_spy( $function_name );
 		if ( isset( $spy ) ) {
 			return $spy;
 		}
-		return new Spy( $function_name );
+		return GlobalSpies::create_global_spy( $function_name );
 	}
 
 	/**
@@ -108,34 +97,6 @@ class Spy {
 	 */
 	public static function passed_arg( $index ) {
 		return new PassedArgument( $index );
-	}
-
-	/**
-	 * Return the spy for a global function
-	 *
-	 * You should not need to call this directly.
-	 *
-	 * @param string $function_name The name of the function
-	 * @return Spy|null The spy or null if it was not found
-	 */
-	private static function get_global_spy( $function_name ) {
-		if ( ! isset( self::$global_spies[ $function_name ] ) ) {
-			return null;
-		}
-		return self::$global_spies[ $function_name ];
-	}
-
-	/**
- 	 * Clear all globally defined spies
-	 *
-	 * You should not need to call this directly. See `\Spies\Expectation::finish_spying()`
-	 *
-	 * The global functions themselves cannot be removed, but after calling this,
-	 * any calls to the global functions will throw an Exception unless they are
-	 * spied on again.
-	 */
-	public static function clear_all_spies() {
-		self::$global_spies = [];
 	}
 
 	/**
@@ -352,19 +313,6 @@ class Spy {
 	}
 
 	/**
-	 * Handle a global spy function call
-	 *
-	 * You should not need to call this directly.
-	 */
-	public static function handle_call_for( $function_name, $args ) {
-		$spy = self::get_global_spy( $function_name );
-		if ( ! isset( $spy ) ) {
-			throw new \Exception( 'Call to undefined function ' . $function_name );
-		}
-		return $spy->call_with_array( $args );
-	}
-
-	/**
  	 * Add a function call to the call record
 	 *
 	 * You should not need to call this directly.
@@ -405,37 +353,6 @@ class Spy {
 			return call_user_func_array( $return, $args );
 		}
 		return $return;
-	}
-
-	/**
-	 * Create a function in the global namespace.
-	 *
-	 * You should not need to call this directly.
-	 *
- 	 * @SuppressWarnings(PHPMD.EvalExpression)
-	 */
-	private function create_global_function( $function_name ) {
-		// If we already have a spy for this function, just reset its call record.
-		if ( isset( self::$global_spies[ $function_name ] ) ) {
-			self::$global_spies[ $function_name ]->clear_call_record();
-			return;
-		}
-		// If we don't have a spy, but we have defined this global function before,
-		// do nothing.
-		if ( isset( self::$global_functions[ $function_name ] ) ) {
-			return;
-		}
-		if ( function_exists( $function_name ) ) {
-			throw new \Exception( 'Attempt to mock existing function ' . $function_name );
-		}
-		$function_eval = <<<EOF
-function $function_name() {
-	return \Spies\Spy::handle_call_for( '$function_name', func_get_args() );
-}
-EOF;
-		eval( $function_eval );
-		// Save the name of this function so we know that we already defined it.
-		self::$global_functions[ $function_name ] = true;
 	}
 }
 

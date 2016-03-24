@@ -37,9 +37,9 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $spy->was_called() );
 	}
 
-	public function test_if_get_spy_for_is_called_twice_it_returns_the_same_spy() {
+	public function test_if_get_spy_for_is_called_twice_with_the_same_string_it_returns_the_same_spy() {
 		$spy_1 = \Spies\get_spy_for( 'test_spy' );
-		\Spies\Spy::clear_all_spies();
+		\Spies\finish_spying();
 		$spy_2 = \Spies\get_spy_for( 'test_spy' );
 		$this->assertEquals( $spy_1, $spy_2 );
 	}
@@ -54,7 +54,7 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 	public function test_if_get_spy_for_is_called_again_after_clearing_spies_it_resets_the_call_record_for_the_spy() {
 		\Spies\get_spy_for( 'test_spy' );
 		test_spy();
-		\Spies\Spy::clear_all_spies();
+		\Spies\finish_spying();
 		$spy = \Spies\get_spy_for( 'test_spy' );
 		$this->assertFalse( $spy->was_called() );
 	}

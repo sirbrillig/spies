@@ -20,7 +20,7 @@ function expect_spy( $spy ) {
 function finish_spying() {
 	\Spies\Expectation::resolve_delayed_expectations();
 	\Spies\Expectation::clear_all_expectations();
-	\Spies\Spy::clear_all_spies();
+	\Spies\GlobalSpies::clear_all_spies();
 }
 
 function mock_object() {
