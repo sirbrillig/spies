@@ -96,17 +96,18 @@ class Expectation {
 		$this->expected_args = $args;
 		$this->delay_expectation( function() use ( $args ) {
 			$result = call_user_func_array( [ $this->spy, 'was_called_with' ], $args );
-			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called with ' . json_encode( $args ) . ' but instead ';
-			$called_functions = $this->spy->get_called_functions();
-			if ( count( $called_functions ) === 1 ) {
-				$description .= 'it was called with ' . $this->format_arguments_for_output( [ $called_functions[0] ] );
-			}
-			if ( count( $called_functions ) === 0 ) {
-				$description .= 'it was not called at all.';
-			}
-			if ( count( $called_functions ) > 1 ) {
-				$description .= 'it was called with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
-			}
+			$description = $this->build_failure_message( function( $bits ) use ( $args ){
+				$called_functions = $this->spy->get_called_functions();
+				$bits[] = 'with ' . json_encode( $args ) . ' but instead';
+				if ( count( $called_functions ) === 1 ) {
+					$bits[] = 'it was called with ' . $this->format_arguments_for_output( [ $called_functions[0] ] );
+				} else if ( count( $called_functions ) === 0 ) {
+					$bits[] = 'it was not called at all.';
+				} else if ( count( $called_functions ) > 1 ) {
+					$bits[] = 'it was called with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
+				}
+				return $bits;
+			} );
 			if ( $this->negation ) {
 				return $this->assertFalse( $result, $description );
 			}
@@ -125,7 +126,11 @@ class Expectation {
 	public function to_be_called() {
 		$this->delay_expectation( function() {
 			$result = $this->spy->was_called();
-			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called but it was not called at all.';
+			$description = $this->build_failure_message( function( $bits ) {
+				$bits[] = 'but it was';
+				$bits[] = $this->negation ? 'called.' : 'not called at all.';
+				return $bits;
+			} );
 			if ( $this->negation ) {
 				return $this->assertFalse( $result, $description );
 			}
@@ -172,17 +177,22 @@ class Expectation {
 		$this->delay_expectation( function() use ( $count ) {
 			$called_functions = $this->spy->get_called_functions();
 			$actual = count( $called_functions );
-			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called ' . $count . ' times ';
 			if ( isset( $this->expected_args ) ) {
 				$actual = count( array_filter( $called_functions, function( $call ) {
-					return ( Helpers::do_args_match( $call['args'], $this->expected_args ) );
+					return Helpers::do_args_match( $call['args'], $this->expected_args );
 				} ) );
-				$description .= 'with the arguments ' . json_encode( $this->expected_args ) . ' ';
 			}
-			$description .= 'but it was called ' . $actual . ' times';
-			if ( $actual > 0 ) {
-				$description .= ' with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
-			}
+			$description = $this->build_failure_message( function( $bits ) use ( $count, $actual, $called_functions ) {
+				$bits[] = $count . ' times';
+				if ( isset( $this->expected_args ) ) {
+					$bits[] = 'with the arguments ' . json_encode( $this->expected_args );
+				}
+				$bits[] = 'but it was called ' . $actual . ' times';
+				if ( $actual > 0 ) {
+					$bits[] = 'with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
+				}
+				return $bits;
+			} );
 			if ( $this->negation ) {
 				return $this->assertNotEquals( $count, $actual, $description );
 			}
@@ -217,6 +227,16 @@ class Expectation {
 	 */
 	private function delay_expectation( $behavior ) {
 		$this->delayed_expectations[] = $behavior;
+	}
+
+	private function build_failure_message( $message_func ) {
+		$description = [];
+		$description[] = 'Expected "' . $this->spy->get_function_name() . '"';
+		$description[] = $this->negation ? 'not to be called' : 'to be called';
+		if ( is_callable( $message_func ) ) {
+			$description = $message_func( $description );
+		}
+		return implode( ' ', $description );
 	}
 
 	private function format_arguments_for_output( $called_functions ) {

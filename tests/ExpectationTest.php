@@ -17,6 +17,21 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $expectation instanceof \Spies\Expectation );
 	}
 
+	public function test_failure_without_not_does_not_use_not_in_the_message() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
+		$expectation->silent_failures = true;
+		$this->assertNotContains( 'not to be called', $expectation->verify() );
+	}
+
+	public function test_failure_with_not_uses_not_in_the_message() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called();
+		$expectation->silent_failures = true;
+		$this->assertContains( 'not to be called', $expectation->verify() );
+	}
+
 	public function test_to_have_been_called_is_not_met_if_spy_was_not_called() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
