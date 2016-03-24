@@ -1,6 +1,9 @@
 <?php
 namespace Spies;
 
+// Default Plugins
+require( 'src/Spies/Plugins/WillReturn.php' );
+
 function stub_function( $function_name ) {
 	return \Spies\Spy::stub_function( $function_name );
 }

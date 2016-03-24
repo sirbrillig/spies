@@ -37,6 +37,7 @@ class Spy {
 
 	private $function_name = null;
 	private $call_record = [];
+	private static $behaviors = [];
 	// The Stub argument expectations
 	private $with_arguments = null;
 	// The Stub function return values
@@ -56,6 +57,24 @@ class Spy {
 	public function __invoke() {
 		$args = func_get_args();
 		return $this->call_with_array( $args );
+	}
+
+	public function __call( $name, $args ) {
+		$handler = self::get_behavior_for( $name );
+		if ( $handler ) {
+			return $handler( $this, $args );
+		}
+		throw new \Exception( 'Attempt to call undefined method on the spy "' . $this->get_function_name() . '": "' . $name . '"' );
+	}
+
+	public static function add_behavior( $name, $handler ) {
+		self::$behaviors[ $name ] = $handler;
+	}
+
+	public static function get_behavior_for( $name ) {
+		if ( isset( self::$behaviors[ $name ] ) ) {
+			return self::$behaviors[ $name ];
+		}
 	}
 
 	/**
@@ -164,21 +183,6 @@ class Spy {
 	 */
 	public function get_called_functions() {
 		return $this->call_record;
-	}
-
-	/**
-	 * Instruct this spy to return a particular value
-	 *
-	 * Alias for `and_return`, designed to be used like this:
-	 *
-	 * $add_one = mock_function( 'add_one' );
-	 * $add_one->when_called->with( 5 )->will_return( 6 );
-	 *
-	 * @param mixed $value The value to return when this spy is called
-	 * @return Spy This Spy
-	 */
-	public function will_return( $value ) {
-		return $this->and_return( $value );
 	}
 
 	/**
