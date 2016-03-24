@@ -11,8 +11,6 @@ class Expectation {
 	// If true, `verify()` will return an error description instead of using PHPUnit_Framework_Assert
 	public $silent_failures = false;
 
-	public static $global_expectations = [];
-
 	private $spy = null;
 	private $negation = null;
 	private $expected_args = null;
@@ -28,7 +26,7 @@ class Expectation {
 		$this->spy = $spy;
 		$this->to_be_called = $this;
 		$this->to_have_been_called = $this;
-		self::$global_expectations[] = $this;
+		GlobalExpectations::add_expectation( $this );
 	}
 
 	public static function expect_spy( $spy ) {
@@ -37,16 +35,6 @@ class Expectation {
 
 	public static function any() {
 		return new AnyValue();
-	}
-
-	public static function resolve_delayed_expectations() {
-		array_map( function( $expectation ) {
-			$expectation->verify();
-		}, self::$global_expectations );
-	}
-
-	public static function clear_all_expectations() {
-		self::$global_expectations = [];
 	}
 
 	/**
@@ -219,9 +207,6 @@ class Expectation {
 	 * This will store a function to be run when `verify` is called on this
 	 * Expectation. You can delay as many behavior functions as you like. Each
 	 * behavior function should throw an Exception if it fails.
-	 *
-	 * Also adds this Expectation to a global list which allows all Expectations
-	 * to be verified using `resolve_delayed_expectations` (and thus `finish_spying`).
 	 *
 	 * @param function $behavior A function that describes the expected behavior
 	 */

@@ -18,8 +18,8 @@ function expect_spy( $spy ) {
 }
 
 function finish_spying() {
-	\Spies\Expectation::resolve_delayed_expectations();
-	\Spies\Expectation::clear_all_expectations();
+	\Spies\GlobalExpectations::resolve_delayed_expectations();
+	\Spies\GlobalExpectations::clear_all_expectations();
 	\Spies\GlobalSpies::clear_all_spies();
 }
 
