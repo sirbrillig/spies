@@ -52,7 +52,7 @@ class GlobalSpies {
 	public static function handle_call_for( $function_name, $args ) {
 		$spy = self::get_global_spy( $function_name );
 		if ( ! isset( $spy ) ) {
-			throw new \Exception( 'Call to undefined function ' . $function_name );
+			throw new UndefinedFunctionException( 'Call to undefined function ' . $function_name );
 		}
 		return $spy->call_with_array( $args );
 	}

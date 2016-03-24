@@ -155,4 +155,13 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation->silent_failures = true;
 		$this->assertInternalType( 'string', $expectation->verify() );
 	}
+
+	public function test_global_expectation_is_cleared_by_finish_spying() {
+		$spy = \Spies\get_spy_for( 'test_func' );
+		\Spies\expect_spy( $spy )->to_have_been_called->with( 'first call' );
+		test_func( 'first call' );
+		\Spies\finish_spying();
+		$spy = \Spies\get_spy_for( 'test_func' );
+		\Spies\expect_spy( $spy )->not->to_have_been_called->with( 'first call' );
+	}
 }

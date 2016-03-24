@@ -136,4 +136,11 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy_1( 'foo' );
 		$this->assertTrue( $spy_1->was_called_before( $spy_2 ) );
 	}
+
+	public function test_calling_global_function_after_finish_spying_throws_an_exception() {
+		$this->expectException( \Spies\UndefinedFunctionException::class );
+		\Spies\get_spy_for( 'my_undefined_global' );
+		\Spies\finish_spying();
+		my_undefined_global();
+	}
 }
