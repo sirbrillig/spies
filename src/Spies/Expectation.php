@@ -191,6 +191,18 @@ class Expectation {
 		return $this;
 	}
 
+	public function before( $target_spy ) {
+		$this->delay_expectation( function() use ( $target_spy ) {
+			$actual = $this->spy->was_called_before( $target_spy );
+			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called before "' . $target_spy->get_function_name() . '"';
+			if ( $this->negation ) {
+				return $this->assertFalse( $actual, $description );
+			}
+			return $this->assertTrue( $actual, $description );
+		} );
+		return $this;
+	}
+
 	/**
  	 * Delay an expected behavior
 	 *

@@ -121,4 +121,23 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation->silent_failures = true;
 		$this->assertInternalType( 'string', $expectation->verify() );
 	}
+
+	public function test_before_is_met_if_the_spy_was_called_before_another_spy() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy_1 )->to_have_been_called->before( $spy_2 );
+		$spy_1( 'foo' );
+		$spy_2( 'bar' );
+		$expectation->verify();
+	}
+
+	public function test_before_is_not_met_if_the_spy_was_called_after_another_spy() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy_1 )->to_have_been_called->before( $spy_2 );
+		$spy_2( 'bar' );
+		$spy_1( 'foo' );
+		$expectation->silent_failures = true;
+		$this->assertInternalType( 'string', $expectation->verify() );
+	}
 }
