@@ -1,6 +1,6 @@
 # Spies API Reference
 
-## functions
+# functions
 
 - `make_spy()`: Shortcut for `new Spy()`.
 - `get_spy_for( $function_name )`: Spy on a global or namespaced function. Shortcut for `Spy::stub_function( $function_name )`.
@@ -12,7 +12,7 @@
 - `any()`: Used as an argument to `Expectation->with()` to mean "any argument". Shortcut for `new AnyValue()`.
 - `passed_arg( $index )`: Used as an argument to `Spy->and_return()` to mean "return the passed argument at $index". Shortcut for `new PassedArgument( $index )`.
 
-## Spy
+# Spy
 
 ### Static methods
 
@@ -32,7 +32,7 @@
 - `was_called_before( $spy )`: Return true if the Spy was called before $spy.
 - `get_times_called()`: Return the number of times the Spy was called.
 
-## Stub (Stubs are actually just instances of Spy used differently)
+# Stub (Stubs are actually just instances of Spy used differently)
 
 ### Static methods
 
@@ -48,7 +48,7 @@
 - `and_return_first_argument()`: Shortcut for `and_return( passed_arg( 0 ) )`.
 - `and_return_second_argument()`: Shortcut for `and_return( passed_arg( 1 ) )`.
 
-## MockObject
+# MockObject
 
 ### Static methods
 
@@ -57,3 +57,23 @@
 ### Instance methods
 
 - `add_method( $function_name, $function )`: Add a public method to this Object as a Spy and return that Spy.
+
+# Expectation
+
+### Static methods
+
+- `expect_spy( $spy )`: Create a new Expectation for the behavior of $spy.
+
+### Instance methods
+
+- `to_be_called`: Syntactic sugar. Returns the Expectation.
+- `to_have_been_called`: Syntactic sugar. Returns the Expectation.
+- `not`: When accessed, reverses all expected behaviors on this Expectation.
+- `verify()`: Resolve and verify all the behaviors set on this Expectation.
+- `to_be_called()`: Add an expected behavior that the spy was called when this is resolved.
+- `to_have_been_called()`: Alias for `to_be_called()`.
+- `with( $arg... )`: Add an expected behavior that the spy was called with particular arguments when this is resolved.
+- `times( $count )`: Add an expected behavior that the spy was called exactly $count times.
+- `once()`: Alias for `times( 1 )`.
+- `twice()`: Alias for `times( 2 )`.
+- `before( $spy )`: Add an expected behavior that the spy was called before $spy.
