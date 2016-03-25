@@ -78,8 +78,20 @@ class GlobalSpies {
 		if ( function_exists( $function_name ) ) {
 			throw new \Exception( 'Attempt to mock existing function ' . $function_name );
 		}
+		$namespace_text = '';
+		$function_name_text = $function_name;
+		$name_parts = explode( '\\', $function_name );
+		if ( count( $name_parts ) > 1 ) {
+			if ( empty( $name_parts[0] ) ) {
+				array_shift( $name_parts );
+			}
+			$function_name_text = array_pop( $name_parts );
+			$namespace_text = 'namespace ' . implode( '\\', $name_parts ) . ';';
+		}
 		$function_eval = <<<EOF
-function $function_name() {
+$namespace_text
+
+function $function_name_text() {
 	return \Spies\GlobalSpies::handle_call_for( '$function_name', func_get_args() );
 }
 EOF;

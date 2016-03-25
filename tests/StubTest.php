@@ -14,9 +14,24 @@ class StubTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( function_exists( 'test_stub' ) );
 	}
 
+	public function test_mock_function_with_a_namespace_creates_a_namespaced_function() {
+		\Spies\mock_function( '\TestNamespace\test_namespaced_stub' );
+		$this->assertTrue( function_exists( '\TestNamespace\test_namespaced_stub' ) );
+	}
+
+	public function test_mock_function_with_two_levels_of_a_namespace_creates_a_namespaced_function() {
+		\Spies\mock_function( '\TestNamespace\Level2\test_namespaced_stub' );
+		$this->assertTrue( function_exists( '\TestNamespace\Level2\test_namespaced_stub' ) );
+	}
+
 	public function test_stub_and_return_returns_the_value_when_the_stub_is_called() {
 		$stub = \Spies\mock_function( 'test_stub' )->and_return( 8 );
 		$this->assertEquals( 8, $stub() );
+	}
+
+	public function test_stub_and_return_returns_the_value_when_the_stub_is_called_for_a_namespaced_function() {
+		\Spies\mock_function( '\TestNamespace\test_namespaced_stub' )->and_return( 8 );
+		$this->assertEquals( 8, \TestNamespace\test_namespaced_stub() );
 	}
 
 	public function test_stub_will_return_returns_the_value_when_the_stub_is_called() {
