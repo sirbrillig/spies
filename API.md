@@ -14,6 +14,12 @@
 
 ## Spy
 
+### Static methods
+
+- `get_spy_for( $function_name )`: Create a new global or namespaced function and attach it to a new Spy, returning that Spy.
+
+### Instance methods
+
 - `get_function_name()`: Return the spy's function name. Really only useful when spying on global or namespaced functions. Defaults to "anonymous function".
 - `set_function_name()`: Set the spy's function name. You generally don't need to use this.
 - `call( $arg... )`: Call the Spy. It's probably easier to just call the Spy as a function.
@@ -24,5 +30,30 @@
 - `was_called_with( $arg... )`: Return true if the Spy was called with specific arguments.
 - `was_called_times( $count )`: Return true if the Spy was called exactly $count times.
 - `was_called_before( $spy )`: Return true if the Spy was called before $spy.
+- `get_times_called()`: Return the number of times the Spy was called.
 
-## Stub (also Spy)
+## Stub (Stubs are actually just instances of Spy used differently)
+
+### Static methods
+
+- `stub_function( $function_name )`: Create a new global or namespaced function and attach it to a new Spy, returning that Spy.
+
+### Instance methods
+
+- `and_return( $value )`: Instruct the stub to return $value when called. $value can also be a function to call when the stub is called.
+- `will_return( $value )`: Alias for `and_return( $value )`.
+- `that_returns( $value )`: Alias for `and_return( $value )`.
+- `with( $arg... )`: Changes behavior of next `and_return()` to be a conditional return value.
+- `when_called`: Syntactic sugar. Returns the Stub.
+- `and_return_first_argument()`: Shortcut for `and_return( passed_arg( 0 ) )`.
+- `and_return_second_argument()`: Shortcut for `and_return( passed_arg( 1 ) )`.
+
+## MockObject
+
+### Static methods
+
+- `mock_object()`: Shortcut for `new MockObject()`.
+
+### Instance methods
+
+- `add_method( $function_name, $function )`: Add a public method to this Object as a Spy and return that Spy.
