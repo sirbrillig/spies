@@ -155,6 +155,19 @@ class Expectation {
 	}
 
 	/**
+	 * Set the expectation that the Spy was called twice
+	 *
+	 * Alias for `times(2)`
+	 *
+	 * Expectations will be evaluated when `verify()` is called.
+	 *
+	 * @return Expectation This Expectation to allow chaining
+	 */
+	public function twice() {
+		return $this->times( 2 );
+	}
+
+	/**
 	 * Set the expectation that the Spy was called a number of times
 	 *
 	 * Expectations will be evaluated when `verify()` is called.

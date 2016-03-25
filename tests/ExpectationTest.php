@@ -100,6 +100,31 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertInternalType( 'string', $expectation->verify() );
 	}
 
+	public function test_twice_is_met_if_spy_is_called_twice() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->twice();
+		$spy();
+		$spy();
+		$expectation->verify();
+	}
+
+	public function test_twice_is_not_met_if_spy_is_not_called() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->twice();
+		$expectation->silent_failures = true;
+		$this->assertInternalType( 'string', $expectation->verify() );
+	}
+
+	public function test_twice_is_not_met_if_spy_is_called_thrice() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->twice();
+		$expectation->silent_failures = true;
+		$spy();
+		$spy();
+		$spy();
+		$this->assertInternalType( 'string', $expectation->verify() );
+	}
+
 	public function test_with_is_met_if_the_spy_is_called_with_the_same_arguments() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', 'bar' );
