@@ -18,7 +18,10 @@ function expect_spy( $spy ) {
 }
 
 function finish_spying() {
-	\Spies\GlobalExpectations::resolve_delayed_expectations();
+	try {
+		\Spies\GlobalExpectations::resolve_delayed_expectations();
+	} catch ( \Exception $e ) {
+	}
 	\Spies\GlobalExpectations::clear_all_expectations();
 	\Spies\GlobalSpies::clear_all_spies();
 }
