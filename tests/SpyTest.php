@@ -143,4 +143,12 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		\Spies\finish_spying();
 		my_undefined_global();
 	}
+
+	public function test_get_times_called_returns_times_called() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$spy();
+		$spy();
+		$this->assertEquals( 3, $spy->get_times_called() );
+	}
 }

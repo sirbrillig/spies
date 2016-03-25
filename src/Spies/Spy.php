@@ -265,6 +265,10 @@ class Spy {
 		$this->with_arguments = $args;
 	}
 
+	public function get_times_called() {
+		return count( $this->get_called_functions() );
+	}
+
 	/**
  	 * Return true if the spy was called
 	 *
