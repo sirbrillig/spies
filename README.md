@@ -73,11 +73,24 @@ function test_calculation() {
 }
 ```
 
+You can Spy on functions defined within a namespace in the same way:
+
+```php
+function test_calculation() {
+	$add_one = \Spies\get_spy_for( '\Calculator\add_together' );
+
+	\Calculator\add_together( 2, 3 );
+
+	$expectation = \Spies\expect_spy( $add_one )->to_have_been_called->with( 2, 3 ); // Passes
+	$expectation->verify();
+}
+```
+
 ## Stubs and Mocks
 
 You can create stubs with the `\Spies\stub_function` method. A stub is a fake function that can be called like a real function except that you control its behavior.
 
-Stubs can also be used to mock a global function, just like a Spy. In fact, a stub is also a Spy, which means you can query it for any information you like.
+Stubs can also be used to mock a global function or a namespaced function, just like a Spy. In fact, a stub is also a Spy, which means you can query it for any information you like.
 
 There are a few basic behaviors you can program into a stub:
 
