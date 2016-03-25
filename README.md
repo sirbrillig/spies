@@ -156,6 +156,55 @@ function test_calculation() {
 
 # Expectations
 
+Spies can be useful all by themselves, but Spies also provides the `Expectation` class to make writing your test expectations easier.
+
+Let's say we have a Spy and want to verify if it has been called in a PHPUnit test:
+```php
+function test_spy_is_called() {
+	$spy = \Spies\make_spy();
+	$spy();
+	$this->assertTrue( $spy->was_called() );
+}
+```
+
+That works, but here's another way to write it:
+```php
+function test_spy_is_called() {
+	$spy = \Spies\make_spy();
+	$spy();
+	$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
+	$expectation->verify();
+}
+```
+
+They're both totally valid. Expectations just add some more syntactic sugar to your tests. Particularly, they allow building up a set of expected behaviors and then validating all of them at once. Let's use a more complex example. Here it is with just a Spy:
+
+```php
+function test_spy_is_called_correctly() {
+	$spy = \Spies\make_spy();
+	$spy( 'hello', 'world', 7 );
+	$spy( 'hello', 'world', 8 );
+	$this->assertTrue( $spy->was_called_with( 'hello', 'world', \Spies\any() ) );
+	$this->assertTrue( $spy->was_called_times( 2 ) );
+}
+```
+
+And here with Expectations:
+
+```php
+function test_spy_is_called_correctly() {
+	$spy = \Spies\make_spy();
+	$spy( 'hello', 'world', 7 );
+	$spy( 'hello', 'world', 8 );
+	$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'hello', 'world', \Spies\any() )->twice();
+	$expectation->verify();
+}
+```
+
+That last part, `$expectation->verify()` is what actually tests all the expected behaviors. You can also call the function `\Spies\finish_spying()` which will do the same thing, and can be put in a `tearDown` method.
+
+## finish_spying
+
 To complete an expectation during a test, and to keep functions in the global scope from interfering with one another, it's **very important** to call `\Spies\finish_spying()` after each test.
 
 `finish_spying()` does three things:
@@ -164,7 +213,7 @@ To complete an expectation during a test, and to keep functions in the global sc
 2. Clears all current Spies and mocked functions.
 3. Clears all current Expectations.
 
-Because Expectations are only evaluated when we call `finish_spying()`, you can use expectations before or after the code that is being tested. There's syntactic sugar to make it sound right either way. The following two are the same:
+Because Expectations are only evaluated when we call `verify()` or `finish_spying()`, you can use expectations before or after the code that is being tested. There's syntactic sugar to make it sound right either way. The following two are the same:
 
 ```php
 function tearDown() {
