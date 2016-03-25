@@ -10,6 +10,8 @@ Spies was also inspired by the excellent [WP_Mock](https://github.com/10up/wp_mo
 
 # Usage
 
+If you want to skip to the function list, you can [read the API here](API.md).
+
 ## Spies
 
 A spy is like a function which does nothing. When it is called, the call is recorded including any arguments used. Later you can query the Spy to see how it was called.
