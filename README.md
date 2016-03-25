@@ -179,7 +179,7 @@ function test_spy_is_called() {
 }
 ```
 
-They're both totally valid. Expectations just add some more syntactic sugar to your tests. Particularly, they allow building up a set of expected behaviors and then validating all of them at once. Let's use a more complex example. Here it is with just a Spy:
+They're both totally valid. Expectations just add some more syntactic sugar to your tests and speed the debugging process by improving failure messages. Particularly, they allow building up a set of expected behaviors and then validating all of them at once. Let's use a more complex example. Here it is with just a Spy:
 
 ```php
 function test_spy_is_called_correctly() {
@@ -204,6 +204,14 @@ function test_spy_is_called_correctly() {
 ```
 
 That last part, `$expectation->verify()` is what actually tests all the expected behaviors. You can also call the function `\Spies\finish_spying()` which will do the same thing, and can be put in a `tearDown` method.
+
+## Better failures
+
+Perhaps the most useful thing about Expectations is that they provide better failure messages. Whereas `$this->assertTrue( $spy->was_called_with( 'hello' ) )` and `\Spies\expect_spy( $spy )->to_have_been_called->with( 'hello' )` both assert the same thing, the former will only tell you "false is not true", and the Expectation will fail with something like this message:
+
+```
+Expected "anonymous function" to be called with ['hello'] but instead it was called with ['goodbye']
+```
 
 ## finish_spying
 
