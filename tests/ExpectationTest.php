@@ -60,6 +60,15 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation->verify();
 	}
 
+	public function test_times_is_met_if_following_with() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo' )->times( 2 );
+		$spy( 'foo' );
+		$spy( 'foo' );
+		$spy( 'bar' );
+		$expectation->verify();
+	}
+
 	public function test_times_is_not_met_if_spy_is_not_called() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->times( 2 );

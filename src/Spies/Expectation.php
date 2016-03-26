@@ -180,7 +180,7 @@ class Expectation {
 			$actual = count( $called_functions );
 			if ( isset( $this->expected_args ) ) {
 				$actual = count( array_filter( $called_functions, function( $call ) {
-					return Helpers::do_args_match( $call['args'], $this->expected_args );
+					return Helpers::do_args_match( $call->get_args(), $this->expected_args );
 				} ) );
 			}
 			$description = $this->build_failure_message( function( $bits ) use ( $count, $actual, $called_functions ) {
