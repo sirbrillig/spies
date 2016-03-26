@@ -1,36 +1,6 @@
 <?php
 namespace Spies;
 
-/**
- * Ways to create a global function spy:
- *
- * $spy = get_spy_for( 'add_one ');
- * expect_spy( $spy )->to_be_called->with( 5 );
- * add_one( 5 );
- *
- * Or:
- *
- * $spy = get_spy_for( 'add_one ');
- * add_one( 5 );
- * expect_spy( $spy )->to_have_been_called->with( 5 );
- *
- * Or:
- *
- * $spy = new \Spies\Spy();
- * $spy->call( 5 );
- * expect_spy( $spy )->to_have_been_called->with( 5 );
- *
- * Ways to create a global function stub (which is also a spy):
- *
- * mock_function( 'add_one' )->with( 5 )->and_return( 6 );
- * mock_function( 'add_one' )->with( 6 )->and_return( 7 );
- *
- * Or:
- *
- * $spy = mock_function( 'add_one' );
- * $spy->when_called->with( 5 )->will_return( 6 );
- * $spy->when_called->with( 6 )->will_return( 7 );
- */
 class Spy {
 	// Syntactic sugar, will just return $this
 	public $when_called = null;

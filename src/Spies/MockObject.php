@@ -19,10 +19,35 @@ class MockObject {
 		return call_user_func_array( $this->$function_name, $args );
 	}
 
+	/**
+ 	 * Alias for add_method
+	 *
+	 * @param string $function_name The name of the function to add to this object
+	 * @param Spy|callback $function optional A callable function or Spy to be used when the new method is called. Defaults to a new Spy.
+	 * @return Spy|callback The Spy or callback
+	 */
 	public function spy_on_method( $function_name, $function = null ) {
 		return $this->add_method( $function_name, $function );
 	}
 
+	/**
+	 * Add a public method to this object and return that method.
+	 *
+	 * Creates and returns a Spy if no function is provided.
+	 *
+	 * When called without a second argument, returns a stub (which, remember, is
+	 * also a Spy), so you can program its behavior or query it for expectations.
+	 * You can also use the second argument to pass a function (or Spy)
+	 * explicitly, in which case whatever you pass is what will be returned.
+	 *
+	 * Since it returns a Spy by default, you can use this to stub behaviors:
+	 *
+	 * `$mock_object->add_method( 'do_something' )->that_returns( 'hello world' );`
+	 *
+	 * @param string $function_name The name of the function to add to this object
+	 * @param Spy|callback $function optional A callable function or Spy to be used when the new method is called. Defaults to a new Spy.
+	 * @return Spy|callback The Spy or callback
+	 */
 	public function add_method( $function_name, $function = null ) {
 		if ( ! isset( $function ) ) {
 			$function = new \Spies\Spy();

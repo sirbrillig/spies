@@ -10,10 +10,20 @@ class SpyCall {
 		$this->args = $args;
 	}
 
+	/**
+ 	 * Get the arguments passed to this call
+	 *
+	 * @return array The argument list
+	 */
 	public function get_args() {
 		return $this->args;
 	}
 
+	/**
+	 * Get the timestamp when this call happened
+	 *
+	 * @return string the timestamp
+	 */
 	public function get_timestamp() {
 		return $this->timestamp;
 	}
