@@ -75,9 +75,16 @@ class GlobalSpies {
 		if ( isset( self::$global_functions[ $function_name ] ) ) {
 			return;
 		}
+		$function_eval = self::generate_function_with( $function_name );
 		if ( function_exists( $function_name ) ) {
 			throw new \Exception( 'Attempt to mock existing function ' . $function_name );
 		}
+		eval( $function_eval );
+		// Save the name of this function so we know that we already defined it.
+		self::$global_functions[ $function_name ] = true;
+	}
+
+	private static function generate_function_with( $function_name ) {
 		$namespace_text = '';
 		$function_name_text = $function_name;
 		$name_parts = explode( '\\', $function_name );
@@ -95,8 +102,6 @@ function $function_name_text() {
 	return \Spies\GlobalSpies::handle_call_for( '$function_name', func_get_args() );
 }
 EOF;
-		eval( $function_eval );
-		// Save the name of this function so we know that we already defined it.
-		self::$global_functions[ $function_name ] = true;
+		return $function_eval;
 	}
 }
