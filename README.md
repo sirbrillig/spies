@@ -138,7 +138,9 @@ add_one( 1 ); // Returns 2
 
 # Objects
 
-Sometimes you need to create a whole object with stubs as functions. In that case you can use `\Spies\mock_object()` which will return an object that can be passed around. The object by default has no methods, but you can use `add_method()` to add some. `add_method()` returns a stub (which, remember, is also a Spy), so you can program its behavior or query it for expectations.
+Sometimes you need to create a whole object with stubs as functions. In that case you can use `\Spies\mock_object()` which will return an object that can be passed around. The object by default has no methods, but you can use `add_method()` to add some.
+
+`add_method()`, when called without a second argument, returns a stub (which, remember, is also a Spy), so you can program its behavior or query it for expectations. You can also use the second argument to pass a function (or Spy) explicitly, in which case whatever you pass is what will be returned.
 
 ```php
 function test_calculation() {
@@ -153,6 +155,27 @@ function test_calculation() {
 	\Spies\expect_spy( $add_one )->to_have_been_called(); // Passes
 	\Spies\expect_spy( $add_one )->to_have_been_called->with( 2 ); // Fails
 	\Spies\finish_spying(); // Verifies all Expectations
+}
+```
+
+It can be tedious to call `add_method()` for every public method of an existing class that you are trying to mock. For that reason you can use `\Spies\mock_object_of( $class_name )` which will create a `MockObject` and automatically add a Spy for each public method on the original class. These Spies will all return null by default, but you can replace any of them with your own Spy by using `add_method()` as above.
+
+```php
+class Greeter {
+	public function say_hello() {
+		return 'hello';
+	}
+
+	public function say_goodbye() {
+		return 'goodbye';
+	}
+}
+
+function test_greeter() {
+	$mock = \Spies\mock_object_of( 'Greeter' );
+	$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+	$this->assertEquals( 'greetings', $mock->say_hello() );
+	$this->assertEquals( null, $mock->say_goodbye() );
 }
 ```
 

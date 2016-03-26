@@ -30,6 +30,10 @@ function mock_object() {
 	return \Spies\MockObject::mock_object();
 }
 
+function mock_object_of( $class_name = null ) {
+	return \Spies\MockObject::mock_object_of( $class_name );
+}
+
 function make_spy() {
 	return new \Spies\Spy();
 }

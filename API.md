@@ -8,6 +8,7 @@
 - `mock_function( $function_name )`: Alias for `stub_function()`.
 - `expect_spy( $spy )`: Shortcut for `Expectation::expect_spy( $spy )`.
 - `mock_object()`: Shortcut for `MockObject::mock_object()`.
+- `mock_object_of( $class_name )`: Mock an instance of an existing class with all its methods. Shortcut for `MockObject::mock_object( $class_name )`.
 - `finish_spying()`: Resolve all global Expectations, then clear all Expectations and all global Spies. Shortcut for `GlobalExpectations::resolve_delayed_expectations()`, `GlobalExpectations::clear_all_expectations()`, and `GlobalSpies::clear_all_spies`.
 - `any()`: Used as an argument to `Expectation->with()` to mean "any argument". Shortcut for `new AnyValue()`.
 - `passed_arg( $index )`: Used as an argument to `Spy->and_return()` to mean "return the passed argument at $index". Shortcut for `new PassedArgument( $index )`.
@@ -53,10 +54,11 @@
 ### Static methods
 
 - `mock_object()`: Shortcut for `new MockObject()`.
+- `mock_object_of( $class_name )`: Create a new `MockObject`, automatically adding a Spy for every public method in `$class_name`.
 
 ### Instance methods
 
-- `add_method( $function_name, $function )`: Add a public method to this Object as a Spy and return that Spy.
+- `add_method( $function_name, $function = null )`: Add a public method to this Object as a Spy and return that method. Creates and returns a Spy if no function is provided.
 
 # Expectation
 

@@ -3,6 +3,15 @@ namespace Spies;
 
 class MockObject {
 
+	private $class_name = null;
+
+	public function __construct( $class_name = null ) {
+		$this->class_name = $class_name;
+		if ( isset( $class_name ) ) {
+			array_map( [ $this, 'add_method' ], get_class_methods( $class_name ) );
+		}
+	}
+
 	public function __call( $function_name, $args ) {
 		if ( ! isset( $this->$function_name ) || ! is_callable( $this->$function_name ) ) {
 			throw new \Exception( 'Attempted to call un-mocked method "' . $function_name . '" with ' . json_encode( $args ) );
@@ -24,7 +33,11 @@ class MockObject {
 		return $function;
 	}
 
-	public static function mock_object() {
-		return new MockObject();
+	public static function mock_object( $class_name = null) {
+		return new MockObject( $class_name );
+	}
+
+	public static function mock_object_of( $class_name = null) {
+		return new MockObject( $class_name );
 	}
 }
