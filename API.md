@@ -32,6 +32,7 @@
 - `was_called_times( $count )`: Return true if the Spy was called exactly $count times.
 - `was_called_before( $spy )`: Return true if the Spy was called before $spy.
 - `get_times_called()`: Return the number of times the Spy was called.
+- `get_call( $index )`: Return the call record for a single call.
 
 # Stub (Stubs are actually just instances of Spy used differently)
 
@@ -59,6 +60,7 @@
 ### Instance methods
 
 - `add_method( $function_name, $function = null )`: Add a public method to this Object as a Spy and return that method. Creates and returns a Spy if no function is provided.
+- `spy_on_method( $function_name, $function = null )`: Alias for `add_method()`.
 
 # Expectation
 
