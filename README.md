@@ -4,13 +4,15 @@ A library to make testing in PHP so much easier.
 
 Inspired by [Sinon](http://sinonjs.org/) in JavaScript, this library defines *Spies*, *Stubs*, and *Mocks* which can be used to mock and stub out methods (even globally defined functions, I'm looking at you, WordPress) and find out if they have been called.
 
-Spies was also inspired by the excellent [WP_Mock](https://github.com/10up/wp_mock), [Mockery](http://docs.mockery.io/), and PHPUnit's own [getMockBuilder](https://phpunit.de/manual/current/en/test-doubles.html). These are all wonderful tools in their own right, but some of them conflate mocking and expectation or have a syntax that I find non-intuitive.
+Spies was also inspired by the excellent [WP_Mock](https://github.com/10up/wp_mock), [Mockery](http://docs.mockery.io/), and PHPUnit's own [getMockBuilder](https://phpunit.de/manual/current/en/test-doubles.html). These are all wonderful tools in their own right and without them Spies count not exist.
+
+What does Spies offer that these other libraries do not?
 
 **The very foundation of Spies is to make the syntax as easy to read as natural language.**
 
 # Usage
 
-If you want to skip to the function list, you can [read the API here](API.md).
+If you want to just skip to the functions, you can [read the API here](API.md).
 
 ## Spies
 
@@ -29,11 +31,12 @@ $spy( 'hello', 'world' );
 $spy->was_called(); // Returns true
 $spy->was_called_times( 1 ); // Returns true
 $spy->was_called_times( 2 ); // Returns false
+$spy->get_times_called(); // Returns 1
 $spy->was_called_with( 'hello', 'world' ); // Returns true
 $spy->was_called_with( 'goodbye', 'world' ); // Returns false
 ```
 
-This is useful because you can pass the spy as an argument to another function to verify the other function's behavior.
+This is useful for a number of reasons. If your code uses functions with dependency injection, you can pass the spy as an argument to another function to verify the other function's behavior.
 
 ```php
 function addition( $adder, $a, $b ) {
@@ -90,7 +93,7 @@ function test_calculation() {
 
 ## Stubs and Mocks
 
-You can create stubs with the `\Spies\stub_function` method. A stub is a fake function that can be called like a real function except that you control its behavior.
+You can create stubs with the `\Spies\stub_function()` method. A stub is a fake function that can be called like a real function except that you control its behavior.
 
 Stubs can also be used to mock a global function or a namespaced function, just like a Spy. In fact, a stub is also a Spy, which means you can query it for any information you like.
 
