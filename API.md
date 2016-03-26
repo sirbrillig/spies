@@ -26,7 +26,7 @@
 - `call( $arg... )`: Call the Spy. It's probably easier to just call the Spy as a function.
 - `call_with_array( $args )`: Call the Spy with an array of arguments. It's probably easier to just call the Spy as a function.
 - `clear_call_record()`: Clear the Spy's call record.
-- `get_called_functions()`: Get the raw call record for the Spy.
+- `get_called_functions()`: Get the raw call record for the Spy. Each call is an instance of `SpyCall`.
 - `was_called()`: Return true if the Spy was called.
 - `was_called_with( $arg... )`: Return true if the Spy was called with specific arguments.
 - `was_called_times( $count )`: Return true if the Spy was called exactly $count times.
@@ -49,6 +49,13 @@
 - `when_called`: Syntactic sugar. Returns the Stub.
 - `and_return_first_argument()`: Shortcut for `and_return( passed_arg( 0 ) )`.
 - `and_return_second_argument()`: Shortcut for `and_return( passed_arg( 1 ) )`.
+
+# SpyCall
+
+## Instance methods
+
+- `get_args()`: Return the arguments for a call.
+- `get_timestamp()`: Return the timestamp for when a call was made.
 
 # MockObject
 

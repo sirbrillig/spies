@@ -84,7 +84,7 @@ class Expectation {
 		$this->expected_args = $args;
 		$this->delay_expectation( function() use ( $args ) {
 			$result = call_user_func_array( [ $this->spy, 'was_called_with' ], $args );
-			$description = $this->build_failure_message( function( $bits ) use ( $args ){
+			$description = $this->build_failure_message( function( $bits ) use ( $args ) {
 				$called_functions = $this->spy->get_called_functions();
 				$bits[] = 'with ' . json_encode( $args ) . ' but instead';
 				if ( count( $called_functions ) === 1 ) {
@@ -239,7 +239,7 @@ class Expectation {
 
 	private function format_arguments_for_output( $called_functions ) {
 		return implode( ", ", array_map( function( $call ) {
-			return json_encode( $call['args'] );
+			return json_encode( $call->get_args() );
 		}, $called_functions ) );
 	}
 

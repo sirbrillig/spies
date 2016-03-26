@@ -153,12 +153,7 @@ class Spy {
 	/**
 	 * Get the raw record of calls for this spy
 	 *
-	 * Each call record is an array of the form:
-	 *
-	 * [ 'args' => array, ... ]
-	 *
-	 * Where the value of the 'args' key is an array of arguments passed to this
-	 * spy when it was called.
+	 * Each call record is an instance of SpyCall
 	 *
 	 * @return array An array of call records
 	 */
@@ -308,7 +303,7 @@ class Spy {
 	public function was_called_with() {
 		$args = func_get_args();
 		$matching_calls = array_filter( $this->get_called_functions(), function( $call ) use ( $args ) {
-			return ( Helpers::do_args_match( $call[ 'args' ], $args ) );
+			return ( Helpers::do_args_match( $call->get_args(), $args ) );
 		} );
 		return ( count( $matching_calls ) > 0 );
 	}
@@ -318,12 +313,12 @@ class Spy {
 		if ( count( $call_record ) < 1 ) {
 			return false;
 		}
-		$this_spy_time_stamp = $call_record[0]['time'];
+		$this_spy_time_stamp = $call_record[0]->get_timestamp();
 		$target_call_record = $spy->get_called_functions();
 		if ( count( $target_call_record ) < 1 ) {
 			return false;
 		}
-		$target_spy_time_stamp = $target_call_record[0]['time'];
+		$target_spy_time_stamp = $target_call_record[0]->get_timestamp();
 		return ( $this_spy_time_stamp < $target_spy_time_stamp );
 	}
 
@@ -337,7 +332,7 @@ class Spy {
 	 * You should not need to call this directly.
 	 */
 	private function record_function_call( $args ) {
-		$this->call_record[] = [ 'args' => $args, 'time' => microtime() ];
+		$this->call_record[] = new SpyCall( $args );
 	}
 
 	/**

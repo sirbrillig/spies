@@ -64,7 +64,7 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy( 'foo', 'bar' );
 		$spy( 'baz', 'bar' );
 		$call_record_arguments = array_map( function( $call ) {
-			return $call['args'];
+			return $call->get_args();
 		}, $spy->get_called_functions() );
 		$this->assertContains( [ 'foo', 'bar' ], $call_record_arguments );
 		$this->assertContains( [ 'baz', 'bar' ], $call_record_arguments );
@@ -157,6 +157,6 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy( 'a' );
 		$spy( 'b' );
 		$spy( 'c' );
-		$this->assertEquals( ['b'], $spy->get_call( 1 )['args'] );
+		$this->assertEquals( ['b'], $spy->get_call( 1 )->get_args() );
 	}
 }
