@@ -261,12 +261,23 @@ class Spy {
 		return $this;
 	}
 
-	private function set_arguments( $args ) {
-		$this->with_arguments = $args;
-	}
-
+	/**
+	 * Return the number of times this spy was called
+	 *
+	 * @return integer Number of times this spy was called
+	 */
 	public function get_times_called() {
 		return count( $this->get_called_functions() );
+	}
+
+	/**
+ 	 * Return the call record for a single call
+	 *
+	 * @param integer $index The 0-based index of the call record to return
+	 * @return array|null The call record
+	 */
+	public function get_call( $index ) {
+		return $this->get_called_functions()[ $index ];
 	}
 
 	/**
@@ -314,6 +325,10 @@ class Spy {
 		}
 		$target_spy_time_stamp = $target_call_record[0]['time'];
 		return ( $this_spy_time_stamp < $target_spy_time_stamp );
+	}
+
+	private function set_arguments( $args ) {
+		$this->with_arguments = $args;
 	}
 
 	/**

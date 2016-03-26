@@ -151,4 +151,12 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy();
 		$this->assertEquals( 3, $spy->get_times_called() );
 	}
+
+	public function test_get_call_returns_the_call_record_for_that_call_index() {
+		$spy = \Spies\make_spy();
+		$spy( 'a' );
+		$spy( 'b' );
+		$spy( 'c' );
+		$this->assertEquals( ['b'], $spy->get_call( 1 )['args'] );
+	}
 }
