@@ -19,6 +19,10 @@ class MockObject {
 		return call_user_func_array( $this->$function_name, $args );
 	}
 
+	public function spy_on_method( $function_name, $function = null ) {
+		return $this->add_method( $function_name, $function );
+	}
+
 	public function add_method( $function_name, $function = null ) {
 		if ( ! isset( $function ) ) {
 			$function = new \Spies\Spy();

@@ -61,4 +61,11 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'greetings', $mock->say_hello() );
 		$this->assertEquals( null, $mock->say_goodbye() );
 	}
+
+	public function test_spy_on_method_is_an_alias_for_add_method() {
+		$mock = \Spies\mock_object_of( 'Greeter' );
+		$mock->spy_on_method( 'say_hello' )->that_returns( 'greetings' );
+		$this->assertEquals( 'greetings', $mock->say_hello() );
+		$this->assertEquals( null, $mock->say_goodbye() );
+	}
 }
