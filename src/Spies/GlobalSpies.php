@@ -77,11 +77,23 @@ class GlobalSpies {
 		}
 		$function_eval = self::generate_function_with( $function_name );
 		if ( function_exists( $function_name ) ) {
-			throw new \Exception( 'Attempt to mock existing function ' . $function_name );
+			self::replace_global_function( $function_name );
+			self::$global_functions[ $function_name ] = true;
+			return;
 		}
 		eval( $function_eval );
 		// Save the name of this function so we know that we already defined it.
 		self::$global_functions[ $function_name ] = true;
+	}
+
+	private static function replace_global_function( $function_name ) {
+		\Patchwork\redefine( $function_name, function() use ( $function_name ) {
+			$value = \Spies\GlobalSpies::handle_call_for( $function_name, func_get_args() );
+			if ( isset( $value ) ) {
+				return $value;
+			}
+			\Patchwork\relay( func_get_args() );
+		} );
 	}
 
 	private static function generate_function_with( $function_name ) {

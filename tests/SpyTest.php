@@ -215,4 +215,12 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy( 'b', 'b' );
 		$this->assertFalse( $spy->was_called_times_with( 2, 'a', 'b' ) );
 	}
+
+	public function test_spy_on_existing_method_calls_original_method() {
+		function foo() {
+			return 'bar';
+		}
+		$spy = \Spies\get_spy_for( 'foo' );
+		$this->assertEquals( 'bar', $spy() );
+	}
 }

@@ -6,7 +6,8 @@
     "homepage": "https://github.com/sirbrillig/spies",
     "require": {
         "php": ">=5.3.0",
-        "phpunit/phpunit": "^5.2"
+        "phpunit/phpunit": "^5.2",
+        "antecedent/patchwork": "^1.4"
     },
     "license": "MIT",
     "autoload": {
