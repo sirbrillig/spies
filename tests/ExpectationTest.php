@@ -198,4 +198,20 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy = \Spies\get_spy_for( 'test_func' );
 		\Spies\expect_spy( $spy )->not->to_have_been_called->with( 'first call' );
 	}
+
+	public function test_throw_exceptions_causes_spy_to_throw_exceptions_on_failure() {
+		$this->expectException( \Spies\UnmetExpectationException::class );
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
+		$expectation->throw_exceptions = true;
+		$expectation->verify();
+	}
+
+	public function test_throw_exceptions_causes_spy_to_throw_exceptions_on_failure_with_finish_spying() {
+		$this->expectException( \Spies\UnmetExpectationException::class );
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
+		$expectation->throw_exceptions = true;
+		\Spies\finish_spying();
+	}
 }

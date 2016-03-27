@@ -11,6 +11,9 @@ class Expectation {
 	// If true, `verify()` will return an error description instead of using PHPUnit_Framework_Assert
 	public $silent_failures = false;
 
+	// Can be used to prevent double-verification.
+	public $was_verified = false;
+
 	private $spy = null;
 	private $negation = null;
 	private $expected_args = null;
@@ -63,6 +66,7 @@ class Expectation {
 	 * @return string|null The first failure description if there is a failure
 	 */
 	public function verify() {
+		$this->was_verified = true;
 		foreach( $this->delayed_expectations as $behavior ) {
 			$description = call_user_func( $behavior );
 			if ( $description ) {
