@@ -92,7 +92,7 @@ class GlobalSpies {
 			if ( isset( $value ) ) {
 				return $value;
 			}
-			\Patchwork\relay( func_get_args() );
+			return \Patchwork\relay();
 		} );
 	}
 

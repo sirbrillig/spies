@@ -392,6 +392,9 @@ class Spy {
 			$return = $this->return_value;
 			return $this->filter_return_for( $return, $args );
 		}
+		if ( isset( $this->function_name ) && is_callable( $this->function_name ) ) {
+			return call_user_func_array( $this->function_name, $args );
+		}
 		return null;
 	}
 
