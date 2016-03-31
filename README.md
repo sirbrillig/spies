@@ -1,29 +1,15 @@
 # Spies
 
-A library to make testing in PHP so much easier.
+A library to make testing in PHP so much easier. You can install it in a PHP project by running:
 
-Inspired by [Sinon](http://sinonjs.org/) in JavaScript, this library defines *Spies*, *Stubs*, and *Mocks* which can be used to mock and stub out methods (even globally defined functions, I'm looking at you, WordPress) and find out if they have been called.
+`composer require --dev sirbrillig/spies`.
 
-Spies was also inspired by the excellent [WP_Mock](https://github.com/10up/wp_mock), [Mockery](http://docs.mockery.io/), and PHPUnit's own [getMockBuilder](https://phpunit.de/manual/current/en/test-doubles.html). These are all wonderful tools in their own right and without them Spies count not exist.
+What is it? If you've ever used [sinon](http://sinonjs.org/) in JavaScript testing, you know about the concept of *Test Spies*, and in many ways this library is just implementing those concepts in PHP. It also includes *Expectations* to simplify spy assertions, inspired by [sinon-chai](https://github.com/domenic/sinon-chai).
 
-What does Spies offer that these other libraries do not?
+If you want to just skip to the details, you can [read the API here](API.md).
 
-**The very foundation of Spies is to make the syntax as easy to read as natural language.**
+If you are not familiar with Test Spies, here's a brief primer: Basically they are objects that behave like functions and keep a record of how they are called. You can inject them into objects when writing tests and monitor the spies to determine if the objects are behaving as you expect.
 
-# Usage
-
-If you want to just skip to the functions, you can [read the API here](API.md).
-
-## Spies
-
-A spy is like a function which does nothing. When it is called, the call is recorded including any arguments used. Later you can query the Spy to see how it was called.
-
-To create a spy just create a new instance of `\Spies\Spy`, like this:
-```php
-$spy = new \Spies\Spy();
-```
-
-Then you can ask the spy how it was used:
 ```php
 $spy = new \Spies\Spy();
 $spy( 'hello', 'world' );
@@ -36,34 +22,59 @@ $spy->was_called_with( 'hello', 'world' ); // Returns true
 $spy->was_called_with( 'goodbye', 'world' ); // Returns false
 ```
 
-This is useful for a number of reasons. If your code uses functions with dependency injection, you can pass the spy as an argument to another function to verify the other function's behavior.
+Spies can also be programmed to behave in certain ways (in which case they are more properly called "stubs" or "mocks"), forcing your code down certain paths in order to test specific behavior.
 
 ```php
-function addition( $adder, $a, $b ) {
-	call_user_func( $adder, $a, $b );
-}
+\Spies\stub_function( 'add_one' )->when_called->with( 5 )->will_return( 6 );
+\Spies\stub_function( 'add_one' )->when_called->with( 1 )->will_return( 2 );
 
-$spy = new \Spies\Spy();
-addition( $spy, 2, 3 );
-
-$spy->was_called_with( 2, 3 ); // Returns true
+add_one( 5 ); // Returns 6
+add_one( 1 ); // Returns 2
 ```
 
-If you are using a Spy in a PHPUnit test, it's even better if you use an *Expectation* (described more below):
+In PHP, we often need to spy on whole objects with instance methods, so Spies provides a mechanism to do that as well:
 
 ```php
-function addition( $adder, $a, $b ) {
-	call_user_func( $adder, $a, $b );
+class Greeter {
+    public function say_hello() {
+        return 'hello';
+    }
+
+    public function say_goodbye() {
+        return 'goodbye';
+    }
 }
 
-function test_calculation() {
-	$spy = new \Spies\Spy();
-	addition( $spy, 2, 3 );
-
-	$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 2, 3 ); // Passes
-	$expectation->verify();
+function test_greeter() {
+    $mock = \Spies\mock_object_of( 'Greeter' );
+    $mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+    $greet = $mock->spy_on_method( 'greet' );
+    $this->assertEquals( 'greetings', $mock->say_hello() );
+    $this->assertEquals( null, $mock->say_goodbye() );
+    $mock->greet();
+    $this->assertTrue( $greet->was_called() );
 }
 ```
+
+The final piece, Expectations add a layer of syntax to test assertions that should be easier to read as well as providing better failure messages:
+
+```php
+function test_spy_is_called_correctly() {
+    $spy = \Spies\make_spy();
+    $spy( 'hello', 'world', 7 );
+    $spy( 'hello', 'world', 8 );
+    $expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'hello', 'world', \Spies\any() )->twice();
+    $expectation->verify();
+}
+```
+
+Spies was designed as an optional replacement for the very excellent [WP_Mock](https://github.com/10up/wp_mock) and [Mockery](http://docs.mockery.io/en/latest/), both of which are powerful but have many aspects and quirks that I don't find intuitive.
+
+Suggestions, bug reports, and feature requests all welcome!
+
+# The Details
+
+## Global Functions
 
 If you  want to create a Spy for a global function (a function in the global namespace, like WordPress's `wp_insert_post`), you can pass the name of the global function to `\Spies\get_spy_for()`:
 
@@ -139,20 +150,20 @@ add_one( 5 ); // Returns 6
 add_one( 1 ); // Returns 2
 ```
 
-# Objects
+## Objects
 
 Sometimes you need to create a whole object with stubs as functions. In that case you can use `\Spies\mock_object()` which will return an object that can be passed around. The object by default has no methods, but you can use `add_method()` to add some.
 
-`add_method()`, when called without a second argument, returns a stub (which, remember, is also a Spy), so you can program its behavior or query it for expectations. You can also use the second argument to pass a function (or Spy) explicitly, in which case whatever you pass is what will be returned.
+`add_method()`, or its alias, `spy_on_method()`, when called without a second argument, returns a stub (which, remember, is also a Spy), so you can program its behavior or query it for expectations. You can also use the second argument to pass a function (or Spy) explicitly, in which case whatever you pass is what will be returned.
 
 ```php
 function test_calculation() {
 	$adder = \Spies\mock_object();
-	$add_one = $adder->add_method( 'add_one' )->that_returns( 5 );
-	$add_one = $adder->add_method( 'add_one' )->when_called->with( 6 )->will_return( 7 );
+	$adder->add_method( 'add_one' )->when_called->with( 6 )->will_return( 7 );
+	$add_one = $adder->spy_on_method( 'add_one' );
 
 	$calculator = new Calculator( $adder );
-	$calculator->add_one( 4 ); // Returns 5
+	$calculator->add_one( 4 ); // Returns null
 	$calculator->add_one( 6 ); // Returns 7
 
 	\Spies\expect_spy( $add_one )->to_have_been_called(); // Passes
@@ -182,7 +193,7 @@ function test_greeter() {
 }
 ```
 
-# Expectations
+## Expectations
 
 Spies can be useful all by themselves, but Spies also provides the `Expectation` class to make writing your test expectations easier.
 
@@ -231,7 +242,7 @@ function test_spy_is_called_correctly() {
 
 That last part, `$expectation->verify()` is what actually tests all the expected behaviors. You can also call the function `\Spies\finish_spying()` which will do the same thing, and can be put in a `tearDown` method.
 
-## Better failures
+### Better failures
 
 Perhaps the most useful thing about Expectations is that they provide better failure messages. Whereas `$this->assertTrue( $spy->was_called_with( 'hello' ) )` and `\Spies\expect_spy( $spy )->to_have_been_called->with( 'hello' )` both assert the same thing, the former will only tell you "false is not true", and the Expectation will fail with something like this message:
 
@@ -239,7 +250,7 @@ Perhaps the most useful thing about Expectations is that they provide better fai
 Expected "anonymous function" to be called with ['hello'] but instead it was called with ['goodbye']
 ```
 
-## finish_spying
+### finish_spying
 
 To complete an expectation during a test, and to keep functions in the global scope from interfering with one another, it's **very important** to call `\Spies\finish_spying()` after each test.
 
@@ -279,7 +290,7 @@ function test_calculation() {
 }
 ```
 
-## Argument lists
+### Argument lists
 
 If you use `with()` to test an Expectation, sometimes you don't care about the value of an argument. In this case you can use `\Spies\Expectation::any()` in place of that argument:
 
@@ -295,65 +306,4 @@ function test_calculation() {
 
 	add_together( 2, 3 );
 }
-```
-
-# Comparison to other Mocking libraries
-
-Other mocking libraries in PHP are great and each has its own strengths. Spies is intended to have readabilitiy as its main focus.
-
-## More clear expectations
-
-Let's say we want to mock `wp_insert_post` to return `4` and also make sure it is called only once with a particular set of arguments.
-
-Here's how I'd do that with `WP_Mock` (using the `Mockery` syntax):
-```php
-WP_Mock::userFunction( 'wp_insert_post' )->with( $new_post_args )->andReturn( 4 )->once();
-```
-
-Here's the same thing using `Spies`:
-```php
-\Spies\mock_function( 'wp_insert_post' )->when_called->with( $new_post_args )->will_return( 4 );
-
-$wp_insert_post = \Spies\get_spy_for( 'wp_insert_post' );
-\Spies\expect_spy( $wp_insert_post )->to_be_called->with( $new_post_args )->once();
-```
-
-More verbose? Certainly. But I think you can see the difference between the mock and the expectation much more easily.
-
-## More clear failures
-
-Also, in many cases test failures are much easier to understand and give more information about what actually happened.
-
-Let's say we mock a global function `foobar` to receieve the argument '4', but it is instead called with '7'.
-
-With `WP_Mock` I'd write:
-```php
-public function test_thing() {
-	WP_Mock::setUp();
-	WP_Mock::userFunction( 'foobar' )->with( 4 );
-	foobar( 7 );
-	WP_Mock::tearDown();
-}
-```
-
-With `Spies` I'd write:
-```php
-public function test_thing() {
-	$foobar = \Spies\get_spy_for( 'foobar' );
-	foobar( 7 );
-	\Spies\expect_spy( $foobar )->to_have_been_called->with( 4 );
-	\Spies\finish_spying();
-}
-```
-
-Here's the failure with `WP_Mock`:
-
-```
-Mockery\Exception\NoMatchingExpectationException: No matching handler found for Mockery_2__wp_api::foobar(7). Either the method was unexpected or its arguments matched no expected argument list for this method
-```
-
-Here's the same failure with `Spies`:
-
-```
-Expected "foobar" to be called with [4] but instead it was called with [7]
 ```
