@@ -14,7 +14,7 @@ class MockObject {
 
 	public function __call( $function_name, $args ) {
 		if ( ! isset( $this->$function_name ) || ! is_callable( $this->$function_name ) ) {
-			throw new \Exception( 'Attempted to call un-mocked method "' . $function_name . '" with ' . json_encode( $args ) );
+			throw new UndefinedFunctionException( 'Attempted to call un-mocked method "' . $function_name . '" with ' . json_encode( $args ) );
 		}
 		return call_user_func_array( $this->$function_name, $args );
 	}
