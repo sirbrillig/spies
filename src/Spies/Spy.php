@@ -206,6 +206,7 @@ class Spy {
 		if ( isset( $this->with_arguments ) ) {
 			$this->conditional_returns[] = [ 'args' => $this->with_arguments, 'return' => $value ];
 			$this->with_arguments = null;
+			return $this;
 		}
 		$this->return_value = $value;
 		return $this;

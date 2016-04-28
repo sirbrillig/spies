@@ -53,6 +53,13 @@ class StubTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 7, test_stub( 'bar' ) );
 	}
 
+	public function test_stub_with_unconditional_return_first_will_return_unconditional_value_when_called_with_unexpected_parameters() {
+		\Spies\mock_function( 'test_stub' )->will_return( 7 );
+		\Spies\mock_function( 'test_stub' )->when_called->with( 'foo' )->will_return( 5 );
+		$this->assertEquals( 5, test_stub( 'foo' ) );
+		$this->assertEquals( 7, test_stub( 'bar' ) );
+	}
+
 	public function test_stub_and_return_passed_arg_will_return_the_passed_argument_with_the_appropriate_index() {
 		\Spies\mock_function( 'test_stub' )->and_return( \Spies\passed_arg( 1 ) );
 		$this->assertEquals( 'bar', test_stub( 'foo', 'bar' ) );

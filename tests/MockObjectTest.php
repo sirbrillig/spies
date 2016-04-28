@@ -79,4 +79,20 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$mock = \Spies\mock_object()->and_ignore_missing();
 		$mock->foobar();
 	}
+
+	public function test_mock_object_with_two_calls_to_add_method_stubs_both_methods() {
+		$mock = \Spies\mock_object();
+		$mock->add_method( 'test_stub' )->when_called->with( 'foo' )->will_return( 5 );
+		$mock->add_method( 'test_stub' )->when_called->with( 'bar' )->will_return( 6 );
+		$this->assertEquals( 5, $mock->test_stub( 'foo' ) );
+		$this->assertEquals( 6, $mock->test_stub( 'bar' ) );
+	}
+
+	public function test_mock_object_with_two_calls_to_add_method_allows_a_default() {
+		$mock = \Spies\mock_object();
+		$mock->add_method( 'test_stub' )->when_called->will_return( 5 );
+		$mock->add_method( 'test_stub' )->when_called->with( 'bar' )->will_return( 6 );
+		$this->assertEquals( 5, $mock->test_stub( 'hello' ) );
+		$this->assertEquals( 6, $mock->test_stub( 'bar' ) );
+	}
 }

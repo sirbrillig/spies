@@ -55,7 +55,7 @@ class MockObject {
 	 */
 	public function add_method( $function_name, $function = null ) {
 		if ( ! isset( $function ) ) {
-			$function = new \Spies\Spy();
+			$function = isset( $this->$function_name ) ? $this->$function_name : new \Spies\Spy();
 		}
 		if ( ! is_callable( $function ) ) {
 			throw new \Exception( 'The function "' . $function_name . '" added to this mock object was not a function' );
