@@ -68,6 +68,7 @@
 
 - `add_method( $function_name, $function = null )`: Add a public method to this Object as a Spy and return that method. Creates and returns a Spy if no function is provided.
 - `spy_on_method( $function_name, $function = null )`: Alias for `add_method()`.
+- `and_ignore_missing()`: Prevents throwing an Exception when an unmocked method is called on this object.
 
 # Expectation
 

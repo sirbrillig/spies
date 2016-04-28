@@ -193,6 +193,15 @@ function test_greeter() {
 }
 ```
 
+If you'd rather not call `add_method()` and you don't have an original class to copy, you can also just ignore all method calls on the object using `and_ignore_missing()`:
+
+```php
+function test_greeter() {
+	$mock = \Spies\mock_object()->and_ignore_missing();
+	$this->assertEquals( null, $mock->say_goodbye() );
+}
+```
+
 ## Expectations
 
 Spies can be useful all by themselves, but Spies also provides the `Expectation` class to make writing your test expectations easier.
