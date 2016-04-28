@@ -319,7 +319,7 @@ class Spy {
 				}
 				return $carry;
 			} );
-			if ( $conditional_return ) {
+			if ( isset( $conditional_return ) ) {
 				return $this->filter_return_for( $conditional_return, $args );
 			}
 		}
