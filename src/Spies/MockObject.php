@@ -5,6 +5,8 @@ class MockObject {
 
 	private $class_name = null;
 
+	private $ignore_missing_methods = false;
+
 	public function __construct( $class_name = null ) {
 		$this->class_name = $class_name;
 		if ( isset( $class_name ) ) {
@@ -14,6 +16,9 @@ class MockObject {
 
 	public function __call( $function_name, $args ) {
 		if ( ! isset( $this->$function_name ) || ! is_callable( $this->$function_name ) ) {
+			if ( $this->ignore_missing_methods ) {
+				return;
+			}
 			throw new UndefinedFunctionException( 'Attempted to call un-mocked method "' . $function_name . '" with ' . json_encode( $args ) );
 		}
 		return call_user_func_array( $this->$function_name, $args );
@@ -60,6 +65,16 @@ class MockObject {
 		}
 		$this->$function_name = $function;
 		return $function;
+	}
+
+	/**
+	 * Prevent throwing UndefinedFunctionException when an unmocked method is called
+	 *
+	 * @return MockObject This object.
+	 */
+	public function and_ignore_missing() {
+		$this->ignore_missing_methods = true;
+		return $this;
 	}
 
 	public static function mock_object( $class_name = null) {
