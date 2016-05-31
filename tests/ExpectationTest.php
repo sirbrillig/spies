@@ -86,6 +86,12 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertInternalType( 'string', $expectation->verify() );
 	}
 
+	public function test_once_as_property_throws_an_error() {
+		$this->expectException( \Spies\InvalidExpectationException::class );
+		$spy = \Spies\make_spy();
+		\Spies\expect_spy( $spy )->to_have_been_called->once;
+	}
+
 	public function test_once_is_met_if_spy_is_called_once() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->once();
@@ -98,6 +104,12 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->once();
 		$expectation->silent_failures = true;
 		$this->assertInternalType( 'string', $expectation->verify() );
+	}
+
+	public function test_twice_as_property_throws_an_error() {
+		$this->expectException( \Spies\InvalidExpectationException::class );
+		$spy = \Spies\make_spy();
+		\Spies\expect_spy( $spy )->to_have_been_called->twice;
 	}
 
 	public function test_once_is_not_met_if_spy_is_called_twice() {
