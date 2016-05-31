@@ -49,6 +49,7 @@ class Expectation {
 			$this->negation = true;
 			return $this;
 		}
+		throw new InvalidExpectationException( 'Invalid property: "' . $key . '" does not exist on this Expectation' );
 	}
 
 	/**
