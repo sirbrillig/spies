@@ -27,4 +27,8 @@ class SpyCall {
 	public function get_timestamp() {
 		return $this->timestamp;
 	}
+
+	public function __toString() {
+		return strval( new ArgumentFormatter( $this->get_args() ) );
+	}
 }
