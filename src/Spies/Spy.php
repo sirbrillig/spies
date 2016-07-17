@@ -18,8 +18,19 @@ class Spy {
 		$this->function_name = $function_name;
 	}
 
+	public function __toString() {
+		$summary = [];
+		$i = 0;
+		$summary[] = empty( $this->call_record ) ? 'never called' : "calls:\n " . implode( ",\n ", array_map( function( $cr ) use ( $i ) {
+			$i++;
+			return $i . '. ' . strval( $cr );
+		}, $this->call_record ) ) . "\n";
+		( ! empty( $this->function_name ) ) && $summary['function_name'] = $this->function_name;
+		return '\Spies\Spy(' . implode( $summary ) . ')';
+	}
+
 	/**
- 	 * Allows Spy to be called as a function
+	 * Allows Spy to be called as a function
 	 *
 	 * Alias for `call`
 	 */
@@ -70,7 +81,7 @@ class Spy {
 	}
 
 	/**
- 	 * Return the function name
+	 * Return the function name
 	 *
 	 * @return string The function name
 	 */
@@ -78,7 +89,7 @@ class Spy {
 		if ( isset( $this->function_name ) ) {
 			return $this->function_name;
 		}
-		return 'anonymous function';
+		return 'a spy';
 	}
 
 	public function set_function_name( $function_name ) {
@@ -101,7 +112,7 @@ class Spy {
 	}
 
 	/**
- 	 * Call this mocked function with an array of arguments.
+	 * Call this mocked function with an array of arguments.
 	 *
 	 * Same as `call`, but with an array of arguments instead of any number.
 	 *
@@ -114,7 +125,7 @@ class Spy {
 	}
 
 	/**
- 	 * Clear the record of calls for this spy
+	 * Clear the record of calls for this spy
 	 */
 	public function clear_call_record() {
 		$this->call_record = [];
@@ -198,7 +209,7 @@ class Spy {
 	 * mock_function( 'add_one' )->and_return( function( $a ) {
 	 *   return $a + 1;
 	 * } );
- 	 *
+	 *
 	 * @param mixed $value The value to return when this spy is called
 	 * @return Spy This Spy
 	 */
@@ -219,7 +230,7 @@ class Spy {
 	 * particular value if certain arguments are present when the function is
 	 * called.
 	 *
- 	 * @param mixed $arg... The arguments to use when defining a behavior
+	 * @param mixed $arg... The arguments to use when defining a behavior
 	 * @return Spy This spy
 	 */
 	public function with() {
@@ -237,7 +248,7 @@ class Spy {
 	}
 
 	/**
- 	 * Return the call record for a single call
+	 * Return the call record for a single call
 	 *
 	 * @param integer $index The 0-based index of the call record to return
 	 * @return array|null The call record
@@ -247,7 +258,7 @@ class Spy {
 	}
 
 	/**
- 	 * Return true if the spy was called
+	 * Return true if the spy was called
 	 *
 	 * @return boolean True if the spy was called
 	 */
@@ -256,7 +267,7 @@ class Spy {
 	}
 
 	/**
- 	 * Return true if the spy was called a certain number of times
+	 * Return true if the spy was called a certain number of times
 	 *
 	 * @param integer $times The number of times the function should have been called
 	 * @return boolean True if the spy was called $times times
@@ -266,13 +277,14 @@ class Spy {
 	}
 
 	/**
- 	 * Return true if the spy was called with a certain number of arguments
+	 * Return true if the spy was called with a certain number of arguments
 	 *
-	 * @param mixed $arg... The arguments to look for in the call record
+	 * Array version of was_called_with
+	 *
+	 * @param array $arg The arguments to look for in the call record
 	 * @return boolean True if the spy was called with the arguments
 	 */
-	public function was_called_with() {
-		$args = func_get_args();
+	public function was_called_with_array( $args ) {
 		$matching_calls = array_filter( $this->get_called_functions(), function( $call ) use ( $args ) {
 			return ( Helpers::do_args_match( $call->get_args(), $args ) );
 		} );
@@ -280,7 +292,7 @@ class Spy {
 	}
 
 	/**
- 	 * Return true if a spy call causes a function to return true
+	 * Return true if a spy call causes a function to return true
 	 *
 	 * @param callable $callable A function to call with every set of arguments
 	 * @return boolean True if the callable function matches at least one set of arguments
@@ -290,6 +302,16 @@ class Spy {
 			return $callable( $call->get_args() );
 		} );
 		return ( count( $matching_calls ) > 0 );
+	}
+
+	/**
+	 * Return true if the spy was called with a certain number of arguments
+	 *
+	 * @param mixed $arg... The arguments to look for in the call record
+	 * @return boolean True if the spy was called with the arguments
+	 */
+	public function was_called_with() {
+		return $this->was_called_with_array( func_get_args() );
 	}
 
 	public function was_called_before( $spy ) {
@@ -311,7 +333,7 @@ class Spy {
 	}
 
 	/**
- 	 * Add a function call to the call record
+	 * Add a function call to the call record
 	 *
 	 * You should not need to call this directly.
 	 */
