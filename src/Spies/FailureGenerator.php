@@ -4,6 +4,14 @@ namespace Spies;
 class FailureGenerator {
 	private $messages = [];
 
+	public function add_message( $message ) {
+		$this->messages[] = $message;
+	}
+
+	public function get_message() {
+		return implode( ' ', $this->messages );
+	}
+
 	public function spy_was_not_called( $spy ) {
 		$this->add_message( $spy->get_function_name() . ' is called' );
 	}
@@ -26,11 +34,10 @@ class FailureGenerator {
 		$this->add_message( $desc );
 	}
 
-	public function add_message( $message ) {
-		$this->messages[] = $message;
-	}
-
-	public function get_message() {
-		return implode( ' ', $this->messages );
+	public function spy_was_not_called_times( $spy, $count ) {
+		$this->spy_was_not_called( $spy );
+		$desc = $count . ' ';
+		$desc .= $count === 1 ? 'time' : 'times';
+		$this->add_message( $desc );
 	}
 }

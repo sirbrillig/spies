@@ -2,13 +2,6 @@
 namespace Spies;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase {
-	public static function assertSpyWasCalled( $condition, $message = '' ) {
-		self::assertThat( $condition, self::wasCalled(), $message );
-	}
-
-	public static function assertSpyWasNotCalled( $condition, $message = '' ) {
-		self::assertThat( $condition, self::wasNotCalled(), $message );
-	}
 
 	public static function wasCalled() {
 		return new \Spies\SpiesConstraintWasCalled;
@@ -22,8 +15,28 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 		return new \Spies\SpiesConstraintWasCalledWith( $args );
 	}
 
+	public static function wasCalledTimes( $count ) {
+		return new \Spies\SpiesConstraintWasCalledTimes( $count );
+	}
+
+	public static function assertSpyWasCalled( $condition, $message = '' ) {
+		self::assertThat( $condition, self::wasCalled(), $message );
+	}
+
+	public static function assertSpyWasNotCalled( $condition, $message = '' ) {
+		self::assertThat( $condition, self::wasNotCalled(), $message );
+	}
+
 	public static function assertSpyWasCalledWith( $condition, $args, $message = '' ) {
 		self::assertThat( $condition, self::wasCalledWith( $args ), $message );
+	}
+
+	public static function assertSpyWasCalledTimes( $condition, $count, $message = '' ) {
+		self::assertThat( $condition, self::wasCalledTimes( $count ), $message );
+	}
+
+	public static function assertSpyWasNotCalledTimes( $condition, $count, $message = '' ) {
+		self::assertThat( $condition, self::logicalNot( self::wasCalledTimes( $count ) ), $message );
 	}
 
 }

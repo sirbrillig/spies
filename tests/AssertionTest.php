@@ -45,4 +45,45 @@ class AssertionTest extends \Spies\TestCase {
 		$spy( 'a', 'b', 'c' );
 		$this->assertSpyWasCalledWith( $spy, [ 'a', 'b', 'c' ] );
 	}
+
+	public function test_assert_was_called_times_is_true_when_called_once() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$this->assertThat( $spy, $this->wasCalledTimes( 1 ) );
+	}
+
+	public function test_assert_was_called_times_is_true_when_called_twice() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$spy();
+		$this->assertThat( $spy, $this->wasCalledTimes( 2 ) );
+	}
+
+	public function test_assert_was_called_times_is_false_when_called_less_than_number() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledTimes( 2 ) ) );
+	}
+
+	public function test_assert_was_called_times_is_false_when_called_more_than_number() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$spy();
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledTimes( 1 ) ) );
+	}
+
+	public function test_assert_spy_was_called_times_is_true_when_called_that_number() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$spy();
+		$spy();
+		$this->assertSpyWasCalledTimes( $spy, 3 );
+	}
+
+	public function test_assert_spy_was_not_called_times_is_true_when_not_called_that_number() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$this->assertSpyWasNotCalledTimes( $spy, 3 );
+	}
+
 }
