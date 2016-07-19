@@ -40,4 +40,10 @@ class FailureGenerator {
 		$desc .= $count === 1 ? 'time' : 'times';
 		$this->add_message( $desc );
 	}
+
+	public function spy_was_not_called_before( $spy, $target_spy ) {
+		$this->spy_was_not_called( $spy );
+		$desc = 'before ' . $target_spy->get_function_name();
+		$this->add_message( $desc );
+	}
 }

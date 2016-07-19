@@ -86,4 +86,50 @@ class AssertionTest extends \Spies\TestCase {
 		$this->assertSpyWasNotCalledTimes( $spy, 3 );
 	}
 
+	public function test_assert_that_spy_was_called_before_is_true_when_called_before_other_spy() {
+		$spy = \Spies\make_spy();
+		$spy2 = \Spies\make_spy();
+		$spy();
+		$spy2();
+		$this->assertThat( $spy, $this->wasCalledBefore( $spy2 ) );
+	}
+
+	public function test_assert_that_spy_was_called_before_is_false_when_called_after_other_spy() {
+		$spy = \Spies\make_spy();
+		$spy2 = \Spies\make_spy();
+		$spy2();
+		$spy();
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledBefore( $spy2 ) ) );
+	}
+
+	public function test_assert_that_spy_was_called_before_is_false_when_other_spy_not_called() {
+		$spy = \Spies\make_spy();
+		$spy2 = \Spies\make_spy();
+		$spy();
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledBefore( $spy2 ) ) );
+	}
+
+	public function test_assert_that_spy_was_called_before_is_false_when_spy_not_called() {
+		$spy = \Spies\make_spy();
+		$spy2 = \Spies\make_spy();
+		$spy2();
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledBefore( $spy2 ) ) );
+	}
+
+	public function test_assert_spy_was_called_before_is_true_when_called_before_other_spy() {
+		$spy = \Spies\make_spy();
+		$spy2 = \Spies\make_spy();
+		$spy();
+		$spy2();
+		$this->assertSpyWasCalledBefore( $spy, $spy2 );
+	}
+
+	public function test_assert_spy_was_not_called_before_is_true_when_called_after_other_spy() {
+		$spy = \Spies\make_spy();
+		$spy2 = \Spies\make_spy();
+		$spy2();
+		$spy();
+		$this->assertSpyWasNotCalledBefore( $spy, $spy2 );
+	}
+
 }
