@@ -29,6 +29,7 @@
 - `get_called_functions()`: Get the raw call record for the Spy. Each call is an instance of `SpyCall`.
 - `was_called()`: Return true if the Spy was called.
 - `was_called_with( $arg... )`: Return true if the Spy was called with specific arguments.
+- `was_called_when( $callable )`: Return true if the passed function returns true at least once. For each spy call, the function will be called with the arguments from that call.
 - `was_called_times( $count )`: Return true if the Spy was called exactly $count times.
 - `was_called_before( $spy )`: Return true if the Spy was called before $spy.
 - `get_times_called()`: Return the number of times the Spy was called.
@@ -85,6 +86,7 @@
 - `to_be_called()`: Add an expected behavior that the spy was called when this is resolved.
 - `to_have_been_called()`: Alias for `to_be_called()`.
 - `with( $arg... )`: Add an expected behavior that the spy was called with particular arguments when this is resolved.
+- `when( $callable )`: Return true if the passed function returns true at least once. For each spy call, the function will be called with the arguments from that call.
 - `times( $count )`: Add an expected behavior that the spy was called exactly $count times.
 - `once()`: Alias for `times( 1 )`.
 - `twice()`: Alias for `times( 2 )`.
