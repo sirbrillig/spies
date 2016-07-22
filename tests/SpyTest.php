@@ -98,6 +98,35 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( $spy->was_called_with( 'foo', 'bar', 'baz' ) );
 	}
 
+	public function test_spy_was_called_when_returns_true_if_the_spy_was_called_when_the_function_returns_true() {
+		$spy = \Spies\make_spy();
+		$spy( 'foo', 'bar', 'baz' );
+		$this->assertTrue( $spy->was_called_when( function() {
+			return true;
+		} ) );
+	}
+
+	public function test_spy_was_called_when_gets_the_arguments_for_each_call() {
+		$spy = \Spies\make_spy();
+		$spy( 'foo', 'bar' );
+		$spy( 'boo', 'far' );
+		$found = [];
+		$spy->was_called_when( function( $args ) use ( &$found ) {
+			$found[] = $args;
+			return true;
+		} );
+		$this->assertEquals( [ 'foo', 'bar' ], $found[0] );
+		$this->assertEquals( [ 'boo', 'far' ], $found[1] );
+	}
+
+	public function test_spy_was_called_when_returns_false_if_the_spy_was_called_when_the_function_returns_false() {
+		$spy = \Spies\make_spy();
+		$spy( 'foo', 'bar', 'baz' );
+		$this->assertFalse( $spy->was_called_when( function() {
+			return false;
+		} ) );
+	}
+
 	public function test_spy_was_called_before_returns_true_if_called_before_target_spy() {
 		$spy_1 = \Spies\make_spy();
 		$spy_2 = \Spies\make_spy();

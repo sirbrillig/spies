@@ -279,6 +279,19 @@ class Spy {
 		return ( count( $matching_calls ) > 0 );
 	}
 
+	/**
+ 	 * Return true if a spy call causes a function to return true
+	 *
+	 * @param callable $callable A function to call with every set of arguments
+	 * @return boolean True if the callable function matches at least one set of arguments
+	 */
+	public function was_called_when( $callable ) {
+		$matching_calls = array_filter( $this->get_called_functions(), function( $call ) use ( $callable ) {
+			return $callable( $call->get_args() );
+		} );
+		return ( count( $matching_calls ) > 0 );
+	}
+
 	public function was_called_before( $spy ) {
 		$call_record = $this->get_called_functions();
 		if ( count( $call_record ) < 1 ) {

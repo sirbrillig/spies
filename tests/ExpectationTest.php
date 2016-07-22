@@ -153,6 +153,72 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation->verify();
 	}
 
+	public function test_when_is_met_if_the_spy_is_called_and_function_returns_true() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->when( function() {
+			return true;
+		} );
+		$spy( 'foo', 'bar' );
+		$expectation->verify();
+	}
+
+	public function test_when_function_receives_arguments_for_each_call() {
+		$found = [];
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->when( function( $args ) use ( &$found ) {
+			$found[] = $args;
+			return true;
+		} );
+		$spy( 'foo', 'bar' );
+		$spy( 'boo', 'far' );
+		$expectation->verify();
+		$this->assertEquals( [ 'foo', 'bar' ], $found[0] );
+		$this->assertEquals( [ 'boo', 'far' ], $found[1] );
+	}
+
+	public function test_when_is_not_met_if_the_spy_is_called_and_function_returns_false() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->when( function() {
+			return false;
+		} );
+		$expectation->silent_failures = true;
+		$spy( 'foo', 'bar' );
+		$this->assertInternalType( 'string', $expectation->verify() );
+	}
+
+	public function test_with_is_met_if_the_spy_is_called_and_function_returns_true() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( function() {
+			return true;
+		} );
+		$spy( 'foo', 'bar' );
+		$expectation->verify();
+	}
+
+	public function test_with_function_receives_arguments_for_each_call() {
+		$found = [];
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( function( $args ) use ( &$found ) {
+			$found[] = $args;
+			return true;
+		} );
+		$spy( 'foo', 'bar' );
+		$spy( 'boo', 'far' );
+		$expectation->verify();
+		$this->assertEquals( [ 'foo', 'bar' ], $found[0] );
+		$this->assertEquals( [ 'boo', 'far' ], $found[1] );
+	}
+
+	public function test_with_is_not_met_if_the_spy_is_called_and_function_returns_false() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( function() {
+			return false;
+		} );
+		$expectation->silent_failures = true;
+		$spy( 'foo', 'bar' );
+		$this->assertInternalType( 'string', $expectation->verify() );
+	}
+
 	public function test_with_any_is_met_if_the_spy_is_called_with_any_arguments() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\any() );
