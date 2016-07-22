@@ -76,16 +76,58 @@ class Expectation {
 		}
 	}
 
+
+	/**
+	 * Set expected behavior
+	 *
+	 * Expectations will be evaluated when `verify()` is called.
+	 *
+	 * The passed function will be called each time the spy is called and
+	 * passed the arguments of that call.
+	 *
+	 * @param callable $callable The function to run on every call
+	 * @return Expectation This Expectation to allow chaining
+	 */
+	public function when( $callable ) {
+		$this->expected_function = $callable;
+		$this->delay_expectation( function() use ( $callable ) {
+			$result = $this->spy->was_called_when( $callable );
+			$description = $this->build_failure_message( function( $bits ) {
+				$called_functions = $this->spy->get_called_functions();
+				$bits[] = 'matching the provided function but instead';
+				if ( count( $called_functions ) === 1 ) {
+					$bits[] = 'it was called with ' . $this->format_arguments_for_output( [ $called_functions[0] ] );
+				} else if ( count( $called_functions ) === 0 ) {
+					$bits[] = 'it was not called at all.';
+				} else if ( count( $called_functions ) > 1 ) {
+					$bits[] = 'it was called with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
+				}
+				return $bits;
+			} );
+			if ( $this->negation ) {
+				return $this->assertFalse( $result, $description );
+			}
+			return $this->assertTrue( $result, $description );
+		} );
+		return $this;
+	}
+
 	/**
 	 * Set expected arguments
 	 *
 	 * Expectations will be evaluated when `verify()` is called.
 	 *
-	 * @param mixed $arg... The arguments we expect
+	 * If passed a function, it will be called each time the spy is called and
+	 * passed the arguments of that call.
+	 *
+	 * @param mixed $arg... The arguments we expect or a function
 	 * @return Expectation This Expectation to allow chaining
 	 */
 	public function with() {
 		$args = func_get_args();
+		if ( is_callable( $args[0] ) ) {
+			return $this->when( $args[0] );
+		}
 		$this->expected_args = $args;
 		$this->delay_expectation( function() use ( $args ) {
 			$result = call_user_func_array( [ $this->spy, 'was_called_with' ], $args );
