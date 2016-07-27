@@ -35,6 +35,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 		self::assertThat( $condition, self::wasNotCalled(), $message );
 	}
 
+	public static function assertSpyWasNotCalledWith( $condition, $args, $message = '' ) {
+		self::assertThat( $condition, self::logicalNot( self::wasCalledWith( $args ) ), $message );
+	}
+
 	public static function assertSpyWasCalledWith( $condition, $args, $message = '' ) {
 		self::assertThat( $condition, self::wasCalledWith( $args ), $message );
 	}

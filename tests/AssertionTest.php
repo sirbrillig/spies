@@ -46,6 +46,12 @@ class AssertionTest extends \Spies\TestCase {
 		$this->assertSpyWasCalledWith( $spy, [ 'a', 'b', 'c' ] );
 	}
 
+	public function test_assert_spy_was_not_called_with_is_true_when_not_called_with_args() {
+		$spy = \Spies\make_spy();
+		$spy( 'e', 'b', 'c' );
+		$this->assertSpyWasNotCalledWith( $spy, [ 'a', 'b', 'c' ] );
+	}
+
 	public function test_assert_was_called_times_is_true_when_called_once() {
 		$spy = \Spies\make_spy();
 		$spy();
