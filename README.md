@@ -316,3 +316,29 @@ function test_calculation() {
 	add_together( 2, 3 );
 }
 ```
+
+## PHPUnit Custom Assertions
+
+If you prefer to use PHPUnit custom assertions rather than Expectations, those are also available (although you must base your test class on `\Spies\TestCase`):
+
+```php
+class MyTest extends \Spies\TestCase {
+    function test_spy_is_called_correctly() {
+        $spy = \Spies\make_spy();
+        $spy( 'hello', 'world', 7 );
+        $spy( 'hello', 'world', 8 );
+        $this->assertSpyWasCalledWith( 'hello', 'world', \Spies\any() );
+    }
+}
+```
+
+Custom assertions will provide detailed information about why your test failed, which is much better than "false is not true".
+
+```
+Failed asserting that a spy is called with arguments: ( "a", "b", "c" ).
+a spy was actually called with:
+ 1. arguments: ( "b", "b", "c" ),
+ 2. arguments: ( "m", "b", "c" )
+```
+
+See the [API document](API.md) for the full list of custom assertions available.
