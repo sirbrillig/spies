@@ -91,3 +91,27 @@
 - `once()`: Alias for `times( 1 )`.
 - `twice()`: Alias for `times( 2 )`.
 - `before( $spy )`: Add an expected behavior that the spy was called before $spy.
+
+# PHPUnit Custom Assertions
+
+These are methods available on instances of `\Spies\TestCase`.
+
+### Constraints for `assertThat()`
+
+- `wasCalled()`
+- `wasNotCalled()`
+- `wasCalledTimes( $count )`
+- `wasCalledBefore( $spy )`
+- `wasCalledWhen( $callable )`
+
+### Assertions
+
+- `assertSpyWasCalled( $spy )`
+- `assertSpyWasNotCalled( $spy )`
+- `assertSpyWasCalledWith( $spy, $args )`
+- `assertSpyWasCalledTimes( $spy, $count )`
+- `assertSpyWasNotCalledTimes( $spy, $count )`
+- `assertSpyWasCalledBefore( $spy, $other_spy )`
+- `assertSpyWasNotCalledBefore( $spy, $other_spy )`
+- `assertSpyWasCalledWhen( $spy, $callable )`
+- `assertSpyWasNotCalledWhen( $spy, $callable )`

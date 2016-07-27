@@ -340,3 +340,5 @@ a spy was actually called with:
  1. arguments: ( "b", "b", "c" ),
  2. arguments: ( "m", "b", "c" )
 ```
+
+See the [API document](API.md) for the full list of custom assertions available.
