@@ -132,4 +132,64 @@ class AssertionTest extends \Spies\TestCase {
 		$this->assertSpyWasNotCalledBefore( $spy, $spy2 );
 	}
 
+	public function test_assert_that_spy_was_called_when_is_true_when_called_function_returns_true() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$this->assertThat( $spy, $this->wasCalledWhen( function() {
+			return true;
+		} ) );
+	}
+
+	public function test_assert_that_spy_was_called_when_is_false_when_called_function_returns_false() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledWhen( function() {
+			return false;
+		} ) ) );
+	}
+
+	public function test_assert_that_spy_was_called_when_is_false_when_spy_was_not_called() {
+		$spy = \Spies\make_spy();
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledWhen( function() {
+			return true;
+		} ) ) );
+	}
+
+	public function test_assert_that_spy_was_called_when_function_is_called_with_spy_args() {
+		$spy = \Spies\make_spy();
+		$spy( 'hello', 'world' );
+		$this->assertThat( $spy, $this->wasCalledWhen( function( $args ) {
+			return ( $args === [ 'hello', 'world' ] );
+		} ) );
+	}
+
+	public function test_assert_that_spy_was_called_when_function_is_called_for_each_call() {
+		$spy = \Spies\make_spy();
+		$spy( 1 );
+		$spy( 2 );
+		$count = 0;
+		$this->assertThat( $spy, $this->wasCalledWhen( function() use ( &$count ) {
+			$count ++;
+			return true;
+		} ) );
+		$this->assertEquals( 2, $count );
+	}
+
+	public function test_assert_spy_was_called_when_is_true_when_called_function_returns_true() {
+		$spy = \Spies\make_spy();
+		$spy( 'hi' );
+		$spy( 'yo' );
+		$this->assertSpyWasCalledWhen( $spy, function( $args ) {
+			return ( $args === [ 'yo' ] );
+		} );
+	}
+
+	public function test_assert_spy_was_called_when_is_false_when_called_function_returns_false() {
+		$spy = \Spies\make_spy();
+		$spy();
+		$spy( 'yo' );
+		$this->assertSpyWasNotCalledWhen( $spy, function( $args ) {
+			return ( $args === [ 'hi' ] );
+		} );
+	}
 }

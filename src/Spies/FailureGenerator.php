@@ -46,4 +46,11 @@ class FailureGenerator {
 		$desc = 'before ' . $target_spy->get_function_name();
 		$this->add_message( $desc );
 	}
+
+	public function spy_was_not_called_when( $spy ) {
+		$this->spy_was_not_called( $spy );
+		$desc = 'with arguments matching the provided function';
+		$this->add_message( $desc );
+	}
+
 }

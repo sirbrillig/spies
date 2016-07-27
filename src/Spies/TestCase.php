@@ -23,6 +23,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 		return new \Spies\SpiesConstraintWasCalledBefore( $spy );
 	}
 
+	public static function wasCalledWhen( $callable ) {
+		return new \Spies\SpiesConstraintWasCalledWhen( $callable );
+	}
+
 	public static function assertSpyWasCalled( $condition, $message = '' ) {
 		self::assertThat( $condition, self::wasCalled(), $message );
 	}
@@ -49,6 +53,14 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
 	public static function assertSpyWasNotCalledBefore( $condition, $target_spy, $message = '' ) {
 		self::assertThat( $condition, self::logicalNot( self::wasCalledBefore( $target_spy ) ), $message );
+	}
+
+	public static function assertSpyWasCalledWhen( $condition, $callable, $message = '' ) {
+		self::assertThat( $condition, self::wasCalledWhen( $callable ), $message );
+	}
+
+	public static function assertSpyWasNotCalledWhen( $condition, $callable, $message = '' ) {
+		self::assertThat( $condition, self::logicalNot( self::wasCalledWhen( $callable ) ), $message );
 	}
 
 }
