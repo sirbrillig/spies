@@ -292,6 +292,20 @@ class Spy {
 	}
 
 	/**
+	 * Return true if the spy was called with certain arguments a certain number of times
+	 *
+	 * @param integer $times The number of times the function should have been called
+	 * @param array $arg The arguments to look for in the call record
+	 * @return boolean True if the spy was called with the arguments that number of times
+	 */
+	public function was_called_times_with( $count, $args ) {
+		$matching_calls = array_filter( $this->get_called_functions(), function( $call ) use ( $args ) {
+			return ( Helpers::do_args_match( $call->get_args(), $args ) );
+		} );
+		return ( count( $matching_calls ) === $count );
+	}
+
+	/**
 	 * Return true if a spy call causes a function to return true
 	 *
 	 * @param callable $callable A function to call with every set of arguments
