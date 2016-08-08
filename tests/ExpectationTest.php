@@ -17,26 +17,11 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $expectation instanceof \Spies\Expectation );
 	}
 
-	public function test_failure_without_not_does_not_use_not_in_the_message() {
-		$spy = \Spies\make_spy();
-		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
-		$expectation->silent_failures = true;
-		$this->assertNotContains( 'not to be called', $expectation->verify() );
-	}
-
-	public function test_failure_with_not_uses_not_in_the_message() {
-		$spy = \Spies\make_spy();
-		$spy();
-		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called();
-		$expectation->silent_failures = true;
-		$this->assertContains( 'not to be called', $expectation->verify() );
-	}
-
 	public function test_to_have_been_called_is_not_met_if_spy_was_not_called() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
 		$expectation->silent_failures = true;
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_to_have_been_called_is_met_if_spy_was_called() {
@@ -73,7 +58,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->times( 2 );
 		$expectation->silent_failures = true;
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_times_is_not_met_if_spy_is_called_more_than_that_many_times() {
@@ -83,7 +68,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy();
 		$spy();
 		$spy();
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_once_as_property_throws_an_error() {
@@ -103,7 +88,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->once();
 		$expectation->silent_failures = true;
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_twice_as_property_throws_an_error() {
@@ -118,7 +103,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation->silent_failures = true;
 		$spy();
 		$spy();
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_twice_is_met_if_spy_is_called_twice() {
@@ -133,7 +118,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->twice();
 		$expectation->silent_failures = true;
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_twice_is_not_met_if_spy_is_called_thrice() {
@@ -143,7 +128,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy();
 		$spy();
 		$spy();
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_with_is_met_if_the_spy_is_called_with_the_same_arguments() {
@@ -183,7 +168,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		} );
 		$expectation->silent_failures = true;
 		$spy( 'foo', 'bar' );
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_with_is_met_if_the_spy_is_called_and_function_returns_true() {
@@ -216,7 +201,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		} );
 		$expectation->silent_failures = true;
 		$spy( 'foo', 'bar' );
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_with_any_is_met_if_the_spy_is_called_with_any_arguments() {
@@ -231,7 +216,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', 'bar' );
 		$expectation->silent_failures = true;
 		$spy();
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_with_is_not_met_if_the_spy_is_called_with_different_arguments() {
@@ -239,14 +224,14 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', 'bar' );
 		$expectation->silent_failures = true;
 		$spy( 'foo' );
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_with_is_not_met_if_the_spy_is_not_called() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', 'bar' );
 		$expectation->silent_failures = true;
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_before_is_met_if_the_spy_was_called_before_another_spy() {
@@ -265,7 +250,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy_2( 'bar' );
 		$spy_1( 'foo' );
 		$expectation->silent_failures = true;
-		$this->assertInternalType( 'string', $expectation->verify() );
+		$this->assertFalse( $expectation->verify() );
 	}
 
 	public function test_global_expectation_is_cleared_by_finish_spying() {
@@ -275,21 +260,5 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		\Spies\finish_spying();
 		$spy = \Spies\get_spy_for( 'test_func' );
 		\Spies\expect_spy( $spy )->not->to_have_been_called->with( 'first call' );
-	}
-
-	public function test_throw_exceptions_causes_spy_to_throw_exceptions_on_failure() {
-		$this->expectException( \Spies\UnmetExpectationException::class );
-		$spy = \Spies\make_spy();
-		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
-		$expectation->throw_exceptions = true;
-		$expectation->verify();
-	}
-
-	public function test_throw_exceptions_causes_spy_to_throw_exceptions_on_failure_with_finish_spying() {
-		$this->expectException( \Spies\UnmetExpectationException::class );
-		$spy = \Spies\make_spy();
-		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
-		$expectation->throw_exceptions = true;
-		\Spies\finish_spying();
 	}
 }
