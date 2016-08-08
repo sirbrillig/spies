@@ -6,9 +6,7 @@ class Expectation {
 	public $to_be_called;
 	public $to_have_been_called;
 
-	// If true, `verify()` will throw Exceptions instead of using PHPUnit_Framework_Assert
-	public $throw_exceptions = false;
-	// If true, `verify()` will return an error description instead of using PHPUnit_Framework_Assert
+	// If true, `verify()` will return true or false instead making a PHPUnit assertion
 	public $silent_failures = false;
 
 	// Can be used to prevent double-verification.
@@ -55,14 +53,11 @@ class Expectation {
 	/**
  	 * Verify all behaviors in this Expectation
 	 *
-	 * By default it will use PHPUnit_Framework_Assert to create assertions for
+	 * By default it will use PHPUnit to create assertions for
 	 * each behavior.
 	 *
-	 * If `throw_exceptions` is set to true, instead it will throw an exception
-	 * for each failure.
-	 *
-	 * If `silent_failures` is set to true, instead it will return the description
-	 * of the first failure it finds, or null if all behaviors passed.
+	 * If `silent_failures` is set to true, it will return true or false instead
+	 * making a PHPUnit assertion
 	 *
 	 * @return string|null The first failure description if there is a failure
 	 */
@@ -70,7 +65,7 @@ class Expectation {
 		$this->was_verified = true;
 		foreach( $this->delayed_expectations as $behavior ) {
 			$description = call_user_func( $behavior );
-			if ( $description ) {
+			if ( $description !== null ) {
 				return $description;
 			}
 		}
@@ -91,23 +86,16 @@ class Expectation {
 	public function when( $callable ) {
 		$this->expected_function = $callable;
 		$this->delay_expectation( function() use ( $callable ) {
-			$result = $this->spy->was_called_when( $callable );
-			$description = $this->build_failure_message( function( $bits ) {
-				$called_functions = $this->spy->get_called_functions();
-				$bits[] = 'matching the provided function but instead';
-				if ( count( $called_functions ) === 1 ) {
-					$bits[] = 'it was called with ' . $this->format_arguments_for_output( [ $called_functions[0] ] );
-				} else if ( count( $called_functions ) === 0 ) {
-					$bits[] = 'it was not called at all.';
-				} else if ( count( $called_functions ) > 1 ) {
-					$bits[] = 'it was called with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
-				}
-				return $bits;
-			} );
 			if ( $this->negation ) {
-				return $this->assertFalse( $result, $description );
+				if ( $this->silent_failures ) {
+					return ! ( new SpiesConstraintWasCalledWhen( $callable ) )->matches( $this->spy );
+				}
+				return \Spies\TestCase::assertSpyWasNotCalledWhen( $this->spy, $callable );
 			}
-			return $this->assertTrue( $result, $description );
+			if ( $this->silent_failures ) {
+					return ( new SpiesConstraintWasCalledWhen( $callable ) )->matches( $this->spy );
+			}
+			return \Spies\TestCase::assertSpyWasCalledWhen( $this->spy, $callable );
 		} );
 		return $this;
 	}
@@ -130,23 +118,16 @@ class Expectation {
 		}
 		$this->expected_args = $args;
 		$this->delay_expectation( function() use ( $args ) {
-			$result = call_user_func_array( [ $this->spy, 'was_called_with' ], $args );
-			$description = $this->build_failure_message( function( $bits ) use ( $args ) {
-				$called_functions = $this->spy->get_called_functions();
-				$bits[] = 'with ' . json_encode( $args ) . ' but instead';
-				if ( count( $called_functions ) === 1 ) {
-					$bits[] = 'it was called with ' . $this->format_arguments_for_output( [ $called_functions[0] ] );
-				} else if ( count( $called_functions ) === 0 ) {
-					$bits[] = 'it was not called at all.';
-				} else if ( count( $called_functions ) > 1 ) {
-					$bits[] = 'it was called with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
-				}
-				return $bits;
-			} );
 			if ( $this->negation ) {
-				return $this->assertFalse( $result, $description );
+				if ( $this->silent_failures ) {
+					return ! ( new SpiesConstraintWasCalledWith( $this->expected_args ) )->matches( $this->spy );
+				}
+				return \Spies\TestCase::assertSpyWasNotCalledWith( $this->spy, $this->expected_args );
 			}
-			return $this->assertTrue( $result, $description );
+			if ( $this->silent_failures ) {
+					return ( new SpiesConstraintWasCalledWith( $this->expected_args ) )->matches( $this->spy );
+			}
+			return \Spies\TestCase::assertSpyWasCalledWith( $this->spy, $this->expected_args );
 		} );
 		return $this;
 	}
@@ -160,16 +141,16 @@ class Expectation {
 	 */
 	public function to_be_called() {
 		$this->delay_expectation( function() {
-			$result = $this->spy->was_called();
-			$description = $this->build_failure_message( function( $bits ) {
-				$bits[] = 'but it was';
-				$bits[] = $this->negation ? 'called.' : 'not called at all.';
-				return $bits;
-			} );
 			if ( $this->negation ) {
-				return $this->assertFalse( $result, $description );
+				if ( $this->silent_failures ) {
+					return ! ( new SpiesConstraintWasCalled() )->matches( $this->spy );
+				}
+				return \Spies\TestCase::assertSpyWasNotCalled( $this->spy );
 			}
-			return $this->assertTrue( $result, $description );
+			if ( $this->silent_failures ) {
+					return ( new SpiesConstraintWasCalled() )->matches( $this->spy );
+			}
+			return \Spies\TestCase::assertSpyWasCalled( $this->spy );
 		} );
 		return $this;
 	}
@@ -223,40 +204,45 @@ class Expectation {
 	 */
 	public function times( $count ) {
 		$this->delay_expectation( function() use ( $count ) {
-			$called_functions = $this->spy->get_called_functions();
-			$actual = count( $called_functions );
 			if ( isset( $this->expected_args ) ) {
-				$actual = count( array_filter( $called_functions, function( $call ) {
-					return Helpers::do_args_match( $call->get_args(), $this->expected_args );
-				} ) );
+				if ( $this->negation ) {
+					if ( $this->silent_failures ) {
+						return ! ( new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args ) )->matches( $this->spy );
+					}
+					return \Spies\TestCase::assertSpyWasNotCalledTimesWith( $this->spy, $count, $this->expected_args );
+				}
+				if ( $this->silent_failures ) {
+					return ( new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args ) )->matches( $this->spy );
+				}
+				return \Spies\TestCase::assertSpyWasCalledTimesWith( $this->spy, $count, $this->expected_args );
 			}
-			$description = $this->build_failure_message( function( $bits ) use ( $count, $actual, $called_functions ) {
-				$bits[] = $count . ' times';
-				if ( isset( $this->expected_args ) ) {
-					$bits[] = 'with the arguments ' . json_encode( $this->expected_args );
-				}
-				$bits[] = 'but it was called ' . $actual . ' times';
-				if ( $actual > 0 ) {
-					$bits[] = 'with each of these sets of arguments ' . $this->format_arguments_for_output( $called_functions );
-				}
-				return $bits;
-			} );
+
 			if ( $this->negation ) {
-				return $this->assertNotEquals( $count, $actual, $description );
+				if ( $this->silent_failures ) {
+					return ! ( new SpiesConstraintWasCalledTimes( $count ) )->matches( $this->spy );
+				}
+				return \Spies\TestCase::assertSpyWasNotCalledTimes( $this->spy, $count );
 			}
-			return $this->assertEquals( $count, $actual, $description );
+			if ( $this->silent_failures ) {
+					return ( new SpiesConstraintWasCalledTimes( $count ) )->matches( $this->spy );
+			}
+			return \Spies\TestCase::assertSpyWasCalledTimes( $this->spy, $count );
 		} );
 		return $this;
 	}
 
 	public function before( $target_spy ) {
 		$this->delay_expectation( function() use ( $target_spy ) {
-			$actual = $this->spy->was_called_before( $target_spy );
-			$description = 'Expected "' . $this->spy->get_function_name() . '" to be called before "' . $target_spy->get_function_name() . '"';
 			if ( $this->negation ) {
-				return $this->assertFalse( $actual, $description );
+				if ( $this->silent_failures ) {
+					return ! ( new SpiesConstraintWasCalledBefore( $target_spy ) )->matches( $this->spy );
+				}
+				return \Spies\TestCase::assertSpyWasNotCalledBefore( $this->spy, $target_spy );
 			}
-			return $this->assertTrue( $actual, $description );
+			if ( $this->silent_failures ) {
+					return ( new SpiesConstraintWasCalledBefore( $target_spy ) )->matches( $this->spy );
+			}
+			return \Spies\TestCase::assertSpyWasCalledBefore( $this->spy, $target_spy );
 		} );
 		return $this;
 	}
@@ -272,73 +258,5 @@ class Expectation {
 	 */
 	private function delay_expectation( $behavior ) {
 		$this->delayed_expectations[] = $behavior;
-	}
-
-	private function build_failure_message( $message_func ) {
-		$description = [];
-		$description[] = 'Expected "' . $this->spy->get_function_name() . '"';
-		$description[] = $this->negation ? 'not to be called' : 'to be called';
-		if ( is_callable( $message_func ) ) {
-			$description = $message_func( $description );
-		}
-		return implode( ' ', $description );
-	}
-
-	private function format_arguments_for_output( $called_functions ) {
-		return implode( ", ", array_map( function( $call ) {
-			return json_encode( $call->get_args() );
-		}, $called_functions ) );
-	}
-
-	private function assertTrue( $value, $description ) {
-		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
-			\PHPUnit_Framework_Assert::assertTrue( $value, $description );
-			return;
-		}
-		if ( ! $value ) {
-			if ( $this->silent_failures ) {
-				return $description;
-			}
-			throw new UnmetExpectationException( $description );
-		}
-	}
-
-	private function assertFalse( $value, $description ) {
-		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
-			\PHPUnit_Framework_Assert::assertFalse( $value, $description );
-			return;
-		}
-		if ( $value ) {
-			if ( $this->silent_failures ) {
-				return $description;
-			}
-			throw new UnmetExpectationException( $description );
-		}
-	}
-
-	private function assertEquals( $a, $b, $description ) {
-		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
-			\PHPUnit_Framework_Assert::assertEquals( $a, $b, $description );
-			return;
-		}
-		if ( $a !== $b ) {
-			if ( $this->silent_failures ) {
-				return $description;
-			}
-			throw new UnmetExpectationException( $description );
-		}
-	}
-
-	private function assertNotEquals( $a, $b, $description ) {
-		if ( ! $this->throw_exceptions && ! $this->silent_failures && class_exists( 'PHPUnit_Framework_Assert' ) ) {
-			\PHPUnit_Framework_Assert::assertNotEquals( $a, $b, $description );
-			return;
-		}
-		if ( $a === $b ) {
-			if ( $this->silent_failures ) {
-				return $description;
-			}
-			throw new UnmetExpectationException( $description );
-		}
 	}
 }
