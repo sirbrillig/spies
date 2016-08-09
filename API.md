@@ -31,6 +31,7 @@
 - `was_called_with( $arg... )`: Return true if the Spy was called with specific arguments.
 - `was_called_when( $callable )`: Return true if the passed function returns true at least once. For each spy call, the function will be called with the arguments from that call.
 - `was_called_times( $count )`: Return true if the Spy was called exactly $count times.
+- `was_called_times_with( $count, $arg... )`: Return true if the Spy was called exactly $count times with specific arguments.
 - `was_called_before( $spy )`: Return true if the Spy was called before $spy.
 - `get_times_called()`: Return the number of times the Spy was called.
 - `get_call( $index )`: Return the call record for a single call.
