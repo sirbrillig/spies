@@ -206,13 +206,13 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy( 'a', 'b' );
 		$spy( 'a', 'b' );
 		$spy( 'b', 'b' );
-		$this->assertTrue( $spy->was_called_times_with( 2, [ 'a', 'b' ] ) );
+		$this->assertTrue( $spy->was_called_times_with( 2, 'a', 'b' ) );
 	}
 
 	public function test_spy_was_called_times_with_returns_false_if_not_called_with_those_args_that_number_of_times() {
 		$spy = \Spies\make_spy();
 		$spy( 'a', 'b' );
 		$spy( 'b', 'b' );
-		$this->assertFalse( $spy->was_called_times_with( 2, [ 'a', 'b' ] ) );
+		$this->assertFalse( $spy->was_called_times_with( 2, 'a', 'b' ) );
 	}
 }

@@ -294,15 +294,31 @@ class Spy {
 	/**
 	 * Return true if the spy was called with certain arguments a certain number of times
 	 *
+	 * Array version of was_called_with
+	 *
 	 * @param integer $times The number of times the function should have been called
 	 * @param array $arg The arguments to look for in the call record
 	 * @return boolean True if the spy was called with the arguments that number of times
 	 */
-	public function was_called_times_with( $count, $args ) {
+	public function was_called_times_with_array( $count, $args ) {
 		$matching_calls = array_filter( $this->get_called_functions(), function( $call ) use ( $args ) {
 			return ( Helpers::do_args_match( $call->get_args(), $args ) );
 		} );
 		return ( count( $matching_calls ) === $count );
+	}
+
+	/**
+	 * Return true if the spy was called with certain arguments a certain number of times
+	 *
+	 * @param integer $times The number of times the function should have been called
+	 * @param mixed $arg... The arguments to look for in the call record
+	 * @return boolean True if the spy was called with the arguments that number of times
+	 */
+	public function was_called_times_with() {
+		$all_args = func_get_args();
+		$count = $all_args[0];
+		$args = array_slice( $all_args, 1 );
+		return $this->was_called_times_with_array( $count, $args );
 	}
 
 	/**

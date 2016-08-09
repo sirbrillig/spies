@@ -15,7 +15,7 @@ class SpiesConstraintWasCalledTimesWith extends \PHPUnit_Framework_Constraint {
 		if ( ! $other instanceof \Spies\Spy ) {
 			return false;
 		}
-		return $other->was_called_times_with( $this->count, $this->expected_args );
+		return $other->was_called_times_with_array( $this->count, $this->expected_args );
 	}
 
 	protected function failureDescription( $other ) {
