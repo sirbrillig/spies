@@ -113,6 +113,8 @@ These are methods available on instances of `\Spies\TestCase`.
 - `assertSpyWasNotCalledWith( $spy, $args )`
 - `assertSpyWasCalledTimes( $spy, $count )`
 - `assertSpyWasNotCalledTimes( $spy, $count )`
+- `assertSpyWasCalledTimesWith( $spy, $count, $args )`
+- `assertSpyWasNotCalledTimesWith( $spy, $count, $args )`
 - `assertSpyWasCalledBefore( $spy, $other_spy )`
 - `assertSpyWasNotCalledBefore( $spy, $other_spy )`
 - `assertSpyWasCalledWhen( $spy, $callable )`
