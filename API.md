@@ -3,15 +3,88 @@
 # functions
 
 - `make_spy()`: Shortcut for `new Spy()`.
+
+```php
+$spy = make_spy();
+$spy();
+```
+
 - `get_spy_for( $function_name )`: Spy on a global or namespaced function. Shortcut for `Spy::stub_function( $function_name )`.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post();
+```
+
 - `stub_function( $function_name )`: Stub a global or namespaced function. Shortcut for `Spy::stub_function( $function_name )`.
+
+```php
+stub_function( 'wp_update_post' );
+wp_update_post();
+```
+
 - `mock_function( $function_name )`: Alias for `stub_function()`.
+
+
+```php
+mock_function( 'wp_update_post' );
+wp_update_post();
+```
+
 - `expect_spy( $spy )`: Shortcut for `Expectation::expect_spy( $spy )`.
+
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post();
+$expectation = expect_spy( $spy )->to_have_been_called();
+$expectation->verify();
+```
+
 - `mock_object()`: Shortcut for `MockObject::mock_object()`.
+
+```php
+$obj = mock_object();
+$obj->add_method( 'run' );
+$obj->run();
+```
+
 - `mock_object_of( $class_name )`: Mock an instance of an existing class with all its methods. Shortcut for `MockObject::mock_object( $class_name )`.
+
+```php
+class TestObj {
+  public function run() {
+  }
+}
+$obj = mock_object_of( 'TestObj' );
+$obj->run();
+```
+
 - `finish_spying()`: Resolve all global Expectations, then clear all Expectations and all global Spies. Shortcut for `GlobalExpectations::resolve_delayed_expectations()`, `GlobalExpectations::clear_all_expectations()`, and `GlobalSpies::clear_all_spies`.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post();
+expect_spy( $spy )->to_have_been_called();
+finish_spying();
+```
+
 - `any()`: Used as an argument to `Expectation->with()` to mean "any argument". Shortcut for `new AnyValue()`.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post( [ 'title' => 'hello' ] );
+expect_spy( $spy )->to_have_been_called->with( any() );
+finish_spying();
+```
+
 - `passed_arg( $index )`: Used as an argument to `Spy->and_return()` to mean "return the passed argument at $index". Shortcut for `new PassedArgument( $index )`.
+
+```php
+stub_function( 'wp_update_post' )->and_return( passed_arg( 1 ) );
+$value = wp_update_post( 'hello' );
+$this->assertEquals( 'hello', $value );
+```
 
 # Spy
 
