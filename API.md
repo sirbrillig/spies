@@ -92,22 +92,138 @@ $this->assertEquals( 'hello', $value );
 
 - `get_spy_for( $function_name )`: Create a new global or namespaced function and attach it to a new Spy, returning that Spy.
 
+```php
+$spy = Spy::get_spy_for( 'wp_update_post' );
+wp_update_post();
+expect_spy( $spy )->to_have_been_called();
+```
+
 ### Instance methods
 
-- `get_function_name()`: Return the spy's function name. Really only useful when spying on global or namespaced functions. Defaults to "anonymous function".
+- `get_function_name()`: Return the spy's function name. Really only useful when spying on global or namespaced functions. Defaults to "a spy".
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+$this->assertEquals( 'wp_update_post', $spy->get_function_name() );
+$spy2 = make_spy();
+$this->assertEquals( 'a spy', $spy2->get_function_name() );
+```
+
 - `set_function_name()`: Set the spy's function name. You generally don't need to use this.
-- `call( $arg... )`: Call the Spy. It's probably easier to just call the Spy as a function.
+
+```php
+$spy = make_spy();
+$spy->set_function_name( 'foo' );
+$this->assertEquals( 'foo', $spy->get_function_name() );
+```
+
+- `call( $arg... )`: Call the Spy. It's probably easier to just call the Spy as a function like this: `$spy()`.
+
+```php
+$spy = make_spy();
+$spy->call( 1, 2, 3 );
+$this->assertSpyWasCalledWith( $spy, [ 1, 2, 3 ] );
+```
+
 - `call_with_array( $args )`: Call the Spy with an array of arguments. It's probably easier to just call the Spy as a function.
-- `clear_call_record()`: Clear the Spy's call record.
+
+```php
+$spy = make_spy();
+$spy->call_with_array( [ 1, 2, 3 ] );
+$this->assertSpyWasCalledWith( $spy, [ 1, 2, 3 ] );
+```
+
+- `clear_call_record()`: Clear the Spy's call record. You shouldn't need to call this.
+
+```php
+$spy = make_spy();
+$spy();
+$spy->clear_call_record();
+$this->assertSpyWasNotCalled( $spy );
+```
+
 - `get_called_functions()`: Get the raw call record for the Spy. Each call is an instance of `SpyCall`.
+
+```php
+$spy = make_spy();
+$spy->call_with_array( [ 1, 2, 3 ] );
+$calls = $spy->get_called_functions();
+$this->assertEquals( [ 1, 2, 3 ], $calls[0]->get_args() );
+```
+
 - `was_called()`: Return true if the Spy was called.
+
+```php
+$spy = make_spy();
+$spy();
+$this->assertTrue( $spy->was_called() );
+```
+
 - `was_called_with( $arg... )`: Return true if the Spy was called with specific arguments.
-- `was_called_when( $callable )`: Return true if the passed function returns true at least once. For each spy call, the function will be called with the arguments from that call.
-- `was_called_times( $count )`: Return true if the Spy was called exactly $count times.
+
+```php
+$spy = make_spy();
+$spy( 'a', 'b' );
+$this->assertTrue( $spy->was_called_with( 'a', 'b' ) );
+```
+
+- `was_called_when( $callable )`: Return true if the passed function returns true at least once. For each spy call, the function will be called with the arguments from that call as an array.
+
+```php
+$spy = make_spy();
+$spy( 'a' );
+$this->assertTrue( $spy->was_called_when( function( $args ) {
+  return ( $args[0] === 'a' );
+} ) );
+```
+
+- `was_called_times( $count )`: Return true if the Spy was called exactly `$count` times.
+
+```php
+$spy = make_spy();
+$spy();
+$spy();
+$this->assertTrue( $spy->was_called_times( 2 ) );
+```
+
 - `was_called_times_with( $count, $arg... )`: Return true if the Spy was called exactly $count times with specific arguments.
+
+```php
+$spy = make_spy();
+$spy( 'a', 'b' );
+$spy( 'a', 'b' );
+$spy( 'c', 'd' );
+$this->assertTrue( $spy->was_called_times_with( 2, 'a', 'b' ) );
+```
+
 - `was_called_before( $spy )`: Return true if the Spy was called before $spy.
+
+```php
+$spy = make_spy();
+$spy2 = make_spy();
+$spy();
+$spy2();
+$this->assertTrue( $spy->was_called_before( $spy2 ) );
+```
+
 - `get_times_called()`: Return the number of times the Spy was called.
+
+```php
+$spy = make_spy();
+$spy();
+$spy();
+$this->assertEquals( 2, $spy->get_times_called() );
+```
+
 - `get_call( $index )`: Return the call record for a single call.
+
+```php
+$spy = make_spy();
+$spy( 'a' );
+$spy( 'b' );
+$call = $spy->get_call( 0 );
+$this->assertEquals( [ 'a' ], $call->get_args() );
+```
 
 # Stub (Stubs are actually just instances of Spy used differently)
 
