@@ -75,13 +75,13 @@ class GlobalSpies {
 		if ( isset( self::$global_functions[ $function_name ] ) ) {
 			return;
 		}
-		$function_eval = self::generate_function_with( $function_name );
+		// Replace or create the function
 		if ( function_exists( $function_name ) ) {
 			self::replace_global_function( $function_name );
-			self::$global_functions[ $function_name ] = true;
-			return;
+		} else {
+			$function_eval = self::generate_function_with( $function_name );
+			eval( $function_eval );
 		}
-		eval( $function_eval );
 		// Save the name of this function so we know that we already defined it.
 		self::$global_functions[ $function_name ] = true;
 	}
