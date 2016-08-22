@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @runTestsInSeparateProcesses
  */
@@ -217,44 +216,59 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function test_stub_on_existing_method_replaces_return_value_of_spy() {
-		function foo() {
+		function globalFunctionFoo() {
 			return 'bar';
 		}
-		$spy = \Spies\mock_function( 'foo' )->and_return( 'boo' );
+
+		$spy = \Spies\mock_function( 'globalFunctionFoo' )->and_return( 'boo' );
 		$this->assertEquals( 'boo', $spy() );
 	}
 
 	public function test_stub_on_existing_method_replaces_return_value_of_existing_method() {
-		function foo() {
+		function globalFunctionFoo() {
 			return 'bar';
 		}
-		\Spies\mock_function( 'foo' )->and_return( 'boo' );
-		$this->assertEquals( 'boo', foo() );
+
+		\Spies\mock_function( 'globalFunctionFoo' )->and_return( 'boo' );
+		$this->assertEquals( 'boo', globalFunctionFoo() );
 	}
 
 	public function test_spy_on_existing_method_calls_original_method_when_calling_spy() {
-		function foo() {
+		function globalFunctionFoo() {
 			return 'bar';
 		}
-		$spy = \Spies\get_spy_for( 'foo' );
+
+		$spy = \Spies\get_spy_for( 'globalFunctionFoo' );
 		$this->assertEquals( 'bar', $spy() );
 	}
 
 	public function test_spy_on_existing_method_registers_calls_of_spy() {
-		function foo( $val ) {
+		function globalFunctionBar( $val ) {
 			return $val;
 		}
-		$spy = \Spies\get_spy_for( 'foo' );
+
+		$spy = \Spies\get_spy_for( 'globalFunctionBar' );
 		$spy( 'original' );
 		$this->assertTrue( $spy->was_called_with( 'original' ) );
 	}
 
-	public function test_spy_on_existing_method_registers_calls_of_existing_method() {
-		function foo( $val ) {
+	public function test_spy_on_existing_method_does_not_modify_return_value_of_orignal_method() {
+		function globalFunctionBar( $val ) {
 			return $val;
 		}
-		$spy = \Spies\get_spy_for( 'foo' );
-		foo( 'original' );
+
+		\Spies\get_spy_for( 'globalFunctionBar' );
+		$ret = globalFunctionBar( 'original' );
+		$this->assertEquals( 'original', $ret );
+	}
+
+	public function test_spy_on_existing_method_registers_calls_of_existing_method() {
+		function globalFunctionBar( $val ) {
+			return $val;
+		}
+
+		$spy = \Spies\get_spy_for( 'globalFunctionBar' );
+		globalFunctionBar( 'original' );
 		$this->assertTrue( $spy->was_called_with( 'original' ) );
 	}
 }
