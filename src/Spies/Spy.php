@@ -393,7 +393,7 @@ class Spy {
 			return $this->filter_return_for( $return, $args );
 		}
 		if ( isset( $this->function_name ) && is_callable( $this->function_name ) ) {
-			return call_user_func_array( $this->function_name, $args );
+			return \Spies\GlobalSpies::call_original_global_function( $this->function_name, $args );
 		}
 		return null;
 	}
