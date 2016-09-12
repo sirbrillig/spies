@@ -4,6 +4,19 @@ A library to make testing in PHP so much easier. You can install it in a PHP pro
 
 `composer require --dev sirbrillig/spies`.
 
+Then just make sure you include the autoloader somewhere in your code:
+
+If using in PHPUnit, you can add autoload to your `phpunit.xml` file:
+```
+<phpunit bootstrap="vendor/autoload.php">
+...
+```
+
+Otherwise you can include the autoloader manually:
+```
+require( './vendor/autoload.php' );
+```
+
 What is it? If you've ever used [sinon](http://sinonjs.org/) in JavaScript testing, you know about the concept of *Test Spies*, and in many ways this library is just implementing those concepts in PHP. It also includes *Expectations* to simplify spy assertions, inspired by [sinon-chai](https://github.com/domenic/sinon-chai).
 
 If you want to just skip to the details, you can [read the API here](API.md).
