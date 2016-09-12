@@ -33,4 +33,16 @@ class Helpers {
 		}
 		return false;
 	}
+
+	public static function array_clone( $array ) {
+		return array_map( function( $element ) {
+			return ( ( is_array( $element ) )
+				? call_user_func( __FUNCTION__, $element )
+				: ( ( is_object( $element ) )
+				? clone $element
+				: $element
+			)
+		);
+		}, $array );
+	}
 }

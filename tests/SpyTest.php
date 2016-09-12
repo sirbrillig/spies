@@ -139,6 +139,17 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		} ) );
 	}
 
+	public function test_spy_was_called_when_uses_a_copy_of_the_arguments_as_they_were_when_the_call_occurred() {
+		$spy = \Spies\make_spy();
+		$obj = new \StdClass();
+		$obj->foo = 'original';
+		$spy( $obj );
+		$obj->foo = 'modified';
+		$this->assertTrue( $spy->was_called_when( function( $args ) {
+			return $args[0]->foo === 'original';
+		} ) );
+	}
+
 	public function test_spy_was_called_before_returns_true_if_called_before_target_spy() {
 		$spy_1 = \Spies\make_spy();
 		$spy_2 = \Spies\make_spy();
