@@ -37,7 +37,7 @@ class Helpers {
 	public static function array_clone( $array ) {
 		return array_map( function( $element ) {
 			return ( ( is_array( $element ) )
-				? call_user_func( __FUNCTION__, $element )
+				? Helpers::array_clone( $element )
 				: ( ( is_object( $element ) )
 				? clone $element
 				: $element
