@@ -9,14 +9,11 @@ class GlobalExpectations {
 	}
 
 	public static function resolve_delayed_expectations() {
-		array_map( function( $expectation ) {
+		foreach ( self::$global_expectations as $expectation ) {
 			if ( ! $expectation->was_verified ) {
-				try {
-					$expectation->verify();
-				} catch ( \Exception $e ) {
-				}
+				$expectation->verify();
 			}
-		}, self::$global_expectations );
+		}
 	}
 
 	public static function clear_all_expectations() {
