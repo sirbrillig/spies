@@ -8,6 +8,9 @@
         "php": ">=5.3.0",
         "phpunit/phpunit": "^5.2"
     },
+    "scripts": {
+        "test": ["phpunit"]
+    },
     "license": "MIT",
     "autoload": {
         "psr-0": {
