@@ -11,7 +11,10 @@ class GlobalExpectations {
 	public static function resolve_delayed_expectations() {
 		array_map( function( $expectation ) {
 			if ( ! $expectation->was_verified ) {
-				$expectation->verify();
+				try {
+					$expectation->verify();
+				} catch ( \Exception $e ) {
+				}
 			}
 		}, self::$global_expectations );
 	}
