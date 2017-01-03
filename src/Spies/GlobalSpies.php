@@ -20,7 +20,7 @@ class GlobalSpies {
 	}
 
 	/**
- 	 * Clear all globally defined spies
+	 * Clear all globally defined spies
 	 *
 	 * You should not need to call this directly. See `\Spies\finish_spying()`
 	 *
@@ -65,7 +65,7 @@ class GlobalSpies {
 	 *
 	 * You should not need to call this directly.
 	 *
- 	 * @SuppressWarnings(PHPMD.EvalExpression)
+	 * @SuppressWarnings(PHPMD.EvalExpression)
 	 */
 	private static function create_global_function( $function_name ) {
 		// If we already have a spy for this function, just reset its call record.
