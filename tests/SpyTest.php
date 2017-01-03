@@ -205,7 +205,7 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$spy( 'a' );
 		$spy( 'b' );
 		$spy( 'c' );
-		$this->assertEquals( ['b'], $spy->get_call( 1 )->get_args() );
+		$this->assertEquals( [ 'b' ], $spy->get_call( 1 )->get_args() );
 	}
 
 	public function test_spy_was_called_times_with_returns_true_if_called_with_those_args_that_number_of_times() {
