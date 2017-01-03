@@ -1,21 +1,6 @@
 # Spies
 
-A library to make testing in PHP so much easier. You can install it in a PHP project by running:
-
-`composer require --dev sirbrillig/spies`.
-
-Then just make sure you include the autoloader somewhere in your code:
-
-If using in PHPUnit, you can add autoload to your `phpunit.xml` file:
-```
-<phpunit bootstrap="vendor/autoload.php">
-...
-```
-
-Otherwise you can include the autoloader manually:
-```
-require( './vendor/autoload.php' );
-```
+A library to make testing in PHP so much easier. You can install it in a PHP project by following [the instructions below](#installation).
 
 What is it? If you've ever used [sinon](http://sinonjs.org/) in JavaScript testing, you know about the concept of *Test Spies*, and in many ways this library is just implementing those concepts in PHP. It also includes *Expectations* to simplify spy assertions, inspired by [sinon-chai](https://github.com/domenic/sinon-chai).
 
@@ -84,6 +69,27 @@ function test_spy_is_called_correctly() {
 Spies was designed as an optional replacement for the very excellent [WP_Mock](https://github.com/10up/wp_mock) and [Mockery](http://docs.mockery.io/en/latest/), both of which are powerful but have many aspects and quirks that I don't find intuitive.
 
 Suggestions, bug reports, and feature requests all welcome!
+
+# Installation
+
+A library to make testing in PHP so much easier. You can install it in a PHP project by running:
+
+`composer require --dev sirbrillig/spies`.
+
+Then just make sure you include the autoloader somewhere in your code:
+
+If using in PHPUnit, you can add autoload to your `phpunit.xml` file:
+```
+<phpunit bootstrap="vendor/autoload.php">
+...
+```
+
+Otherwise you can include the autoloader manually:
+```
+require( './vendor/autoload.php' );
+```
+
+However, please see [the note on mocking and spying on existing functions](#spying-and-mocking-existing-functions). If you need to do this, you will need to add an explicit bootstrap file.
 
 # The Details
 
@@ -358,7 +364,15 @@ See the [API document](API.md) for the full list of custom assertions available.
 
 # Spying and Mocking existing functions
 
-PHP does not allow mocking existing functions. However, there is a library called [Patchwork](http://patchwork2.org/) which allows this. If that library is loaded, it will be used by Spies. The library must be loaded *before* Spies. One way to do this is to use a test bootstrap file. Here's an example:
+PHP does not allow mocking existing functions. However, there is a library called [Patchwork](http://patchwork2.org/) which allows this. If that library is loaded, it will be used by Spies. The library must be loaded *before* Spies. One way to do this is to use a test bootstrap file.
+
+If using in PHPUnit, you can require the bootstrap from your `phpunit.xml` file:
+```
+<phpunit bootstrap="tests/bootstrap.php">
+...
+```
+
+Here is an example bootstrap file that also loads the autoloader:
 
 ```php
 <?php
