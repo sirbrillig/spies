@@ -113,7 +113,7 @@ class GlobalSpies {
 
 	private static function replace_global_function( $function_name ) {
 		if ( ! function_exists( 'Patchwork\redefine' ) || ! function_exists( 'Patchwork\relay' ) ) {
-			throw new \Exception( 'Attempt to mock existing function ' . $function_name . '; please load Patchwork first in your test bootstrap file. See https://gist.github.com/sirbrillig/63cdfee0f028d3ab309a7d3cf752b558 for an example.' );
+			throw new \Exception( 'Attempt to mock existing function ' . $function_name . '; please load Patchwork first in your test bootstrap file. See here for an example: https://github.com/sirbrillig/spies/blob/master/README.md#spying-and-mocking-existing-functions' );
 			return;
 		}
 		self::$redefined_functions[ $function_name ] = \Patchwork\redefine( $function_name, function() use ( $function_name ) {
