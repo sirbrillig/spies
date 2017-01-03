@@ -342,3 +342,43 @@ a spy was actually called with:
 ```
 
 See the [API document](API.md) for the full list of custom assertions available.
+
+# Spying and Mocking existing functions
+
+PHP does not allow mocking existing functions. However, there is a library called [Patchwork](http://patchwork2.org/) which allows this. If that library is loaded, it will be used by Spies. The library must be loaded *before* Spies. One way to do this is to use a test bootstrap file. Here's an example:
+
+```php
+<?php
+$autoload  = 'vendor/autoload.php';
+$patchwork = 'vendor/antecedent/patchwork/Patchwork.php';
+
+# require patchwork first
+if ( file_exists( $patchwork ) ) {
+	require_once $patchwork;
+}
+
+if ( file_exists( $autoload ) ) {
+	require_once $autoload;
+}
+```
+
+If Patchwork is loaded, you will be able to use `mock_function()` and `get_spy_for()` on existing functions:
+
+``` php
+function sayHello() {
+  return 'hello';
+}
+//...
+\Spies\mock_function( 'sayHello' )->and_return( 'bye' );
+$this->assertEquals( 'bye', sayHello() );
+```
+
+``` php
+function sayHello() {
+  return 'hello';
+}
+//...
+$spy = \Spies\get_spy_for( 'sayHello' );
+sayHello();
+$this->assertTrue( $spy->was_called() );
+```
