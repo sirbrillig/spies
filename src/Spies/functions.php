@@ -23,10 +23,12 @@ function finish_spying() {
 	} catch ( \Exception $e ) {
 		\Spies\GlobalExpectations::clear_all_expectations();
 		\Spies\GlobalSpies::clear_all_spies();
+		\Spies\GlobalSpies::restore_original_global_functions();
 		throw $e;
 	}
 	\Spies\GlobalExpectations::clear_all_expectations();
 	\Spies\GlobalSpies::clear_all_spies();
+	\Spies\GlobalSpies::restore_original_global_functions();
 }
 
 function mock_object() {

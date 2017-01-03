@@ -9,6 +9,9 @@ class GlobalSpies {
 	// A record of all the functions we have globally defined.
 	public static $global_functions = [];
 
+	// A record of all the existing functions that have been redefined
+	public static $redefined_functions = [];
+
 	public static function create_global_spy( $function_name ) {
 		$spy = new Spy( $function_name );
 		self::create_global_function( $function_name );
@@ -17,9 +20,9 @@ class GlobalSpies {
 	}
 
 	/**
- 	 * Clear all globally defined spies
+	 * Clear all globally defined spies
 	 *
-	 * You should not need to call this directly. See `\Spies\Expectation::finish_spying()`
+	 * You should not need to call this directly. See `\Spies\finish_spying()`
 	 *
 	 * The global functions themselves cannot be removed, but after calling this,
 	 * any calls to the global functions will throw an Exception unless they are
@@ -62,7 +65,7 @@ class GlobalSpies {
 	 *
 	 * You should not need to call this directly.
 	 *
- 	 * @SuppressWarnings(PHPMD.EvalExpression)
+	 * @SuppressWarnings(PHPMD.EvalExpression)
 	 */
 	private static function create_global_function( $function_name ) {
 		// If we already have a spy for this function, just reset its call record.
@@ -75,13 +78,51 @@ class GlobalSpies {
 		if ( isset( self::$global_functions[ $function_name ] ) ) {
 			return;
 		}
-		$function_eval = self::generate_function_with( $function_name );
+		// Replace or create the function
 		if ( function_exists( $function_name ) ) {
-			throw new \Exception( 'Attempt to mock existing function ' . $function_name );
+			self::replace_global_function( $function_name );
+		} else {
+			$function_eval = self::generate_function_with( $function_name );
+			eval( $function_eval );
 		}
-		eval( $function_eval );
 		// Save the name of this function so we know that we already defined it.
 		self::$global_functions[ $function_name ] = true;
+	}
+
+	public static function restore_original_global_functions() {
+		if ( ! function_exists( 'Patchwork\restore' ) ) {
+			return;
+		}
+		foreach ( array_values( self::$redefined_functions ) as $handle ) {
+			\Patchwork\restore( $handle );
+		}
+	}
+
+	public static function call_original_global_function( $function_name, $args ) {
+		if ( ! isset( self::$redefined_functions[ $function_name ] ) ) {
+			return;
+		}
+		if ( ! function_exists( 'Patchwork\restore' ) ) {
+			return;
+		}
+		\Patchwork\restore( self::$redefined_functions[ $function_name ] );
+		$value = call_user_func_array( $function_name, $args );
+		self::replace_global_function( $function_name );
+		return $value;
+	}
+
+	private static function replace_global_function( $function_name ) {
+		if ( ! function_exists( 'Patchwork\redefine' ) || ! function_exists( 'Patchwork\relay' ) ) {
+			throw new \Exception( 'Attempt to mock existing function ' . $function_name . '; please load Patchwork first in your test bootstrap file. See here for an example: https://github.com/sirbrillig/spies/blob/master/README.md#spying-and-mocking-existing-functions' );
+			return;
+		}
+		self::$redefined_functions[ $function_name ] = \Patchwork\redefine( $function_name, function() use ( $function_name ) {
+			$value = \Spies\GlobalSpies::handle_call_for( $function_name, func_get_args() );
+			if ( isset( $value ) ) {
+				return $value;
+			}
+			return \Patchwork\relay();
+		} );
 	}
 
 	private static function generate_function_with( $function_name ) {
