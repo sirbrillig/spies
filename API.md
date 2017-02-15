@@ -318,13 +318,51 @@ $this->assertGreaterThan( $now, $calls[0]->get_timestamp() );
 ### Static methods
 
 - `mock_object()`: Shortcut for `new MockObject()`.
+
+```php
+$obj = Spies\MockObject::mock_object();
+$obj->add_method( 'run' );
+$obj->run();
+```
+
 - `mock_object_of( $class_name )`: Create a new `MockObject`, automatically adding a Spy for every public method in `$class_name`.
+
+```php
+class TestObj {
+  public function run() {
+  }
+}
+$obj = Spies\MockObject::mock_object_of( 'TestObj' );
+$obj->run();
+```
 
 ### Instance methods
 
 - `add_method( $function_name, $function = null )`: Add a public method to this Object as a Spy and return that method. Creates and returns a Spy if no function is provided.
+
+```php
+$obj = Spies\MockObject::mock_object();
+$obj->add_method( 'run', function( $arg ) {
+	return 'hello ' . $arg;
+} );
+$this->assertEquals( 'hello friend', $obj->run( 'friend' ) );
+```
+
 - `spy_on_method( $function_name, $function = null )`: Alias for `add_method()`.
+
+```php
+$obj = Spies\MockObject::mock_object();
+$spy = $obj->get_spy_for( 'run' );
+$obj->run();
+expect_spy( $spy )->to_have_been_called();
+```
+
 - `and_ignore_missing()`: Prevents throwing an Exception when an unmocked method is called on this object.
+
+```php
+$mock = Spies\mock_object()->and_ignore_missing();
+$this->assertEquals( null, $mock->say_goodbye() );
+```
 
 # Expectation
 
