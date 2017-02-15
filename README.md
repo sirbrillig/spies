@@ -346,7 +346,7 @@ class MyTest extends \Spies\TestCase {
         $spy = \Spies\make_spy();
         $spy( 'hello', 'world', 7 );
         $spy( 'hello', 'world', 8 );
-        $this->assertSpyWasCalledWith( 'hello', 'world', \Spies\any() );
+        $this->assertSpyWasCalledWith( $spy, [ 'hello', 'world', \Spies\any() ] );
     }
 }
 ```
