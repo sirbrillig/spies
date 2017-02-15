@@ -96,6 +96,7 @@ $this->assertEquals( 'hello', $value );
 $spy = Spy::get_spy_for( 'wp_update_post' );
 wp_update_post();
 expect_spy( $spy )->to_have_been_called();
+finish_spying();
 ```
 
 ### Instance methods
@@ -355,6 +356,7 @@ $obj = Spies\MockObject::mock_object();
 $spy = $obj->get_spy_for( 'run' );
 $obj->run();
 expect_spy( $spy )->to_have_been_called();
+finish_spying();
 ```
 
 - `and_ignore_missing()`: Prevents throwing an Exception when an unmocked method is called on this object.
@@ -370,20 +372,128 @@ $this->assertEquals( null, $mock->say_goodbye() );
 
 - `expect_spy( $spy )`: Create a new Expectation for the behavior of $spy.
 
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post();
+$expectation = expect_spy( $spy )->to_have_been_called();
+$expectation->verify();
+```
+
 ### Instance methods
 
 - `to_be_called`: Syntactic sugar. Returns the Expectation.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+$expectation = expect_spy( $spy )->to_be_called();
+wp_update_post();
+$expectation->verify();
+```
+
 - `to_have_been_called`: Syntactic sugar. Returns the Expectation.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post();
+$expectation = expect_spy( $spy )->to_have_been_called();
+$expectation->verify();
+```
+
 - `not`: When accessed, reverses all expected behaviors on this Expectation.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post( 'bye' );
+$expectation = expect_spy( $spy )->not->to_have_been_called->with( 'hello' );
+$expectation->verify();
+```
+
 - `verify()`: Resolve and verify all the behaviors set on this Expectation.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post( 'bye' );
+$expectation = expect_spy( $spy )->not->to_have_been_called->with( 'hello' );
+$expectation->verify();
+```
+
 - `to_be_called()`: Add an expected behavior that the spy was called when this is resolved.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+$expectation = expect_spy( $spy )->to_be_called();
+wp_update_post();
+$expectation->verify();
+```
+
 - `to_have_been_called()`: Alias for `to_be_called()`.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post();
+$expectation = expect_spy( $spy )->to_have_been_called();
+$expectation->verify();
+```
+
 - `with( $arg... )`: Add an expected behavior that the spy was called with particular arguments when this is resolved.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post( 'hello' );
+$expectation = expect_spy( $spy )->to_have_been_called->with( 'hello' );
+$expectation->verify();
+```
+
 - `when( $callable )`: Return true if the passed function returns true at least once. For each spy call, the function will be called with the arguments from that call.
+
+```php
+$spy = make_spy();
+$spy( 'a' );
+expect_spy( $spy )->to_have_been_called->when( function( $args ) {
+  return ( $args[0] === 'a' );
+} ) );
+finish_spying();
+```
+
 - `times( $count )`: Add an expected behavior that the spy was called exactly $count times.
+
+```php
+$spy = make_spy();
+$spy( 'a' );
+$spy( 'b' );
+expect_spy( $spy )->to_have_been_called->times( 2 );
+finish_spying();
+```
+
 - `once()`: Alias for `times( 1 )`.
+
+```php
+$spy = make_spy();
+$spy( 'a' );
+expect_spy( $spy )->to_have_been_called->once();
+finish_spying();
+```
+
 - `twice()`: Alias for `times( 2 )`.
+
+```php
+$spy = make_spy();
+$spy( 'a' );
+$spy( 'b' );
+expect_spy( $spy )->to_have_been_called->twice();
+finish_spying();
+```
+
 - `before( $spy )`: Add an expected behavior that the spy was called before $spy.
+
+```php
+$spy = make_spy();
+$spy2 = make_spy();
+$spy();
+$spy2();
+expect_spy( $spy )->to_have_been_called->before( $spy2 );
+finish_spying();
+```
 
 # PHPUnit Custom Assertions
 
