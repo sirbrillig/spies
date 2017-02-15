@@ -231,15 +231,64 @@ $this->assertEquals( [ 'a' ], $call->get_args() );
 
 - `stub_function( $function_name )`: Create a new global or namespaced function and attach it to a new Spy, returning that Spy.
 
+```php
+Spy::stub_function( 'say_hello' )->and_return( 'hello' );
+$this->assertEquals( 'hello', say_hello() );
+```
+
 ### Instance methods
 
 - `and_return( $value )`: Instruct the stub to return $value when called. $value can also be a function to call when the stub is called.
+
+```php
+Spy::stub_function( 'say_hello' )->and_return( 'hello' );
+$this->assertEquals( 'hello', say_hello() );
+```
+
 - `will_return( $value )`: Alias for `and_return( $value )`.
+
+```php
+Spy::stub_function( 'say_hello' )->when_called->will_return( 'hello' );
+$this->assertEquals( 'hello', say_hello() );
+```
+
 - `that_returns( $value )`: Alias for `and_return( $value )`.
+
+```php
+$obj = mock_object();
+$obj->add_method( 'run' )->that_returns( 'hello' );
+$this->assertEquals( 'hello', $obj->say_hello() );
+```
+
 - `with( $arg... )`: Changes behavior of next `and_return()` to be a conditional return value.
+
+```php
+Spy::stub_function( 'say_hello' )->when_called->will_return( 'beep' );
+Spy::stub_function( 'say_hello' )->when_called->with( 'human' )->will_return( 'hello' );
+$this->assertEquals( 'hello', say_hello( 'human' ) );
+$this->assertEquals( 'beep', say_hello( 'robot' ) );
+```
+
 - `when_called`: Syntactic sugar. Returns the Stub.
+
+```php
+Spy::stub_function( 'say_hello' )->when_called->will_return( 'hello' );
+$this->assertEquals( 'hello', say_hello() );
+```
+
 - `and_return_first_argument()`: Shortcut for `and_return( passed_arg( 0 ) )`.
+
+```php
+Spy::stub_function( 'say_hello' )->and_return_first_argument();
+$this->assertEquals( 'hi', say_hello( 'hi' ) );
+```
+
 - `and_return_second_argument()`: Shortcut for `and_return( passed_arg( 1 ) )`.
+
+```php
+Spy::stub_function( 'say_hello' )->and_return_second_argument();
+$this->assertEquals( 'there', say_hello( 'hi', 'there' ) );
+```
 
 # SpyCall
 
