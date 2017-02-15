@@ -510,14 +510,109 @@ These are methods available on instances of `\Spies\TestCase`.
 ### Assertions
 
 - `assertSpyWasCalled( $spy )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello();
+$this->assertSpyWasCalled( $spy );
+```
+
 - `assertSpyWasNotCalled( $spy )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+$this->assertSpyWasNotCalled( $spy );
+```
+
 - `assertSpyWasCalledWith( $spy, $args )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'friend' );
+$this->assertSpyWasCalledWith( $spy, [ 'friend' ] );
+```
+
 - `assertSpyWasNotCalledWith( $spy, $args )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'robot' );
+$this->assertSpyWasNotCalledWith( $spy, [ 'friend' ] );
+```
+
 - `assertSpyWasCalledTimes( $spy, $count )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'friend' );
+say_hello( 'robot' );
+$this->assertSpyWasCalledTimes( $spy, 2 );
+```
+
 - `assertSpyWasNotCalledTimes( $spy, $count )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'friend' );
+say_hello( 'robot' );
+$this->assertSpyWasNotCalledTimes( $spy, 3 );
+```
+
 - `assertSpyWasCalledTimesWith( $spy, $count, $args )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'friend' );
+say_hello( 'friend' );
+$this->assertSpyWasCalledTimesWith( $spy, 2, [ 'friend' ] );
+```
+
 - `assertSpyWasNotCalledTimesWith( $spy, $count, $args )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'friend' );
+say_hello( 'robot' );
+$this->assertSpyWasNotCalledTimesWith( $spy, 2, [ 'friend' ] );
+```
+
 - `assertSpyWasCalledBefore( $spy, $other_spy )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+$other_spy = Spy::get_spy_for( 'say_goodbye' );
+say_hello();
+say_goodbye();
+$this->assertSpyWasCalledBefore( $spy, $other_spy );
+```
+
 - `assertSpyWasNotCalledBefore( $spy, $other_spy )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+$other_spy = Spy::get_spy_for( 'say_goodbye' );
+say_goodbye();
+say_hello();
+$this->assertSpyWasNotCalledBefore( $spy, $other_spy );
+```
+
 - `assertSpyWasCalledWhen( $spy, $callable )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'foo' );
+$this->assertSpyWasCalledWhen( $spy, function( $args ) {
+	return ( $args[0] === 'foo' );
+} );
+```
+
 - `assertSpyWasNotCalledWhen( $spy, $callable )`
+
+```php
+$spy = Spy::get_spy_for( 'say_hello' );
+say_hello( 'bar' );
+$this->assertSpyWasNotCalledWhen( $spy, function( $args ) {
+	return ( $args[0] === 'foo' );
+} );
+```
+
