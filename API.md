@@ -295,7 +295,23 @@ $this->assertEquals( 'there', say_hello( 'hi', 'there' ) );
 ## Instance methods
 
 - `get_args()`: Return the arguments for a call.
+
+```php
+$spy = make_spy();
+$spy->call_with_array( [ 1, 2, 3 ] );
+$calls = $spy->get_called_functions();
+$this->assertEquals( [ 1, 2, 3 ], $calls[0]->get_args() );
+```
+
 - `get_timestamp()`: Return the timestamp for when a call was made.
+
+```php
+$spy = make_spy();
+$now = microtime();
+$spy->call_with_array( [ 1, 2, 3 ] );
+$calls = $spy->get_called_functions();
+$this->assertGreaterThan( $now, $calls[0]->get_timestamp() );
+```
 
 # MockObject
 
