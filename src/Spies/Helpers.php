@@ -15,7 +15,7 @@ class Helpers {
 			return false;
 		}
 		$index = 0;
-		foreach( $a as $arg ) {
+		foreach ( $a as $arg ) {
 			if ( ! self::do_vals_match( $arg, $b[ $index ] ) ) {
 				return false;
 			}
@@ -27,6 +27,13 @@ class Helpers {
 	private static function do_vals_match( $a, $b ) {
 		if ( $a === $b ) {
 			return true;
+		}
+		if ( is_object( $a ) || is_object( $b ) ) {
+			$array_a = is_object( $a ) ? (array) $a : $a;
+			$array_b = is_object( $b ) ? (array) $b : $b;
+			if ( $array_a === $array_b ) {
+				return true;
+			}
 		}
 		if ( $a instanceof \Spies\AnyValue || $b instanceof \Spies\AnyValue ) {
 			return true;
