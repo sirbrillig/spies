@@ -102,7 +102,7 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 	public function test_spy_was_called_with_array_returns_false_if_the_spy_was_not_called_with_the_arguments_provided() {
 		$spy = \Spies\make_spy();
 		$spy( 'foo' );
-		$this->assertFalse( $spy->was_called_with( [ 'foo', 'bar', 'baz' ] ) );
+		$this->assertFalse( $spy->was_called_with_array( [ 'foo', 'bar', 'baz' ] ) );
 	}
 
 	public function test_spy_was_called_with_returns_true_if_the_spy_was_called_with_the_arguments_provided() {
