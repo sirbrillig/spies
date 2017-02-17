@@ -367,8 +367,7 @@ class Spy {
 	 *
 	 * You should not need to call this directly.
 	 */
-	private function record_function_call( $orig_args ) {
-		$args = Helpers::array_clone( $orig_args );
+	private function record_function_call( $args ) {
 		$this->call_record[] = new SpyCall( $args );
 	}
 
