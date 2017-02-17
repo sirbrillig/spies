@@ -28,28 +28,9 @@ class Helpers {
 		if ( $a === $b ) {
 			return true;
 		}
-		if ( is_object( $a ) || is_object( $b ) ) {
-			$array_a = is_object( $a ) ? (array) $a : $a;
-			$array_b = is_object( $b ) ? (array) $b : $b;
-			if ( $array_a === $array_b ) {
-				return true;
-			}
-		}
 		if ( $a instanceof \Spies\AnyValue || $b instanceof \Spies\AnyValue ) {
 			return true;
 		}
 		return false;
-	}
-
-	public static function array_clone( $array ) {
-		return array_map( function( $element ) {
-			return ( ( is_array( $element ) )
-				? Helpers::array_clone( $element )
-				: ( ( is_object( $element ) )
-				? clone $element
-				: $element
-			)
-		);
-		}, $array );
 	}
 }

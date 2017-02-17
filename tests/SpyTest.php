@@ -118,6 +118,13 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $spy->was_called_with( $obj ) );
 	}
 
+	public function test_spy_was_called_with_returns_true_if_the_spy_was_called_with_the_deep_object_arguments_provided() {
+		$spy = \Spies\make_spy();
+		$obj = [ (object) [ 'ID' => 5, 'names' => [ 'bob' ], 'colors' => [ 'red' => '#f00' ] ] ];
+		$spy( [ 'foo' => $obj[0] ] );
+		$this->assertTrue( $spy->was_called_with( [ 'foo' => $obj[0] ] ) );
+	}
+
 	public function test_spy_was_called_with_returns_false_if_the_spy_was_not_called_with_the_arguments_provided() {
 		$spy = \Spies\make_spy();
 		$spy( 'foo' );
@@ -153,14 +160,24 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		} ) );
 	}
 
-	public function test_spy_was_called_when_uses_a_copy_of_the_arguments_as_they_were_when_the_call_occurred() {
+	public function test_spy_was_called_when_tests_object_arguments_by_reference() {
 		$spy = \Spies\make_spy();
 		$obj = new \StdClass();
 		$obj->foo = 'original';
 		$spy( $obj );
 		$obj->foo = 'modified';
 		$this->assertTrue( $spy->was_called_when( function( $args ) {
-			return $args[0]->foo === 'original';
+			return $args[0]->foo === 'modified';
+		} ) );
+	}
+
+	public function test_spy_was_called_when_tests_array_arguments_by_value() {
+		$spy = \Spies\make_spy();
+		$obj = [ 'foo' => 'original' ];
+		$spy( $obj );
+		$obj['foo'] = 'modified';
+		$this->assertTrue( $spy->was_called_when( function( $args ) {
+			return $args[0]['foo'] === 'original';
 		} ) );
 	}
 
