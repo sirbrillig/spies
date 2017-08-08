@@ -10,17 +10,18 @@ class MatchArray {
 		if ( ! is_array( $actual ) ) {
 			return false;
 		}
+		$match_count = 0;
 		foreach ( $this->expected_array as $key => $value ) {
 			// Compare associative arrays
 			if ( array_key_exists( $key, $actual ) && $actual[ $key ] === $value ) {
-				return true;
+				$match_count += 1;
 			}
 			// Compare indexed arrays
 			if ( ! $this->is_associative( $actual ) && in_array( $value, $actual ) ) {
-				return true;
+				$match_count += 1;
 			}
 		}
-		return false;
+		return ( count( $this->expected_array ) === $match_count );
 	}
 
 	private function is_associative( $arr ) {
