@@ -214,6 +214,21 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation->verify();
 	}
 
+	public function test_with_match_array_is_met_if_the_spy_is_called_with_matching_index_keys() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'bar' ] ) );
+		$spy( 'foo', [ 'foo', 'bar', 'baz' ] );
+		$expectation->verify();
+	}
+
+	public function test_with_match_array_is_not_met_if_the_spy_is_called_with_no_matching_index_keys() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'beep' ] ) );
+		$expectation->silent_failures = true;
+		$spy( 'foo', [ 'foo', 'bar', 'baz' ] );
+		$this->assertFalse( $expectation->verify() );
+	}
+
 	public function test_with_match_array_is_not_met_if_the_spy_is_called_with_no_matching_key_values() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'foo' => 'baz' ] ) );

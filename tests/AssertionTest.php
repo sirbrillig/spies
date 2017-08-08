@@ -46,6 +46,18 @@ class AssertionTest extends \Spies\TestCase {
 		$this->assertSpyWasCalledWith( $spy, [ 'a', 'b', 'c' ] );
 	}
 
+	public function test_assert_that_was_called_with_is_true_when_called_with_match_array_as_argument() {
+		$spy = \Spies\make_spy();
+		$spy( [ 'foo' => 'bar', 'baz' => 'boo' ] );
+		$this->assertThat( $spy, $this->wasCalledWith( [ \Spies\match_array( [ 'foo' => 'bar' ] ) ] ) );
+	}
+
+	public function test_assert_that_was_called_with_is_true_when_called_with_match_array_and_indexed_array() {
+		$spy = \Spies\make_spy();
+		$spy( [ 'foo', 'bar', 'baz' ] );
+		$this->assertThat( $spy, $this->wasCalledWith( [ \Spies\match_array( [ 'bar' ] ) ] ) );
+	}
+
 	public function test_assert_spy_was_not_called_with_is_true_when_not_called_with_args() {
 		$spy = \Spies\make_spy();
 		$spy( 'e', 'b', 'c' );
