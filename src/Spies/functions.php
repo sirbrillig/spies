@@ -47,6 +47,10 @@ function any() {
 	return new \Spies\AnyValue();
 }
 
+function match_array( $array ) {
+	return new \Spies\MatchArray( $array );
+}
+
 function passed_arg( $index ) {
 	return new \Spies\PassedArgument( $index );
 }
