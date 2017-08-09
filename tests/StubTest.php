@@ -29,6 +29,16 @@ class StubTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 8, $stub() );
 	}
 
+	public function test_stub_and_return_returns_the_value_when_the_stub_is_called_even_if_the_value_is_empty() {
+		$stub = \Spies\mock_function( 'test_stub' )->and_return( '' );
+		$this->assertEquals( '', $stub() );
+	}
+
+	public function test_stub_and_return_returns_the_value_when_the_stub_is_called_even_if_the_value_is_false() {
+		$stub = \Spies\mock_function( 'test_stub' )->and_return( false );
+		$this->assertEquals( false, $stub() );
+	}
+
 	public function test_stub_with_argument_and_return_returns_the_value_when_the_stub_is_called_even_if_the_return_value_is_empty() {
 		$stub = \Spies\mock_function( 'test_stub' )->with( 5 )->and_return( [] );
 		$this->assertEquals( [], $stub( 5 ) );
