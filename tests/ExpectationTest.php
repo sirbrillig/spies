@@ -207,6 +207,44 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( $expectation->verify() );
 	}
 
+	public function test_with_match_array_is_met_if_the_spy_is_called_with_matching_key_values() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'foo' => 'bar', 'flim' => 'flam' ] ) );
+		$spy( 'foo', [ 'bar' => 'baz', 'foo' => 'bar', 'flim' => 'flam' ] );
+		$expectation->verify();
+	}
+
+	public function test_with_match_array_is_met_if_the_spy_is_called_with_matching_index_keys() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'bar', 'foo' ] ) );
+		$spy( 'foo', [ 'foo', 'bar', 'baz' ] );
+		$expectation->verify();
+	}
+
+	public function test_with_match_array_is_not_met_if_the_spy_is_called_with_no_matching_index_keys() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'beep' ] ) );
+		$expectation->silent_failures = true;
+		$spy( 'foo', [ 'foo', 'bar', 'baz' ] );
+		$this->assertFalse( $expectation->verify() );
+	}
+
+	public function test_with_match_array_is_not_met_if_the_spy_is_called_with_no_matching_key_values() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'foo' => 'baz' ] ) );
+		$expectation->silent_failures = true;
+		$spy( 'foo', [ 'bar' => 'baz', 'foo' => 'bar', 'flim' => 'flam' ] );
+		$this->assertFalse( $expectation->verify() );
+	}
+
+	public function test_with_match_array_is_not_met_if_the_spy_is_called_with_some_matching_key_values() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'foo' => 'baz', 'flim' => 'flam' ] ) );
+		$expectation->silent_failures = true;
+		$spy( 'foo', [ 'bar' => 'baz', 'foo' => 'bar', 'flim' => 'flam' ] );
+		$this->assertFalse( $expectation->verify() );
+	}
+
 	public function test_with_any_is_met_if_the_spy_is_called_with_any_arguments() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\any() );

@@ -336,6 +336,23 @@ function test_calculation() {
 }
 ```
 
+You can also use `\Spies\match_array()` to match elements of an array while ignoring other parts:
+
+```php
+function tearDown() {
+	\Spies\finish_spying();
+}
+
+function test_name() {
+	$say_hello = \Spies\get_spy_for( 'say_hello' );
+
+	\Spies\expect_spy( $say_hello )->to_be_called->with( \Spies\match_array( [ 'name' => 'Raistlin' ] ) ) ); // Passes
+
+	say_hello( [ 'name' => 'Raistlin', 'job' => 'wizard', 'robes' => 'black' ] );
+}
+```
+
+
 ## PHPUnit Custom Assertions
 
 If you prefer to use PHPUnit custom assertions rather than Expectations, those are also available (although you must base your test class on `\Spies\TestCase`):
