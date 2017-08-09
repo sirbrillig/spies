@@ -1,0 +1,3 @@
+{
+    "redefinable-internals": [ "trigger_error", "count" ]
+}

@@ -52,12 +52,12 @@ class GlobalSpies {
 	 *
 	 * You should not need to call this directly.
 	 */
-	public static function handle_call_for( $function_name, $args ) {
+	public static function handle_call_for( $function_name, $args, $options = [] ) {
 		$spy = self::get_global_spy( $function_name );
 		if ( ! isset( $spy ) ) {
 			throw new UndefinedFunctionException( 'Call to undefined function ' . $function_name );
 		}
-		return $spy->call_with_array( $args );
+		return $spy->call_with_array( $args, $options );
 	}
 
 	/**
@@ -117,12 +117,19 @@ class GlobalSpies {
 			return;
 		}
 		self::$redefined_functions[ $function_name ] = \Patchwork\redefine( $function_name, function() use ( $function_name ) {
-			$value = \Spies\GlobalSpies::handle_call_for( $function_name, func_get_args() );
+			$value = \Spies\GlobalSpies::handle_call_for( $function_name, func_get_args(), [ 'return_falsey_objects' => true ] );
 			if ( isset( $value ) ) {
-				return $value;
+				return self::filter_return_for( $value );
 			}
 			return \Patchwork\relay();
 		} );
+	}
+
+	private static function filter_return_for( $return ) {
+		if ( $return instanceof FalseyValue ) {
+			return $return->get_value();
+		}
+		return $return;
 	}
 
 	private static function generate_function_with( $function_name ) {
