@@ -379,6 +379,15 @@ a spy was actually called with:
 
 See the [API document](API.md) for the full list of custom assertions available.
 
+## Assertion Helpers
+
+For any assertion, even those not involving Spies or Stubs, it can be helpful to compare partial arrays in the same manner as `match_array()`. You can use the helper function `do_arrays_match()` to do this:
+
+```php
+$array = [ 'baz' => 'boo', 'foo' => 'bar' ];
+$this->assertTrue( \Spies\do_arrays_match( $array, \Spies\match_array( [ 'foo' => 'bar' ] ) ) );
+```
+
 # Spying and Mocking existing functions
 
 PHP does not allow mocking existing functions. However, there is a library called [Patchwork](http://patchwork2.org/) which allows this. If that library is loaded, it will be used by Spies. The library must be loaded *before* Spies. One way to do this is to use a test bootstrap file.
