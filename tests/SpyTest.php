@@ -268,6 +268,16 @@ class SpyTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( null, trigger_error( 'foo' ) );
 	}
 
+	public function test_stub_on_internal_existing_method_with_conditions_replaces_return_value_of_existing_method() {
+		\Spies\mock_function( 'trigger_error' )->when_called->with( 'foo' )->and_return( 'boo' );
+		$this->assertEquals( 'boo', trigger_error( 'foo' ) );
+	}
+
+	public function test_stub_on_internal_existing_method_with_conditions_replaces_return_value_of_existing_method_if_null() {
+		\Spies\mock_function( 'trigger_error' )->when_called->with( 'foo' )->and_return( null );
+		$this->assertEquals( null, trigger_error( 'foo' ) );
+	}
+
 	public function test_spy_on_internal_existing_method_calls_original_method_when_calling_spy() {
 		$spy = \Spies\get_spy_for( 'count' );
 		$this->assertEquals( 2, $spy( [ 'a', 'b' ] ) );
