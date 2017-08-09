@@ -54,3 +54,7 @@ function match_array( $array ) {
 function passed_arg( $index ) {
 	return new \Spies\PassedArgument( $index );
 }
+
+function do_arrays_match( $array1, $array2 ) {
+	return \Spies\Helpers::do_arrays_match( $array1, $array2 );
+}
