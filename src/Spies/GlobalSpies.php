@@ -127,7 +127,7 @@ class GlobalSpies {
 
 	private static function filter_return_for( $return ) {
 		if ( $return instanceof FalseyValue ) {
-			return null;
+			return $return->get_value();
 		}
 		return $return;
 	}

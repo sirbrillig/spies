@@ -215,9 +215,9 @@ class Spy {
 	 * @return Spy This Spy
 	 */
 	public function and_return( $value ) {
-		// Add a special case for falsey return values
+		// Add a special case for falsey return values so we can detect them
 		if ( ! $value ) {
-			$value = new FalseyValue();
+			$value = new FalseyValue( $value );
 		}
 		if ( isset( $this->with_arguments ) ) {
 			$this->conditional_returns[] = [ 'args' => $this->with_arguments, 'return' => $value ];
@@ -410,8 +410,8 @@ class Spy {
 		if ( is_callable( $return ) ) {
 			return call_user_func_array( $return, $args );
 		}
-		if ( $return instanceof FalseyValue && ! $options['return_falsey_objects'] ) {
-			return null;
+		if ( $return instanceof FalseyValue && empty( $options['return_falsey_objects'] ) ) {
+			return $return->get_value();
 		}
 		return $return;
 	}
