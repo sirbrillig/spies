@@ -117,11 +117,12 @@ class Spy {
 	 * Same as `call`, but with an array of arguments instead of any number.
 	 *
 	 * @param array $args Any arguments for the function in an array
+	 * @param array $options Special options for the call
 	 * @return mixed Whatever the mocked function returns
 	 */
-	public function call_with_array( $args ) {
+	public function call_with_array( $args, $options = [] ) {
 		$this->record_function_call( $args );
-		return $this->get_return_for( $args );
+		return $this->get_return_for( $args, $options );
 	}
 
 	/**
@@ -214,6 +215,10 @@ class Spy {
 	 * @return Spy This Spy
 	 */
 	public function and_return( $value ) {
+		// Add a special case for falsey return values
+		if ( ! $value ) {
+			$value = new FalseyValue();
+		}
 		if ( isset( $this->with_arguments ) ) {
 			$this->conditional_returns[] = [ 'args' => $this->with_arguments, 'return' => $value ];
 			$this->with_arguments = null;
@@ -376,7 +381,7 @@ class Spy {
 	 *
 	 * You should not need to call this directly.
 	 */
-	private function get_return_for( $args ) {
+	private function get_return_for( $args, $options = [] ) {
 		if ( $this->conditional_returns ) {
 			$conditional_return = array_reduce( $this->conditional_returns, function( $carry, $condition ) use ( $args ) {
 				if ( Helpers::do_args_match( $condition['args'], $args ) ) {
@@ -390,7 +395,7 @@ class Spy {
 		}
 		if ( isset( $this->return_value ) ) {
 			$return = $this->return_value;
-			return $this->filter_return_for( $return, $args );
+			return $this->filter_return_for( $return, $args, $options );
 		}
 		if ( isset( $this->function_name ) && is_callable( $this->function_name ) ) {
 			return \Spies\GlobalSpies::call_original_global_function( $this->function_name, $args );
@@ -398,12 +403,15 @@ class Spy {
 		return null;
 	}
 
-	private function filter_return_for( $return, $args ) {
+	private function filter_return_for( $return, $args, $options = [] ) {
 		if ( $return instanceof PassedArgument ) {
 			return $args[ $return->index ];
 		}
 		if ( is_callable( $return ) ) {
 			return call_user_func_array( $return, $args );
+		}
+		if ( $return instanceof FalseyValue && ! $options['return_falsey_objects'] ) {
+			return null;
 		}
 		return $return;
 	}
