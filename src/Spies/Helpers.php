@@ -39,4 +39,8 @@ class Helpers {
 		}
 		return false;
 	}
+
+	public static function do_arrays_match( $a, $b ) {
+		return self::do_vals_match( $a, $b );
+	}
 }

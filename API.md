@@ -95,6 +95,13 @@ $value = wp_update_post( 'hello' );
 $this->assertEquals( 'hello', $value );
 ```
 
+- `do_arrays_match( $a, $b )`: Compare two arrays allowing usage of `match_array()`.
+
+```php
+$array = [ 'baz' => 'boo', 'foo' => 'bar' ];
+$this->assertTrue( \Spies\do_arrays_match( $array, \Spies\match_array( [ 'foo' => 'bar' ] ) ) );
+```
+
 # Spy
 
 ### Static methods

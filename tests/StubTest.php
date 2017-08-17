@@ -61,6 +61,15 @@ class StubTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 6, test_stub( 'bar' ) );
 	}
 
+	public function test_stub_when_called_with_match_array_sets_a_conditional_return_value_on_the_stub() {
+		\Spies\mock_function( 'test_stub' )->will_return( 4 );
+		\Spies\mock_function( 'test_stub' )->when_called->with( \Spies\match_array( [ 'type' => 'Bokoblin' ] ) )->will_return( 5 );
+		\Spies\mock_function( 'test_stub' )->when_called->with( \Spies\match_array( [ 'type' => 'Moblin' ] ) )->will_return( 6 );
+		$this->assertEquals( 5, test_stub( [ 'name' => 'Bobo', 'type' => 'Bokoblin' ] ) );
+		$this->assertEquals( 6, test_stub( [ 'name' => 'Grup', 'type' => 'Moblin' ] ) );
+		$this->assertEquals( 4, test_stub( [ 'name' => 'Corb', 'type' => 'Lizafos' ] ) );
+	}
+
 	public function test_stub_with_conditional_returns_will_return_unconditional_value_when_called_with_unexpected_parameters() {
 		\Spies\mock_function( 'test_stub' )->when_called->with( 'foo' )->will_return( 5 );
 		\Spies\mock_function( 'test_stub' )->will_return( 7 );
