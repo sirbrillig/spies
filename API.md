@@ -78,13 +78,19 @@ expect_spy( $spy )->to_have_been_called->with( any() );
 finish_spying();
 ```
 
-- `match_array()`: Used as an argument to `Expectation->with()` to mean "any argument with these values". Shortcut for `new MatchArray()`.
+- `match_array()`: Used as an argument to `Expectation->with()` or `Spy()->with()` to mean "any argument with these values". Shortcut for `new MatchArray()`.
 
 ```php
 $spy = get_spy_for( 'wp_update_post' );
 wp_update_post( [ 'title' => 'hello', 'status' => 'publish', 'id' => 14, 'post_content' => 'slartibartfast' ] );
 expect_spy( $spy )->to_have_been_called->with( match_array( [ 'status' => 'publish', 'post_content' => 'slartibartfast' ] ) );
 finish_spying();
+```
+
+```php
+mock_function( 'wp_update_post' )->when_called->with( match_array( [ 'title' => 'hello' ] ) )->will_return( 14 );
+$id = wp_update_post( [ 'title' => 'hello', 'status' => 'publish', 'post_content' => 'slartibartfast' ] );
+$this->assertEquals( 14, $id );
 ```
 
 - `passed_arg( $index )`: Used as an argument to `Spy->and_return()` to mean "return the passed argument at $index". Shortcut for `new PassedArgument( $index )`.
