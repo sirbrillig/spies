@@ -11,14 +11,18 @@ class MatchArray {
 			return false;
 		}
 		$match_count = 0;
+		$is_associative = $this->is_associative( $actual );
 		foreach ( $this->expected_array as $key => $value ) {
-			// Compare associative arrays
-			if ( array_key_exists( $key, $actual ) && $actual[ $key ] === $value ) {
-				$match_count += 1;
-			}
-			// Compare indexed arrays
-			if ( ! $this->is_associative( $actual ) && in_array( $value, $actual ) ) {
-				$match_count += 1;
+			if ( $is_associative ) {
+				// Compare associative arrays
+				if ( array_key_exists( $key, $actual ) && $actual[ $key ] === $value ) {
+					$match_count += 1;
+				}
+			} else {
+				// Compare indexed arrays
+				if ( ! $this->is_associative( $actual ) && in_array( $value, $actual ) ) {
+					$match_count += 1;
+				}
 			}
 		}
 		return ( count( $this->expected_array ) === $match_count );
