@@ -1,3 +1,5 @@
+<div style="text-align:center;"><img src="./spies-logo.svg" width="200px" /></div>
+
 # Spies
 
 A library to make testing in PHP so much easier. You can install it in a PHP project by following [the instructions below](#installation).
