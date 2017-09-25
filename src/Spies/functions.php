@@ -51,6 +51,10 @@ function match_array( $array ) {
 	return new \Spies\MatchArray( $array );
 }
 
+function match_pattern( $pattern ) {
+	return new \Spies\MatchPattern( $pattern );
+}
+
 function passed_arg( $index ) {
 	return new \Spies\PassedArgument( $index );
 }
