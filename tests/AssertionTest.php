@@ -46,6 +46,18 @@ class AssertionTest extends \Spies\TestCase {
 		$this->assertSpyWasCalledWith( $spy, [ 'a', 'b', 'c' ] );
 	}
 
+	public function test_assert_that_was_called_with_is_true_when_called_with_match_pattern_as_argument() {
+		$spy = \Spies\make_spy();
+		$spy( 'slartibartfast' );
+		$this->assertThat( $spy, $this->wasCalledWith( [ \Spies\match_pattern( '/Bart/i' ) ] ) );
+	}
+
+	public function test_assert_that_was_called_with_is_false_when_called_with_match_pattern_as_argument() {
+		$spy = \Spies\make_spy();
+		$spy( 'bar' );
+		$this->assertThat( $spy, $this->logicalNot( $this->wasCalledWith( [ \Spies\match_pattern( '/Bart/i' ) ] ) ) );
+	}
+
 	public function test_assert_that_was_called_with_is_true_when_called_with_match_array_as_argument() {
 		$spy = \Spies\make_spy();
 		$spy( [ 'foo' => 'bar', 'baz' => 'boo' ] );

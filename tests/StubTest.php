@@ -61,6 +61,15 @@ class StubTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 6, test_stub( 'bar' ) );
 	}
 
+	public function test_stub_when_called_with_match_pattern_sets_a_conditional_return_value_on_the_stub() {
+		\Spies\mock_function( 'test_stub' )->will_return( 4 );
+		\Spies\mock_function( 'test_stub' )->when_called->with( \Spies\match_pattern( '/boko/i' ) )->will_return( 5 );
+		\Spies\mock_function( 'test_stub' )->when_called->with( \Spies\match_pattern( '/mob/i' ) )->will_return( 6 );
+		$this->assertEquals( 5, test_stub( 'Bokoblin' ) );
+		$this->assertEquals( 6, test_stub( 'Moblin' ) );
+		$this->assertEquals( 4, test_stub( 'Lizafos' ) );
+	}
+
 	public function test_stub_when_called_with_match_array_sets_a_conditional_return_value_on_the_stub() {
 		\Spies\mock_function( 'test_stub' )->will_return( 4 );
 		\Spies\mock_function( 'test_stub' )->when_called->with( \Spies\match_array( [ 'type' => 'Bokoblin' ] ) )->will_return( 5 );

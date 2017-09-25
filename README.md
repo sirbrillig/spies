@@ -336,6 +336,15 @@ function test_calculation() {
 }
 ```
 
+If you need to match just part of a string, you can use `\Spies\match_pattern()`.
+
+```php
+$spy = \Spies\get_spy_for( 'run_experiment' );
+run_experiment( 'slartibartfast' );
+\Spies\expect_spy( $spy )->to_have_been_called->with( \Spies\match_pattern( '/bart/' ) );
+\Spies\finish_spying();
+```
+
 You can also use `\Spies\match_array()` to match elements of an array while ignoring other parts:
 
 ```php
