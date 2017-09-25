@@ -78,6 +78,21 @@ expect_spy( $spy )->to_have_been_called->with( any() );
 finish_spying();
 ```
 
+- `match_pattern()`: Used as an argument to `Expectation->with()` or `Spy()->with()` to mean "any string argument matching this PCRE pattern". Shortcut for `new MatchPattern()`.
+
+```php
+$spy = get_spy_for( 'run_experiment' );
+run_experiment( 'slartibartfast' );
+expect_spy( $spy )->to_have_been_called->with( match_pattern( '/bart/' ) );
+finish_spying();
+```
+
+```php
+mock_function( 'slartibartfast' )->when_called->with( match_pattern( '/bart/' ) )->will_return( 14 );
+$id = run_experiment( 'slartibartfast' );
+$this->assertEquals( 14, $id );
+```
+
 - `match_array()`: Used as an argument to `Expectation->with()` or `Spy()->with()` to mean "any argument with these values". Shortcut for `new MatchArray()`.
 
 ```php
