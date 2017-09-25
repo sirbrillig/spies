@@ -31,6 +31,12 @@ class Helpers {
 		if ( $a instanceof \Spies\AnyValue || $b instanceof \Spies\AnyValue ) {
 			return true;
 		}
+		if ( $a instanceof \Spies\MatchPattern && $a->is_match( $b ) ) {
+			return true;
+		}
+		if ( $b instanceof \Spies\MatchPattern && $b->is_match( $a ) ) {
+			return true;
+		}
 		if ( $a instanceof \Spies\MatchArray && $a->is_match( $b ) ) {
 			return true;
 		}
