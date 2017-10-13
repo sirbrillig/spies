@@ -62,11 +62,49 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( null, $mock->say_goodbye() );
 	}
 
-	public function test_spy_on_method_is_an_alias_for_add_method() {
+	public function test_spy_on_method_for_non_existent_method_is_an_alias_for_add_method() {
 		$mock = \Spies\mock_object_of( 'Greeter' );
 		$mock->spy_on_method( 'say_hello' )->that_returns( 'greetings' );
 		$this->assertEquals( 'greetings', $mock->say_hello() );
 		$this->assertEquals( null, $mock->say_goodbye() );
+	}
+
+	public function test_spy_on_method_for_existing_method_stub_does_not_override_method() {
+		$mock = \Spies\mock_object();
+		$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+		$mock->spy_on_method( 'say_hello' );
+		$this->assertEquals( 'greetings', $mock->say_hello() );
+	}
+
+	public function test_mock_object_with_instance_delegates_methods_to_instance_methods() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$this->assertEquals( 'hello', $mock->say_hello() );
+	}
+
+	public function test_add_method_on_a_delegate_instance_overrides_the_instance_method() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$this->assertEquals( 'hello', $mock->say_hello() );
+	}
+
+	public function test_spy_on_method_for_a_delegate_instance_does_not_override_the_instance_method() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$mock->spy_on_method( 'say_hello' );
+		$this->assertEquals( 'hello', $mock->say_hello() );
+	}
+
+	public function test_spy_on_method_for_existing_method_stub_returns_spy_which_is_triggered_by_existing_method() {
+		$mock = \Spies\mock_object();
+		$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+		$spy = $mock->spy_on_method( 'say_hello' );
+		$mock->say_hello();
+		$this->assertTrue( $spy->was_called() );
+	}
+
+	public function test_spy_on_method_for_existing_real_method_returns_spy_which_is_triggered_by_existing_method() {
+		$mock = \Spies\mock_object_of( 'Greeter' );
+		$spy = $mock->spy_on_method( 'say_hello' );
+		$mock->say_hello();
+		$this->assertTrue( $spy->was_called() );
 	}
 
 	public function test_mock_object_throws_error_when_unmocked_method_is_called() {
