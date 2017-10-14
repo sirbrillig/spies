@@ -83,13 +83,21 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 
 	public function test_add_method_on_a_delegate_instance_overrides_the_instance_method() {
 		$mock = \Spies\mock_object( new Greeter() );
-		$this->assertEquals( 'hello', $mock->say_hello() );
+		$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+		$this->assertEquals( 'greetings', $mock->say_hello() );
 	}
 
 	public function test_spy_on_method_for_a_delegate_instance_does_not_override_the_instance_method() {
 		$mock = \Spies\mock_object( new Greeter() );
 		$mock->spy_on_method( 'say_hello' );
 		$this->assertEquals( 'hello', $mock->say_hello() );
+	}
+
+	public function test_spy_on_method_for_a_delegate_instance_returns_spy_which_is_triggered_by_existing_method() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$spy = $mock->spy_on_method( 'say_hello' );
+		$mock->say_hello();
+		$this->assertTrue( $spy->was_called() );
 	}
 
 	public function test_spy_on_method_for_existing_method_stub_returns_spy_which_is_triggered_by_existing_method() {
