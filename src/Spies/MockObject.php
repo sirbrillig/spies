@@ -5,6 +5,7 @@ class MockObject {
 
 	private $spies_on_methods = [];
 	private $class_name = null;
+	private $delegate_instance = null;
 	private $ignore_missing_methods = false;
 
 	/**
@@ -22,6 +23,12 @@ class MockObject {
 	 * `add_method()` to add new methods or to modify the behavior of existing
 	 * methods.
 	 *
+	 * If passed a class instance, the MockObject will act as a proxy, delegating
+	 * all method calls to the class instance it was passed. However, it will
+	 * still retain the features of a MockObject, like being able to add
+	 * additional methods (using `add_method()`) and being able to spy on method
+	 * calls (using `spy_on_method()`).
+	 *
 	 * Normally, if a method is called on the MockObject which has not been
 	 * defined by `add_method()`, an Exception will be thrown. However, if you
 	 * want to allow and ignore any un-mocked methods, you can call
@@ -31,16 +38,24 @@ class MockObject {
 	 * to determine their usage. To spy on a method in this class, call
 	 * `spy_on_method()`.
 	 *
-	 * @param string $class_name optional. The class to mock.
+	 * @param string $instance_or_class_name optional. An instance of a class or a class name to mock.
 	 */
-	public function __construct( $class_name = null ) {
-		$this->class_name = $class_name;
-		if ( isset( $class_name ) ) {
+	public function __construct( $instance_or_class_name = null ) {
+		if ( ! isset( $instance_or_class_name ) ) {
+			return;
+		}
+		if ( is_string( $instance_or_class_name ) ) {
+			$class_name = $instance_or_class_name;
+			$this->class_name = $class_name;
 			if ( ! class_exists( $class_name ) ) {
 				throw new \Exception( 'The class "' . $class_name . '" does not exist and could not be used to create a MockObject' );
 			}
 			array_map( [ $this, 'add_method' ], get_class_methods( $class_name ) );
+			return;
 		}
+		$instance = $instance_or_class_name;
+		$this->delegate_instance = $instance;
+		array_map( [ $this, 'add_method' ], get_class_methods( get_class( $instance ) ) );
 	}
 
 	public function __call( $function_name, $args ) {
@@ -48,7 +63,7 @@ class MockObject {
 			if ( $this->ignore_missing_methods ) {
 				return;
 			}
-			throw new UndefinedFunctionException( 'Attempted to call un-mocked method "' . $function_name . '" with ' . json_encode( $args ) );
+			throw new UndefinedFunctionException( 'Attempted to call un-mocked method "' . $function_name . '" with arguments ' . json_encode( $args ) );
 		}
 		return call_user_func_array( $this->$function_name, $args );
 	}
@@ -106,6 +121,11 @@ class MockObject {
 		}
 		if ( $function instanceof Spy ) {
 			$function->set_function_name( $function_name );
+			if ( $this->delegate_instance ) {
+				$function->will_return( function() use ( $function_name ) {
+					return call_user_func_array( [ $this->delegate_instance, $function_name ], func_get_args() );
+				} );
+			}
 		}
 		$function_spy = ( $function instanceof Spy ) ? $function : new \Spies\Spy();
 		$this->$function_name = $function;
