@@ -8,6 +8,10 @@ class Greeter {
 	public function say_goodbye() {
 		return 'goodbye';
 	}
+
+	public function just_say( $what ) {
+		return 'yo' . $what;
+	}
 }
 
 /**
@@ -88,10 +92,35 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'hello', $mock->say_hello() );
 	}
 
+	public function test_mock_object_with_instance_delegates_methods_to_instance_methods_with_arguments() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$this->assertEquals( 'yono', $mock->just_say( 'no' ) );
+	}
+
 	public function test_add_method_on_a_delegate_instance_overrides_the_instance_method() {
 		$mock = \Spies\mock_object( new Greeter() );
 		$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
 		$this->assertEquals( 'greetings', $mock->say_hello() );
+	}
+
+	public function test_add_method_on_a_delegate_instance_overrides_the_instance_method_only_if_conditions_are_met() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$mock->add_method( 'just_say' )->when_called->with( 'no' )->will_return( 'nope' );
+		$this->assertEquals( 'yoyes', $mock->just_say( 'yes' ) );
+	}
+
+	public function test_add_method_on_a_delegate_instance_overrides_the_instance_method_and_receives_its_arguments() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$mock->add_method( 'just_say' )->when_called->with( 'no' )->will_return( 'nope' );
+		$this->assertEquals( 'nope', $mock->just_say( 'no' ) );
+	}
+
+	public function test_add_method_with_return_function_on_a_delegate_instance_overrides_the_instance_method_and_receives_its_arguments() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$mock->add_method( 'just_say' )->when_called->with( 'cool' )->will_return( function( $arg ) {
+			return $arg . ' is cool';
+		} );
+		$this->assertEquals( 'cool is cool', $mock->just_say( 'cool' ) );
 	}
 
 	public function test_spy_on_method_for_a_delegate_instance_which_was_overridden_returns_spy_which_is_triggered_by_method() {
