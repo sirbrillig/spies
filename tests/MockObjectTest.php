@@ -69,11 +69,18 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( null, $mock->say_goodbye() );
 	}
 
-	public function test_spy_on_method_for_existing_method_stub_does_not_override_method() {
+	public function test_spy_on_method_for_existing_method_stub_does_not_break_method() {
 		$mock = \Spies\mock_object();
 		$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
 		$mock->spy_on_method( 'say_hello' );
 		$this->assertEquals( 'greetings', $mock->say_hello() );
+	}
+
+	public function test_spy_on_method_for_existing_method_stub_returns_the_stub() {
+		$mock = \Spies\mock_object();
+		$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+		$mock->spy_on_method( 'say_hello' )->that_returns( 'foobar' );
+		$this->assertEquals( 'foobar', $mock->say_hello() );
 	}
 
 	public function test_mock_object_with_instance_delegates_methods_to_instance_methods() {
@@ -95,10 +102,16 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $spy->was_called() );
 	}
 
-	public function test_spy_on_method_for_a_delegate_instance_does_not_override_the_instance_method() {
+	public function test_spy_on_method_for_a_delegate_instance_does_not_break_the_instance_method() {
 		$mock = \Spies\mock_object( new Greeter() );
 		$mock->spy_on_method( 'say_hello' );
 		$this->assertEquals( 'hello', $mock->say_hello() );
+	}
+
+	public function test_spy_on_method_for_a_delegate_instance_returns_stub_which_can_override_the_instance_method() {
+		$mock = \Spies\mock_object( new Greeter() );
+		$mock->spy_on_method( 'say_hello' )->will_return( 'foobar' );
+		$this->assertEquals( 'foobar', $mock->say_hello() );
 	}
 
 	public function test_spy_on_method_for_a_delegate_instance_returns_spy_which_is_triggered_by_existing_method() {
@@ -116,7 +129,7 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $spy->was_called() );
 	}
 
-	public function test_spy_on_method_for_existing_real_method_returns_spy_which_is_triggered_by_existing_method() {
+	public function test_spy_on_method_for_mock_object_method_returns_spy_which_is_triggered_by_existing_method() {
 		$mock = \Spies\mock_object_of( 'Greeter' );
 		$spy = $mock->spy_on_method( 'say_hello' );
 		$mock->say_hello();
