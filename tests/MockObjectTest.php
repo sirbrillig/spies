@@ -131,6 +131,14 @@ class MockObjectTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'cool is cool', $mock->just_say( 'cool' ) );
 	}
 
+	public function test_add_method_with_a_function_on_a_class_mock_sends_the_arguments_to_the_function() {
+		$mock = \Spies\mock_object( 'Greeter' );
+		$mock->add_method( 'just_say', function( $what ) {
+			return 'just ' . $what;
+		} );
+		$this->assertEquals( 'just thanks', $mock->just_say( 'thanks' ) );
+	}
+
 	public function test_spy_on_method_for_a_class_which_was_overridden_with_a_function_returns_spy_which_is_triggered_by_method() {
 		$mock = \Spies\mock_object( 'Greeter' );
 		$mock->add_method( 'just_say', function( $what ) {
