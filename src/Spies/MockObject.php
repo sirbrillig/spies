@@ -3,7 +3,6 @@ namespace Spies;
 
 class MockObject {
 
-	private $spies_on_methods = [];
 	private $class_name = null;
 	private $delegate_instance = null;
 	private $ignore_missing_methods = false;
@@ -80,9 +79,6 @@ class MockObject {
 	 * @return Spy|callback The Spy or callback
 	 */
 	public function spy_on_method( $function_name, $function = null ) {
-		if ( isset( $this->spies_on_methods[ $function_name ] ) ) {
-			return $this->spies_on_methods[ $function_name ];
-		}
 		return $this->add_method( $function_name, $function );
 	}
 
@@ -106,7 +102,7 @@ class MockObject {
 	 */
 	public function add_method( $function_name, $function = null ) {
 		if ( ! isset( $function ) ) {
-			$function = isset( $this->$function_name ) ? $this->$function_name : new \Spies\Spy();
+			$function = isset( $this->$function_name ) ? $this->$function_name : new Spy();
 		}
 		$reserved_method_names = [
 			'add_method',
@@ -119,17 +115,14 @@ class MockObject {
 		if ( ! is_callable( $function ) ) {
 			throw new \Exception( 'The function "' . $function_name . '" added to this mock object was not a function' );
 		}
-		if ( $function instanceof Spy ) {
-			$function->set_function_name( $function_name );
-			if ( $this->delegate_instance ) {
-				$function->will_return( function() use ( $function_name ) {
-					return call_user_func_array( [ $this->delegate_instance, $function_name ], func_get_args() );
-				} );
-			}
+		if ( $function instanceof Spy && $this->delegate_instance ) {
+			$function->will_return( [ $this->delegate_instance, $function_name ] );
 		}
-		$function_spy = ( $function instanceof Spy ) ? $function : new \Spies\Spy();
+		if ( ! $function instanceof Spy ) {
+			$function = Helpers::make_spy_from_function( $function );
+		}
+		$function->set_function_name( $function_name );
 		$this->$function_name = $function;
-		$this->spies_on_methods[ $function_name ] = $function_spy;
 		return $function;
 	}
 
