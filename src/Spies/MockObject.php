@@ -70,13 +70,11 @@ class MockObject {
 	/**
 	 * Spy on a method on this object
 	 *
-	 * If the method does not already exist, this is an alias for `add_method()`.
-	 * If the method _does_ exist, this will install a Spy on the existing method
-	 * and return that Spy.
+	 * Alias for `add_method()`.
 	 *
 	 * @param string $function_name The name of the function to add to this object
-	 * @param Spy|callback $function optional A callable function or Spy to be used when the new method is called. Defaults to a new Spy.
-	 * @return Spy|callback The Spy or callback
+	 * @param Spy|function $function optional A callable function or Spy to be used when the new method is called. Defaults to a new Spy.
+	 * @return Spy|function The Spy or callback
 	 */
 	public function spy_on_method( $function_name, $function = null ) {
 		return $this->add_method( $function_name, $function );
@@ -97,8 +95,8 @@ class MockObject {
 	 * `$mock_object->add_method( 'do_something' )->that_returns( 'hello world' );`
 	 *
 	 * @param string $function_name The name of the function to add to this object
-	 * @param Spy|callback $function optional A callable function or Spy to be used when the new method is called. Defaults to a new Spy.
-	 * @return Spy|callback The Spy or callback
+	 * @param Spy|function $function optional A callable function or Spy to be used when the new method is called. Defaults to a new Spy.
+	 * @return Spy|function The Spy or callback
 	 */
 	public function add_method( $function_name, $function = null ) {
 		if ( ! isset( $function ) ) {
