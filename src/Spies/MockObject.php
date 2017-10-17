@@ -44,17 +44,22 @@ class MockObject {
 			return;
 		}
 		if ( is_string( $instance_or_class_name ) ) {
-			$class_name = $instance_or_class_name;
-			$this->class_name = $class_name;
-			if ( ! class_exists( $class_name ) ) {
-				throw new \Exception( 'The class "' . $class_name . '" does not exist and could not be used to create a MockObject' );
-			}
-			array_map( [ $this, 'add_method' ], get_class_methods( $class_name ) );
-			return;
+			return $this->create_mock_object_for_class( $instance_or_class_name );
 		}
-		$instance = $instance_or_class_name;
+		$this->create_mock_object_for_delegate( $instance_or_class_name );
+	}
+
+	private function create_mock_object_for_delegate( $instance ) {
 		$this->delegate_instance = $instance;
 		array_map( [ $this, 'add_method' ], get_class_methods( get_class( $instance ) ) );
+	}
+
+	private function create_mock_object_for_class( $class_name ) {
+		$this->class_name = $class_name;
+		if ( ! class_exists( $class_name ) ) {
+			throw new \Exception( 'The class "' . $class_name . '" does not exist and could not be used to create a MockObject' );
+		}
+		array_map( [ $this, 'add_method' ], get_class_methods( $class_name ) );
 	}
 
 	public function __call( $function_name, $args ) {
