@@ -49,4 +49,10 @@ class Helpers {
 	public static function do_arrays_match( $a, $b ) {
 		return self::do_vals_match( $a, $b );
 	}
+
+	public static function make_spy_from_function( $function ) {
+		$spy = new Spy();
+		$spy->will_return( $function );
+		return $spy;
+	}
 }
