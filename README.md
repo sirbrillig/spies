@@ -444,3 +444,9 @@ $spy = \Spies\get_spy_for( 'sayHello' );
 sayHello();
 $this->assertTrue( $spy->was_called() );
 ```
+
+## Contributing
+
+Please submit an issue or PR!
+
+[![CircleCI](https://circleci.com/gh/sirbrillig/spies.svg?style=svg)](https://circleci.com/gh/sirbrillig/spies)
