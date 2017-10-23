@@ -202,7 +202,7 @@ class MockObjectTest extends PHPUnit\Framework\TestCase {
 	}
 
 	public function test_mock_object_throws_error_when_unmocked_method_is_called() {
-		$this->setExpectedException( '\Spies\UndefinedFunctionException' );
+		$this->expectException( '\Spies\UndefinedFunctionException' );
 		$mock = \Spies\mock_object();
 		$mock->foobar();
 	}
@@ -229,25 +229,25 @@ class MockObjectTest extends PHPUnit\Framework\TestCase {
 	}
 
 	public function test_mock_object_throws_error_when_mocking_reserved_method_name_add_method() {
-		$this->setExpectedException( '\Spies\InvalidFunctionNameException' );
+		$this->expectException( '\Spies\InvalidFunctionNameException' );
 		$mock = \Spies\mock_object();
 		$mock->add_method( 'add_method' );
 	}
 
 	public function test_mock_object_throws_error_when_mocking_reserved_method_name_spy_on_method() {
-		$this->setExpectedException( '\Spies\InvalidFunctionNameException' );
+		$this->expectException( '\Spies\InvalidFunctionNameException' );
 		$mock = \Spies\mock_object();
 		$mock->add_method( 'spy_on_method' );
 	}
 
 	public function test_mock_object_throws_error_when_mocking_reserved_method_name_and_ignore_missing() {
-		$this->setExpectedException( '\Spies\InvalidFunctionNameException' );
+		$this->expectException( '\Spies\InvalidFunctionNameException' );
 		$mock = \Spies\mock_object();
 		$mock->add_method( 'and_ignore_missing' );
 	}
 
 	public function test_mock_object_throws_error_when_mocking_with_a_non_function() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->expectException( 'InvalidArgumentException' );
 		$mock = \Spies\mock_object();
 		$mock->add_method( 'foobar', 42 );
 	}
