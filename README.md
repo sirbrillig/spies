@@ -243,7 +243,7 @@ function test_greeter() {
 	$say_goodbye = $mock->spy_on_method( 'say_goodbye' );
 	$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
 	$this->assertEquals( 'greetings', $mock->say_hello() );
-	$this->assertEquals( 'goodbye, $mock->say_goodbye() );
+	$this->assertEquals( 'goodbye', $mock->say_goodbye() );
 	$this->assertSpyWasCalled( $say_goodbye );
 }
 ```
