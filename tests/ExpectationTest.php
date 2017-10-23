@@ -3,7 +3,7 @@
 /**
  * @runTestsInSeparateProcesses
  */
-class ExpectationTest extends PHPUnit_Framework_TestCase {
+class ExpectationTest extends PHPUnit\Framework\TestCase {
 
 	public function tearDown() {
 		\Spies\finish_spying();

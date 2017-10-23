@@ -3,7 +3,7 @@
 /**
  * @runTestsInSeparateProcesses
  */
-class StubTest extends PHPUnit_Framework_TestCase {
+class StubTest extends PHPUnit\Framework\TestCase {
 	public function test_mock_function_returns_a_spy() {
 		$stub = \Spies\mock_function( 'test_stub' );
 		$this->assertTrue( $stub instanceof \Spies\Spy );

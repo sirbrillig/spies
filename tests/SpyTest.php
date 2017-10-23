@@ -10,7 +10,7 @@ function globalFunctionBar( $val ) {
 /**
  * @runTestsInSeparateProcesses
  */
-class SpyTest extends PHPUnit_Framework_TestCase {
+class SpyTest extends PHPUnit\Framework\TestCase {
 	public function test_spy_was_called_returns_true_if_called() {
 		$spy = new \Spies\Spy();
 		$spy();

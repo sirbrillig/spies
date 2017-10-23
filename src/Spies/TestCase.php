@@ -1,7 +1,7 @@
 <?php
 namespace Spies;
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase {
+abstract class TestCase extends \PHPUnit\Framework\TestCase {
 
 	public static function wasCalled() {
 		return new \Spies\SpiesConstraintWasCalled;

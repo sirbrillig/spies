@@ -17,7 +17,7 @@ class Greeter {
 /**
  * @runTestsInSeparateProcesses
  */
-class MockObjectTest extends PHPUnit_Framework_TestCase {
+class MockObjectTest extends PHPUnit\Framework\TestCase {
 	public function test_mock_object_returns_mock_object() {
 		$mock = \Spies\mock_object();
 		$this->assertTrue( $mock instanceof \Spies\MockObject );
