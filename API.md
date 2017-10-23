@@ -53,12 +53,22 @@ $expectation->verify();
 
 ### `mock_object()`
 
-Shortcut for `MockObject::mock_object()`.
+Shortcut for `MockObject::mock_object()`. Can also be used to create a
+mock object with a delegate.
 
 ```php
 $obj = mock_object();
 $obj->add_method( 'run' );
 $obj->run();
+```
+
+```php
+$obj = \Spies\mock_object( new Greeter() );
+$say_goodbye = $mock->spy_on_method( 'say_goodbye' );
+$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+$this->assertEquals( 'greetings', $mock->say_hello() );
+$this->assertEquals( 'goodbye', $mock->say_goodbye() );
+$this->assertSpyWasCalled( $say_goodbye );
 ```
 
 ### `mock_object_of( $class_name )`
@@ -433,12 +443,37 @@ $this->assertGreaterThan( $now, $calls[0]->get_timestamp() );
 
 ### `mock_object()`
 
-Shortcut for `new MockObject()`.
+Shortcut for `new MockObject()`. If a class instance is passed as an
+argument, it creates a delegate instance, forwarding all method calls on
+the MockObject to the delegate instance.
 
 ```php
 $obj = Spies\MockObject::mock_object();
 $obj->add_method( 'run' );
 $obj->run();
+```
+
+Using a delegate:
+
+```php
+class Greeter {
+	public function say_hello() {
+		return 'hello';
+	}
+
+	public function say_goodbye() {
+		return 'goodbye';
+	}
+}
+
+function test_greeter() {
+	$mock = Spies\MockObject::mock_object( new Greeter() );
+	$say_goodbye = $mock->spy_on_method( 'say_goodbye' );
+	$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+	$this->assertEquals( 'greetings', $mock->say_hello() );
+	$this->assertEquals( 'goodbye', $mock->say_goodbye() );
+	$this->assertSpyWasCalled( $say_goodbye );
+}
 ```
 
 ### `mock_object_of( $class_name )`
