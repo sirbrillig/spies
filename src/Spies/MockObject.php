@@ -113,10 +113,10 @@ class MockObject {
 			'and_ignore_missing',
 		];
 		if ( in_array( $function_name, $reserved_method_names ) ) {
-			throw new \Exception( 'The function "' . $function_name . '" added to this mock object could not be used because it conflicts with a built-in function' );
+			throw new \Spies\InvalidFunctionNameException( 'The function "' . $function_name . '" added to this mock object could not be used because it conflicts with a built-in function' );
 		}
 		if ( ! is_callable( $function ) ) {
-			throw new \Exception( 'The function "' . $function_name . '" added to this mock object was not a function' );
+			throw new \InvalidArgumentException( 'The function "' . $function_name . '" added to this mock object was not a function' );
 		}
 		if ( $function instanceof Spy && $this->delegate_instance ) {
 			$function->will_return( [ $this->delegate_instance, $function_name ] );
