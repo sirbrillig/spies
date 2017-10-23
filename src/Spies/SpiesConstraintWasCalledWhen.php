@@ -1,7 +1,7 @@
 <?php
 namespace Spies;
 
-class SpiesConstraintWasCalledWhen extends \PHPUnit_Framework_Constraint {
+class SpiesConstraintWasCalledWhen extends \PHPUnit\Framework\Constraint\Constraint {
 	private $expected_callable;
 
 	public function __construct( $callable ) {
