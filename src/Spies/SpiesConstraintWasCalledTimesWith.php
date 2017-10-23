@@ -1,7 +1,7 @@
 <?php
 namespace Spies;
 
-class SpiesConstraintWasCalledTimesWith extends \PHPUnit\Framework\Constraint\Constraint {
+class SpiesConstraintWasCalledTimesWith extends BaseConstraint {
 	private $expected_args;
 	private $count;
 
