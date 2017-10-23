@@ -209,7 +209,7 @@ class MockObjectTest extends PHPUnit\Framework\TestCase {
 
 	public function test_mock_object_with_ignore_missing_does_not_throw_error_when_unmocked_method_is_called() {
 		$mock = \Spies\mock_object()->and_ignore_missing();
-		$mock->foobar();
+		$this->assertEquals( null, $mock->foobar() );
 	}
 
 	public function test_mock_object_with_two_calls_to_add_method_stubs_both_methods() {
