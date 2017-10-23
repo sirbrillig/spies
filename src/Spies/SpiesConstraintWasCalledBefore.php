@@ -1,7 +1,7 @@
 <?php
 namespace Spies;
 
-class SpiesConstraintWasCalledBefore extends \PHPUnit_Framework_Constraint {
+class SpiesConstraintWasCalledBefore extends BaseConstraint {
 	private $target_spy;
 
 	public function __construct( $target_spy ) {
