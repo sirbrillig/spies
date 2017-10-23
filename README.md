@@ -221,6 +221,33 @@ function test_greeter() {
 }
 ```
 
+## Object Method Delegation
+
+Sometimes it's helpful to be able to be able to spy on actual methods of an object, or to replace some methods on an object, but not others. This involves creating a delegate object, which can be done by passing a class instance to `\Spies\mock_object()`.
+
+The resulting `MockObject` will forward all method calls to the original class instance, except those overridden by using `add_method()`. It's possible to use `spy_on_method()` to spy on any method call of the object, just as you would do with a regular MockObject.
+
+```php
+class Greeter {
+	public function say_hello() {
+		return 'hello';
+	}
+
+	public function say_goodbye() {
+		return 'goodbye';
+	}
+}
+
+function test_greeter() {
+	$mock = \Spies\mock_object( new Greeter() );
+	$say_goodbye = $mock->spy_on_method( 'say_goodbye' );
+	$mock->add_method( 'say_hello' )->that_returns( 'greetings' );
+	$this->assertEquals( 'greetings', $mock->say_hello() );
+	$this->assertEquals( 'goodbye', $mock->say_goodbye() );
+	$this->assertSpyWasCalled( $say_goodbye );
+}
+```
+
 ## Expectations
 
 Spies can be useful all by themselves, but Spies also provides the `Expectation` class to make writing your test expectations easier.

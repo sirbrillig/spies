@@ -31,8 +31,8 @@ function finish_spying() {
 	\Spies\GlobalSpies::restore_original_global_functions();
 }
 
-function mock_object() {
-	return \Spies\MockObject::mock_object();
+function mock_object( $instance = null ) {
+	return \Spies\MockObject::mock_object( $instance );
 }
 
 function mock_object_of( $class_name = null ) {
