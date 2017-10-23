@@ -63,7 +63,7 @@ $obj->run();
 ```
 
 ```php
-$obj = \Spies\mock_object( new Greeter() );
+$mock = \Spies\mock_object( new Greeter() );
 $say_goodbye = $mock->spy_on_method( 'say_goodbye' );
 $mock->add_method( 'say_hello' )->that_returns( 'greetings' );
 $this->assertEquals( 'greetings', $mock->say_hello() );
