@@ -9,35 +9,40 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		\Spies\finish_spying();
 	}
 
-	public function test_expect_spy_throws_an_error_if_called_without_a_spy() {
+	public function test__expect_spy__throws_an_error_if_called_without_a_spy() {
 		$this->expectException( InvalidArgumentException::class );
 		\Spies\expect_spy( 'foobar' );
 	}
 
-	public function test_expect_spy_returns_an_expectation() {
+	public function test__expect_spy__returns_an_expectation() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy );
 		$this->assertTrue( $expectation instanceof \Spies\Expectation );
 	}
 
-	public function test_to_have_been_called_is_not_met_if_spy_was_not_called() {
+	public function test__to_have_been_called__is_not_met_if_spy_was_not_called() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
-		$expectation->silent_failures = true;
-		$this->assertFalse( $expectation->verify() );
+		$this->assertFalse( $expectation->met_expectations() );
 	}
 
-	public function test_to_have_been_called_is_met_if_spy_was_called() {
+	public function test__to_have_been_called__reports_failure_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
+		$this->assertEquals( 'Failed asserting that a spy is called', $expectation->get_fail_message() );
+	}
+
+	public function test__to_have_been_called__is_met_if_spy_was_called() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
 		$spy();
-		$expectation->verify();
+		$this->assertTrue( $expectation->met_expectations() );
 	}
 
-	public function test_not_reverses_the_expectation() {
+	public function test__not__reverses_an_expectation() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called();
-		$expectation->verify();
+		$this->assertTrue( $expectation->met_expectations() );
 	}
 
 	public function test_times_is_met_if_spy_is_called_that_many_times() {
