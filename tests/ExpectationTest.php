@@ -32,6 +32,12 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'Failed asserting that a spy is called', $expectation->get_fail_message() );
 	}
 
+	public function test__not_to_have_been_called__reports_failure_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called();
+		$this->assertEquals( 'Failed asserting that a spy is not called', $expectation->get_fail_message() );
+	}
+
 	public function test__to_have_been_called__is_met_if_spy_was_called() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
