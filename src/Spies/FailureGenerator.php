@@ -27,6 +27,13 @@ class FailureGenerator {
 		$this->add_message( $desc );
 	}
 
+	public function spy_was_called_with( $spy, $args ) {
+		$this->spy_was_called( $spy );
+		$desc = 'with ';
+		$desc .= strval( new ArgumentFormatter( $args ) );
+		$this->add_message( $desc );
+	}
+
 	public function spy_was_not_called_with_additional( $spy ) {
 		$desc = $spy->get_function_name() . ' was actually ';
 		$calls = $spy->get_called_functions();
@@ -52,5 +59,4 @@ class FailureGenerator {
 		$desc = 'with arguments matching the provided function';
 		$this->add_message( $desc );
 	}
-
 }
