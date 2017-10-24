@@ -203,8 +203,7 @@ class Expectation {
 	public function times( $count ) {
 		$constraint = new SpiesConstraintWasCalledTimes( $count, $this->negation );
 		if ( isset( $this->expected_args ) ) {
-			//TODO: deal with negation
-			$constraint = new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args );
+			$constraint = new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args, $this->negation );
 		}
 		$this->add_expectation_for_constraint( $constraint );
 		return $this;
