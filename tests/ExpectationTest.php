@@ -81,7 +81,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo' )->times( 2 );
 		$spy( 'foo' );
 		$spy( 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is called with arguments: ( "foo" )', $expectation->get_fail_message() );
+		$this->assertEquals( 'Failed asserting that a spy is called with arguments: ( "foo" ) 2 times', $expectation->get_fail_message() );
 	}
 
 	public function test__not_with__reports_fail_message_on_fail() {
@@ -98,7 +98,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy( 'foo' );
 		$spy( 'foo' );
 		$spy( 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is not called with arguments: ( "foo" ) 2 times', $expectation->get_fail_message() );
+		$this->assertEquals( 'Failed asserting that a spy is not called with arguments: ( "foo" )', $expectation->get_fail_message() );
 	}
 
 	public function test__times__is_not_met_if_spy_is_not_called() {
