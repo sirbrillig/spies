@@ -129,8 +129,7 @@ class Expectation {
 			return $this->when( $args[0] );
 		}
 		$this->expected_args = $args;
-		// TODO: deal with negation
-		$this->add_expectation_for_constraint( new SpiesConstraintWasCalledWith( $this->expected_args ) );
+		$this->add_expectation_for_constraint( new SpiesConstraintWasCalledWith( $this->expected_args, $this->negation ) );
 		return $this;
 	}
 
@@ -202,7 +201,7 @@ class Expectation {
 	 * @return Expectation This Expectation to allow chaining
 	 */
 	public function times( $count ) {
-		$constraint = new SpiesConstraintWasCalledTimes( $count );
+		$constraint = new SpiesConstraintWasCalledTimes( $count, $this->negation );
 		if ( isset( $this->expected_args ) ) {
 			//TODO: deal with negation
 			$constraint = new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args );
