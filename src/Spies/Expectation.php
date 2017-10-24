@@ -6,9 +6,6 @@ class Expectation {
 	public $to_be_called;
 	public $to_have_been_called;
 
-	// If true, `verify()` will return true or false instead making a PHPUnit assertion
-	public $silent_failures = false;
-
 	// Can be used to prevent double-verification.
 	public $was_verified = false;
 
@@ -16,7 +13,6 @@ class Expectation {
 	private $negation = null;
 	private $expected_args = null;
 	private $delayed_expectations = [];
-	private $return_failure_message = false;
 
 	public function __construct( $spy ) {
 		if ( is_string( $spy ) ) {
@@ -94,15 +90,12 @@ class Expectation {
 	 */
 	public function get_fail_message() {
 		$this->was_verified = true;
-		$this->return_failure_message = true;
 		foreach( $this->delayed_expectations as $behavior ) {
 			$description = call_user_func( $behavior );
 			if ( $description !== null ) {
-				$this->return_failure_message = false;
 				return 'Failed asserting that ' . $description;
 			}
 		}
-		$this->return_failure_message = false;
 		return null;
 	}
 
@@ -151,55 +144,29 @@ class Expectation {
 			return $this->when( $args[0] );
 		}
 		$this->expected_args = $args;
-		$this->delay_expectation( function() use ( $args ) {
-			if ( $this->negation ) {
-				if ( $this->silent_failures ) {
-					return ! ( new SpiesConstraintWasCalledWith( $this->expected_args ) )->matches( $this->spy );
-				}
-				return \Spies\TestCase::assertSpyWasNotCalledWith( $this->spy, $this->expected_args );
-			}
-			if ( $this->silent_failures ) {
-					return ( new SpiesConstraintWasCalledWith( $this->expected_args ) )->matches( $this->spy );
-			}
-			return \Spies\TestCase::assertSpyWasCalledWith( $this->spy, $this->expected_args );
-		} );
+		// TODO: deal with negation
+		$this->add_expectation_for_constraint( new SpiesConstraintWasCalledWith( $this->expected_args ) );
 		return $this;
 	}
 
 	/**
- 	 * Set the expectation that the Spy was called
+	 * Set the expectation that the Spy was called
 	 *
 	 * Expectations will be evaluated when `verify()` is called.
 	 *
 	 * @return Expectation This Expectation to allow chaining
 	 */
 	public function to_be_called() {
-		$this->delay_expectation( function() {
-			$constraint = new SpiesConstraintWasCalled();
-			if ( $this->negation ) {
-				if ( $this->return_failure_message ) {
-					if ( $constraint->matches( $this->spy ) ) {
-						return $constraint->failureDescription( $this->spy );
-					}
-					return null;
-				}
-				if ( $this->silent_failures ) {
-					return ! $constraint->matches( $this->spy );
-				}
-				return \Spies\TestCase::assertSpyWasNotCalled( $this->spy );
-			}
-			if ( $this->return_failure_message ) {
-				if ( ! $constraint->matches( $this->spy ) ) {
-					return $constraint->failureDescription( $this->spy );
-				}
-				return null;
-			}
-			if ( $this->silent_failures ) {
-				return $constraint->matches( $this->spy );
-			}
-			return \Spies\TestCase::assertSpyWasCalled( $this->spy );
-		} );
+		$constraint = $this->negation ? new SpiesConstraintWasNotCalled() : new SpiesConstraintWasCalled();
+		$this->add_expectation_for_constraint( $constraint );
 		return $this;
+	}
+
+	private function add_expectation_for_constraint( $constraint ) {
+		$this->delay_expectation( function() use ( $constraint ) {
+			$does_constraint_match = $constraint->matches( $this->spy );
+			return $does_constraint_match ? null : $constraint->failureDescription( $this->spy );
+		} );
 	}
 
 	/**
@@ -250,31 +217,12 @@ class Expectation {
 	 * @return Expectation This Expectation to allow chaining
 	 */
 	public function times( $count ) {
-		$this->delay_expectation( function() use ( $count ) {
-			if ( isset( $this->expected_args ) ) {
-				if ( $this->negation ) {
-					if ( $this->silent_failures ) {
-						return ! ( new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args ) )->matches( $this->spy );
-					}
-					return \Spies\TestCase::assertSpyWasNotCalledTimesWith( $this->spy, $count, $this->expected_args );
-				}
-				if ( $this->silent_failures ) {
-					return ( new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args ) )->matches( $this->spy );
-				}
-				return \Spies\TestCase::assertSpyWasCalledTimesWith( $this->spy, $count, $this->expected_args );
-			}
-
-			if ( $this->negation ) {
-				if ( $this->silent_failures ) {
-					return ! ( new SpiesConstraintWasCalledTimes( $count ) )->matches( $this->spy );
-				}
-				return \Spies\TestCase::assertSpyWasNotCalledTimes( $this->spy, $count );
-			}
-			if ( $this->silent_failures ) {
-					return ( new SpiesConstraintWasCalledTimes( $count ) )->matches( $this->spy );
-			}
-			return \Spies\TestCase::assertSpyWasCalledTimes( $this->spy, $count );
-		} );
+		$constraint = new SpiesConstraintWasCalledTimes( $count );
+		if ( isset( $this->expected_args ) ) {
+			//TODO: deal with negation
+			$constraint = new SpiesConstraintWasCalledTimesWith( $count, $this->expected_args );
+		}
+		$this->add_expectation_for_constraint( $constraint );
 		return $this;
 	}
 
