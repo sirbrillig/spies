@@ -16,6 +16,7 @@ class Expectation {
 	private $negation = null;
 	private $expected_args = null;
 	private $delayed_expectations = [];
+	private $return_failure_message = false;
 
 	public function __construct( $spy ) {
 		if ( is_string( $spy ) ) {
@@ -66,11 +67,41 @@ class Expectation {
 		foreach( $this->delayed_expectations as $behavior ) {
 			$description = call_user_func( $behavior );
 			if ( $description !== null ) {
+				if ( $this->silent_failures ) {
+					return false;
+				}
 				return $description;
 			}
 		}
 	}
 
+	public function met_expectations() {
+		$this->was_verified = true;
+		$temp_silent_failures = $this->silent_failures;
+		$this->silent_failures = true;
+		foreach( $this->delayed_expectations as $behavior ) {
+			$description = call_user_func( $behavior );
+			if ( $description !== true ) {
+				$this->silent_failures = $temp_silent_failures;
+				return false;
+			}
+		}
+		$this->silent_failures = $temp_silent_failures;
+		return true;
+	}
+
+	public function get_fail_message() {
+		$this->was_verified = true;
+		$this->return_failure_message = true;
+		foreach( $this->delayed_expectations as $behavior ) {
+			$description = call_user_func( $behavior );
+			if ( $description !== null ) {
+				$this->return_failure_message = false;
+				return 'Failed asserting that ' . $description;
+			}
+		}
+		$this->return_failure_message = false;
+	}
 
 	/**
 	 * Set expected behavior
@@ -141,14 +172,21 @@ class Expectation {
 	 */
 	public function to_be_called() {
 		$this->delay_expectation( function() {
+			$constraint = new SpiesConstraintWasCalled();
 			if ( $this->negation ) {
+				if ( $this->return_failure_message && $constraint->matches( $this->spy ) ) {
+					return $constraint->failureDescription( $this->spy );
+				}
 				if ( $this->silent_failures ) {
-					return ! ( new SpiesConstraintWasCalled() )->matches( $this->spy );
+					return ! $constraint->matches( $this->spy );
 				}
 				return \Spies\TestCase::assertSpyWasNotCalled( $this->spy );
 			}
+			if ( $this->return_failure_message && ! $constraint->matches( $this->spy ) ) {
+				return $constraint->failureDescription( $this->spy );
+			}
 			if ( $this->silent_failures ) {
-					return ( new SpiesConstraintWasCalled() )->matches( $this->spy );
+				return $constraint->matches( $this->spy );
 			}
 			return \Spies\TestCase::assertSpyWasCalled( $this->spy );
 		} );
