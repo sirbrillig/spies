@@ -48,27 +48,12 @@ class Expectation {
 	}
 
 	/**
- 	 * Verify all behaviors in this Expectation
-	 *
-	 * By default it will use PHPUnit to create assertions for
-	 * each behavior.
-	 *
-	 * If `silent_failures` is set to true, it will return true or false instead
-	 * making a PHPUnit assertion
+	 * Alias for get_fail_message
 	 *
 	 * @return string|null The first failure description if there is a failure
 	 */
 	public function verify() {
-		$this->was_verified = true;
-		foreach( $this->delayed_expectations as $behavior ) {
-			$description = call_user_func( $behavior );
-			if ( $description !== null ) {
-				if ( $this->silent_failures ) {
-					return false;
-				}
-				return $description;
-			}
-		}
+		return $this->get_fail_message();
 	}
 
 	/**
