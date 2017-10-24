@@ -1,7 +1,7 @@
 <?php
 namespace Spies;
 
-class SpiesConstraintWasCalledWith extends \PHPUnit_Framework_Constraint {
+class SpiesConstraintWasCalledWith extends BaseConstraint {
 	private $expected_args;
 
 	public function __construct( $args ) {
@@ -16,13 +16,13 @@ class SpiesConstraintWasCalledWith extends \PHPUnit_Framework_Constraint {
 		return $other->was_called_with_array( $this->expected_args );
 	}
 
-	protected function failureDescription( $other ) {
+	public function failureDescription( $other ) {
 		$generator = new FailureGenerator();
 		$generator->spy_was_not_called_with( $other, $this->expected_args );
 		return $generator->get_message();
 	}
 
-	protected function additionalFailureDescription( $other ) {
+	public function additionalFailureDescription( $other ) {
 		$generator = new FailureGenerator();
 		$generator->spy_was_not_called_with_additional( $other );
 		return $generator->get_message();

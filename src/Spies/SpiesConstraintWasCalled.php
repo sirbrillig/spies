@@ -15,7 +15,7 @@ class SpiesConstraintWasCalled extends BaseConstraint {
 		return $generator->get_message();
 	}
 
-	protected function additionalFailureDescription( $other ) {
+	public function additionalFailureDescription( $other ) {
 		$generator = new FailureGenerator();
 		$generator->spy_was_not_called_with_additional( $other );
 		return $generator->get_message();
