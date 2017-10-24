@@ -35,6 +35,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 	public function test__not_to_have_been_called__reports_failure_message_on_fail() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called();
+		$spy();
 		$this->assertEquals( 'Failed asserting that a spy is not called', $expectation->get_fail_message() );
 	}
 
@@ -66,6 +67,22 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy( 'foo' );
 		$spy( 'bar' );
 		$this->assertTrue( $expectation->met_expectations() );
+	}
+
+	public function test__times_with__reports_fail_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo' )->times( 2 );
+		$spy( 'bar' );
+		$this->assertEquals( 'Failed asserting that a spy is called with arguments: ( "foo" )', $expectation->get_fail_message() );
+	}
+
+	public function test__not_times_with__reports_fail_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called->with( 'foo' )->times( 2 );
+		$spy( 'foo' );
+		$spy( 'foo' );
+		$spy( 'bar' );
+		$this->assertEquals( 'Failed asserting that a spy is not called with arguments: ( "foo" )', $expectation->get_fail_message() );
 	}
 
 	public function test__times__is_not_met_if_spy_is_not_called() {
