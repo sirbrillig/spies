@@ -75,21 +75,23 @@ class Expectation {
 		}
 	}
 
+	/**
+	 * Return true if all behaviors in this Expectation are met
+	 *
+	 * @return boolean True if the behaviors are all met
+	 */
 	public function met_expectations() {
-		$this->was_verified = true;
-		$temp_silent_failures = $this->silent_failures;
-		$this->silent_failures = true;
-		foreach( $this->delayed_expectations as $behavior ) {
-			$description = call_user_func( $behavior );
-			if ( $description !== true ) {
-				$this->silent_failures = $temp_silent_failures;
-				return false;
-			}
-		}
-		$this->silent_failures = $temp_silent_failures;
-		return true;
+		$message = $this->get_fail_message();
+		return empty( $message );
 	}
 
+	/**
+	 * Return the first failure message for the behaviors on this Expectation
+	 *
+	 * Returns null if no behaviors failed.
+	 *
+	 * @return string|null The first failure message for the behaviors on this Expectation or null
+	 */
 	public function get_fail_message() {
 		$this->was_verified = true;
 		$this->return_failure_message = true;
@@ -101,6 +103,7 @@ class Expectation {
 			}
 		}
 		$this->return_failure_message = false;
+		return null;
 	}
 
 	/**
@@ -174,16 +177,22 @@ class Expectation {
 		$this->delay_expectation( function() {
 			$constraint = new SpiesConstraintWasCalled();
 			if ( $this->negation ) {
-				if ( $this->return_failure_message && $constraint->matches( $this->spy ) ) {
-					return $constraint->failureDescription( $this->spy );
+				if ( $this->return_failure_message ) {
+					if ( $constraint->matches( $this->spy ) ) {
+						return $constraint->failureDescription( $this->spy );
+					}
+					return null;
 				}
 				if ( $this->silent_failures ) {
 					return ! $constraint->matches( $this->spy );
 				}
 				return \Spies\TestCase::assertSpyWasNotCalled( $this->spy );
 			}
-			if ( $this->return_failure_message && ! $constraint->matches( $this->spy ) ) {
-				return $constraint->failureDescription( $this->spy );
+			if ( $this->return_failure_message ) {
+				if ( ! $constraint->matches( $this->spy ) ) {
+					return $constraint->failureDescription( $this->spy );
+				}
+				return null;
 			}
 			if ( $this->silent_failures ) {
 				return $constraint->matches( $this->spy );
