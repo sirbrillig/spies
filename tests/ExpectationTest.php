@@ -195,6 +195,24 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $expectation->met_expectations() );
 	}
 
+	public function test__when__reports_failure_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->when( function() {
+			return false;
+		} );
+		$spy( 'foo', 'bar' );
+		$this->assertEquals( 'Failed asserting that a function was called with arguments matching the provided function', $expectation->get_fail_message() );
+	}
+
+	public function test__not_when__reports_failure_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called->when( function() {
+			return true;
+		} );
+		$spy( 'foo', 'bar' );
+		$this->assertEquals( 'Failed asserting that a function was not called with arguments matching the provided function', $expectation->get_fail_message() );
+	}
+
 	public function test__when__function_receives_arguments_for_each_call() {
 		$found = [];
 		$spy = \Spies\make_spy();
