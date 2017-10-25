@@ -5,7 +5,7 @@ class SpiesConstraintWasCalledWhen extends BaseConstraint {
 	private $expected_callable;
 	private $negation;
 
-	public function __construct( $callable, $negation ) {
+	public function __construct( $callable, $negation = false ) {
 		parent::__construct();
 		$this->expected_callable = $callable;
 		$this->negation = $negation;

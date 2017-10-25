@@ -5,7 +5,7 @@ class SpiesConstraintWasCalledBefore extends BaseConstraint {
 	private $target_spy;
 	private $negation;
 
-	public function __construct( $target_spy, $negation ) {
+	public function __construct( $target_spy, $negation = false ) {
 		parent::__construct();
 		$this->target_spy = $target_spy;
 		$this->negation = $negation;
