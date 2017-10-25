@@ -201,7 +201,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 			return false;
 		} );
 		$spy( 'foo', 'bar' );
-		$this->assertEquals( 'Failed asserting that a function was called with arguments matching the provided function', $expectation->get_fail_message() );
+		$this->assertEquals( 'Failed asserting that a spy is called with arguments matching the provided function', $expectation->get_fail_message() );
 	}
 
 	public function test__not_when__reports_failure_message_on_fail() {
@@ -210,7 +210,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 			return true;
 		} );
 		$spy( 'foo', 'bar' );
-		$this->assertEquals( 'Failed asserting that a function was not called with arguments matching the provided function', $expectation->get_fail_message() );
+		$this->assertEquals( 'Failed asserting that a spy is not called with arguments matching the provided function', $expectation->get_fail_message() );
 	}
 
 	public function test__when__function_receives_arguments_for_each_call() {
