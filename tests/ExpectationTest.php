@@ -26,6 +26,13 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( $expectation->met_expectations() );
 	}
 
+	public function test__verify__throws_exception_on_fail() {
+		$this->expectException( \Spies\UnmetExpectationException::class );
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
+		$expectation->verify();
+	}
+
 	public function test__to_have_been_called__reports_failure_message_on_fail() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
