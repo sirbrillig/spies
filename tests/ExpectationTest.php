@@ -349,6 +349,15 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $expectation->met_expectations() );
 	}
 
+	public function test__before__reports_failure_message_on_fail() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy_1 )->to_have_been_called->before( $spy_2 );
+		$spy_2( 'bar' );
+		$spy_1( 'foo' );
+		$this->assertEquals( 'Failed asserting that a spy is called before a spy', $expectation->get_fail_message() );
+	}
+
 	public function test__before__is_not_met_if_the_spy_was_called_after_another_spy() {
 		$spy_1 = \Spies\make_spy();
 		$spy_2 = \Spies\make_spy();
@@ -356,6 +365,15 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy_2( 'bar' );
 		$spy_1( 'foo' );
 		$this->assertFalse( $expectation->met_expectations() );
+	}
+
+	public function test__not_before__reports_failure_message_on_fail() {
+		$spy_1 = \Spies\make_spy();
+		$spy_2 = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy_1 )->not->to_have_been_called->before( $spy_2 );
+		$spy_1( 'foo' );
+		$spy_2( 'bar' );
+		$this->assertEquals( 'Failed asserting that a spy is not called before a spy', $expectation->get_fail_message() );
 	}
 
 	public function test_global_expectation_is_cleared_by_finish_spying() {
