@@ -97,18 +97,7 @@ class Expectation {
 	 */
 	public function when( $callable ) {
 		$this->expected_function = $callable;
-		$this->delay_expectation( function() use ( $callable ) {
-			if ( $this->negation ) {
-				if ( $this->silent_failures ) {
-					return ! ( new SpiesConstraintWasCalledWhen( $callable ) )->matches( $this->spy );
-				}
-				return \Spies\TestCase::assertSpyWasNotCalledWhen( $this->spy, $callable );
-			}
-			if ( $this->silent_failures ) {
-					return ( new SpiesConstraintWasCalledWhen( $callable ) )->matches( $this->spy );
-			}
-			return \Spies\TestCase::assertSpyWasCalledWhen( $this->spy, $callable );
-		} );
+		$this->add_expectation_for_constraint( new SpiesConstraintWasCalledWhen( $this->expected_function, $this->negation ) );
 		return $this;
 	}
 
