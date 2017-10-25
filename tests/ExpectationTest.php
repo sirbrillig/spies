@@ -1,8 +1,5 @@
 <?php
 
-/**
- * @runTestsInSeparateProcesses
- */
 class ExpectationTest extends PHPUnit_Framework_TestCase {
 
 	public function tearDown() {
@@ -27,7 +24,9 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function test__verify__throws_exception_on_fail() {
-		$this->expectException( \Spies\UnmetExpectationException::class );
+		// TODO: this will be the exception outside of PHPUnit; we need to be able to test both
+		// $this->expectException( \Spies\UnmetExpectationException::class );
+		$this->expectException( \PHPUnit_Framework_ExpectationFailedException::class );
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
 		$expectation->verify();
@@ -36,14 +35,14 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 	public function test__to_have_been_called__reports_failure_message_on_fail() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called();
-		$this->assertEquals( 'Failed asserting that a spy is called', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is called', $expectation->get_fail_message() );
 	}
 
 	public function test__not_to_have_been_called__reports_failure_message_on_fail() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called();
 		$spy();
-		$this->assertEquals( 'Failed asserting that a spy is not called', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is not called', $expectation->get_fail_message() );
 	}
 
 	public function test__to_have_been_called__is_met_if_spy_was_called() {
@@ -80,7 +79,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo' );
 		$spy( 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is called with arguments: ( "foo" )', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments: ( "foo" )', $expectation->get_fail_message() );
 	}
 
 	public function test__times_with__reports_fail_message_on_fail() {
@@ -88,7 +87,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo' )->times( 2 );
 		$spy( 'foo' );
 		$spy( 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is called with arguments: ( "foo" ) 2 times', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments: ( "foo" ) 2 times', $expectation->get_fail_message() );
 	}
 
 	public function test__not_with__reports_fail_message_on_fail() {
@@ -96,7 +95,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy )->not->to_have_been_called->with( 'foo' );
 		$spy( 'foo' );
 		$spy( 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is not called with arguments: ( "foo" )', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is not called with arguments: ( "foo" )', $expectation->get_fail_message() );
 	}
 
 	public function test__not_times_with__reports_fail_message_on_fail() {
@@ -105,7 +104,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$spy( 'foo' );
 		$spy( 'foo' );
 		$spy( 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is not called with arguments: ( "foo" )', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is not called with arguments: ( "foo" )', $expectation->get_fail_message() );
 	}
 
 	public function test__times__is_not_met_if_spy_is_not_called() {
@@ -201,7 +200,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 			return false;
 		} );
 		$spy( 'foo', 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is called with arguments matching the provided function', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments matching the provided function', $expectation->get_fail_message() );
 	}
 
 	public function test__not_when__reports_failure_message_on_fail() {
@@ -210,7 +209,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 			return true;
 		} );
 		$spy( 'foo', 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is not called with arguments matching the provided function', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is not called with arguments matching the provided function', $expectation->get_fail_message() );
 	}
 
 	public function test__when__function_receives_arguments_for_each_call() {
@@ -373,7 +372,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy_1 )->to_have_been_called->before( $spy_2 );
 		$spy_2( 'bar' );
 		$spy_1( 'foo' );
-		$this->assertEquals( 'Failed asserting that a spy is called before a spy', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is called before a spy', $expectation->get_fail_message() );
 	}
 
 	public function test__before__is_not_met_if_the_spy_was_called_after_another_spy() {
@@ -391,7 +390,7 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$expectation = \Spies\expect_spy( $spy_1 )->not->to_have_been_called->before( $spy_2 );
 		$spy_1( 'foo' );
 		$spy_2( 'bar' );
-		$this->assertEquals( 'Failed asserting that a spy is not called before a spy', $expectation->get_fail_message() );
+		$this->assertContains( 'Failed asserting that a spy is not called before a spy', $expectation->get_fail_message() );
 	}
 
 	public function test_global_expectation_is_cleared_by_finish_spying() {
