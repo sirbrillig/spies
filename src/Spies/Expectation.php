@@ -56,8 +56,8 @@ class Expectation {
 		$message = $this->get_fail_message();
 		if ( $message !== null ) {
 			// TODO: is there a way to put this in a PHPUnit-only file?
-			if ( class_exists( '\PHPUnit_Framework_AssertionFailedError' ) ) {
-				throw new \PHPUnit_Framework_AssertionFailedError( $message );
+			if ( class_exists( '\PHPUnit_Framework_ExpectationFailedException' ) ) {
+				throw new \PHPUnit_Framework_ExpectationFailedException( $message );
 			}
 			throw new UnmetExpectationException( $message );
 		}
@@ -82,10 +82,10 @@ class Expectation {
 	 */
 	public function get_fail_message() {
 		$this->was_verified = true;
-		foreach( $this->delayed_expectations as $behavior ) {
+		foreach ( $this->delayed_expectations as $behavior ) {
 			$description = call_user_func( $behavior );
 			if ( $description !== null ) {
-				return 'Failed asserting that ' . $description;
+				return $description;
 			}
 		}
 		return null;
@@ -145,12 +145,24 @@ class Expectation {
 	private function add_expectation_for_constraint( $constraint ) {
 		$this->delay_expectation( function() use ( $constraint ) {
 			$does_constraint_match = $constraint->matches( $this->spy );
-			return $does_constraint_match ? null : $constraint->failureDescription( $this->spy );
+			return $does_constraint_match ? null : $this->build_failure_message_for_constraint( $constraint );
 		} );
 	}
 
+	private function build_failure_message_for_constraint( $constraint ) {
+		$message = sprintf(
+			'Failed asserting that %s.',
+			$constraint->failureDescription( $this->spy )
+		);
+		$message_extra_info = $constraint->additionalFailureDescription( $this->spy );
+		if ( $message_extra_info ) {
+			$message .= "\n" . $message_extra_info;
+		}
+		return $message;
+	}
+
 	/**
- 	 * Set the expectation that the Spy was called
+	 * Set the expectation that the Spy was called
 	 *
 	 * Alias for `to_be_called`
 	 *
