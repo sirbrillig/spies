@@ -48,12 +48,15 @@ class Expectation {
 	}
 
 	/**
-	 * Alias for get_fail_message
+	 * Throws an Exception if any behavior in this Expectation fails
 	 *
-	 * @return string|null The first failure description if there is a failure
+	 * @return null
 	 */
 	public function verify() {
-		return $this->get_fail_message();
+		$message = $this->get_fail_message();
+		if ( $message !== null ) {
+			throw new UnmetExpectationException( $message );
+		}
 	}
 
 	/**
