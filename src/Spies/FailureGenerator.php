@@ -79,4 +79,10 @@ class FailureGenerator {
 		$desc = 'with arguments matching the provided function';
 		$this->add_message( $desc );
 	}
+
+	public function spy_was_called_when( $spy ) {
+		$this->spy_was_called( $spy );
+		$desc = 'with arguments matching the provided function';
+		$this->add_message( $desc );
+	}
 }
