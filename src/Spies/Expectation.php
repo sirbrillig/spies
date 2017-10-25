@@ -55,6 +55,10 @@ class Expectation {
 	public function verify() {
 		$message = $this->get_fail_message();
 		if ( $message !== null ) {
+			// TODO: is there a way to put this in a PHPUnit-only file?
+			if ( class_exists( '\PHPUnit_Framework_AssertionFailedError' ) ) {
+				throw new \PHPUnit_Framework_AssertionFailedError( $message );
+			}
 			throw new UnmetExpectationException( $message );
 		}
 	}
