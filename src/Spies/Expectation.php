@@ -199,18 +199,7 @@ class Expectation {
 	}
 
 	public function before( $target_spy ) {
-		$this->delay_expectation( function() use ( $target_spy ) {
-			if ( $this->negation ) {
-				if ( $this->silent_failures ) {
-					return ! ( new SpiesConstraintWasCalledBefore( $target_spy ) )->matches( $this->spy );
-				}
-				return \Spies\TestCase::assertSpyWasNotCalledBefore( $this->spy, $target_spy );
-			}
-			if ( $this->silent_failures ) {
-					return ( new SpiesConstraintWasCalledBefore( $target_spy ) )->matches( $this->spy );
-			}
-			return \Spies\TestCase::assertSpyWasCalledBefore( $this->spy, $target_spy );
-		} );
+		$this->add_expectation_for_constraint( new SpiesConstraintWasCalledBefore( $target_spy, $this->negation ) );
 		return $this;
 	}
 
