@@ -10,7 +10,7 @@
         "antecedent/patchwork": "^2.0.0"
     },
     "scripts": {
-        "test": ["phpunit"]
+        "test": ["vendor/bin/phpunit"]
     },
     "license": "MIT",
     "autoload": {
