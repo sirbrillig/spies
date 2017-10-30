@@ -706,7 +706,7 @@ finish_spying();
 
 ## PHPUnit Custom Assertions
 
-These are methods available on instances of `\Spies\TestCase`.
+These are methods available on instances of `\Spies\TestCase`, which is loaded only if PHPUnit is loaded.
 
 ### Constraints for `assertThat()`
 
