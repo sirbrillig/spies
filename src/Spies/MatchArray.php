@@ -34,5 +34,9 @@ class MatchArray {
 		}
 		return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
 	}
+
+	public function __toString() {
+		return 'MatchArray(' . json_encode( $this->expected_array ) . ')';
+	}
 }
 
