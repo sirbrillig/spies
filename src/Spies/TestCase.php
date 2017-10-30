@@ -1,6 +1,10 @@
 <?php
 namespace Spies;
 
+if ( ! class_exists( '\PHPUnit_Framework_TestCase' ) ) {
+	return;
+}
+
 abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
 	public static function wasCalled() {
