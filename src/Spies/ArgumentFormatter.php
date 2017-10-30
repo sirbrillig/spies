@@ -16,6 +16,12 @@ class ArgumentFormatter {
 	}
 
 	private function get_args_as_array() {
-		return implode( ', ', array_map( 'json_encode', $this->args ) );
+		$stringify_argument = function ( $argument ) {
+			if ( method_exists( $argument, '__toString' ) ) {
+				return $argument->__toString();
+			}
+			return json_encode( $argument );
+		};
+		return implode( ', ', array_map( $stringify_argument, $this->args ) );
 	}
 }
