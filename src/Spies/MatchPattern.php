@@ -16,6 +16,8 @@ class MatchPattern {
 		}
 		return false;
 	}
+
+	public function __toString() {
+		return "MatchPattern('{$this->expected_pattern}')";
+	}
 }
-
-
