@@ -342,6 +342,13 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( $expectation->met_expectations() );
 	}
 
+	public function test__any__reports_fail_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\any() );
+		$spy( 'bar' );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments: ( "foo", AnyValue )', $expectation->get_fail_message() );
+	}
+
 	public function test__with__is_not_met_if_the_spy_is_called_with_no_arguments() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', 'bar' );
