@@ -1,7 +1,7 @@
 <?php
 namespace Spies;
 
-class SpiesConstraintWasCalled extends \PHPUnit_Framework_Constraint {
+class SpiesConstraintWasCalled extends BaseConstraint {
 	public function matches( $other ) {
 		if ( ! $other instanceof \Spies\Spy ) {
 			return false;
@@ -15,7 +15,7 @@ class SpiesConstraintWasCalled extends \PHPUnit_Framework_Constraint {
 		return $generator->get_message();
 	}
 
-	protected function additionalFailureDescription( $other ) {
+	public function additionalFailureDescription( $other ) {
 		$generator = new FailureGenerator();
 		$generator->spy_was_not_called_with_additional( $other );
 		return $generator->get_message();

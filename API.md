@@ -578,11 +578,36 @@ $expectation->verify();
 
 Resolve and verify all the behaviors set on this Expectation.
 
+If any behavior is false, this will throw an `\Spies\UnmetExpectationException`. If PHPUnit is loaded the Exception will be a subclass of `PHPUnit_Framework_ExpectationFailedException`.
+
 ```php
 $spy = get_spy_for( 'wp_update_post' );
 wp_update_post( 'bye' );
 $expectation = expect_spy( $spy )->not->to_have_been_called->with( 'hello' );
 $expectation->verify();
+```
+
+### `met_expectations()`
+
+Returns true if all behaviors in this Expectation are met.
+
+```php
+$spy = get_spy_for( 'wp_update_post' );
+wp_update_post( 'bye' );
+$expectation = expect_spy( $spy )->not->to_have_been_called->with( 'hello' );
+$this->assertTrue( $expectation->met_expectations() );
+```
+
+### `get_fail_message()`
+
+Returns the first failure message for the behaviors on this Expectation.
+
+Returns null if no behaviors failed.
+
+```php
+$spy = make_spy();
+$expectation = expect_spy( $spy )->to_have_been_called();
+$this->assertContains( 'Failed asserting that a spy is called', $expectation->get_fail_message() );
 ```
 
 ### `to_be_called()`

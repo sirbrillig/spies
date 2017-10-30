@@ -4,31 +4,31 @@ namespace Spies;
 abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
 	public static function wasCalled() {
-		return new \Spies\SpiesConstraintWasCalled;
+		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasCalled() );
 	}
 
 	public static function wasNotCalled() {
-		return new \Spies\SpiesConstraintWasNotCalled;
+		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasNotCalled() );
 	}
 
 	public static function wasCalledWith( $args ) {
-		return new \Spies\SpiesConstraintWasCalledWith( $args );
+		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasCalledWith( $args ) );
 	}
 
 	public static function wasCalledTimes( $count ) {
-		return new \Spies\SpiesConstraintWasCalledTimes( $count );
+		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasCalledTimes( $count ) );
 	}
 
 	public static function wasCalledBefore( $spy ) {
-		return new \Spies\SpiesConstraintWasCalledBefore( $spy );
+		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasCalledBefore( $spy ) );
 	}
 
 	public static function wasCalledWhen( $callable ) {
-		return new \Spies\SpiesConstraintWasCalledWhen( $callable );
+		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasCalledWhen( $callable ) );
 	}
 
 	public static function wasCalledTimesWith( $count, $args ) {
-		return new \Spies\SpiesConstraintWasCalledTimesWith( $count, $args );
+		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasCalledTimesWith( $count, $args ) );
 	}
 
 	public static function assertSpyWasCalled( $condition, $message = '' ) {

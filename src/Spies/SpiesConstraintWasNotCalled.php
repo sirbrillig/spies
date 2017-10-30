@@ -1,7 +1,7 @@
 <?php
 namespace Spies;
 
-class SpiesConstraintWasNotCalled extends \PHPUnit_Framework_Constraint {
+class SpiesConstraintWasNotCalled extends BaseConstraint {
 	public function matches( $other ) {
 		if ( ! $other instanceof \Spies\Spy ) {
 			return false;
