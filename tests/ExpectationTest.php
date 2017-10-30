@@ -342,6 +342,13 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( $expectation->met_expectations() );
 	}
 
+	public function test__match_array__reports_fail_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'flim' => 'flam' ] ) );
+		$spy( 'foo', [ 'bar' => 'baz', 'foo' => 'bar' ] );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments: ( "foo", MatchArray({"flim":"flam"}) )', $expectation->get_fail_message() );
+	}
+
 	public function test__with__and__any__is_met_if_the_spy_is_called_with_any_arguments() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\any() );
