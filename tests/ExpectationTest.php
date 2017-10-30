@@ -286,6 +286,13 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( $expectation->met_expectations() );
 	}
 
+	public function test__match_pattern__reports_fail_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_pattern( '/Bart/i' ) );
+		$spy( 'foo', 'slartiblargfast' );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments: ( "foo", MatchPattern(\'/Bart/i\') )', $expectation->get_fail_message() );
+	}
+
 	public function test__with__and__match_array__is_met_if_the_spy_is_called_with_matching_key_values() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'foo' => 'bar', 'flim' => 'flam' ] ) );
@@ -335,11 +342,25 @@ class ExpectationTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( $expectation->met_expectations() );
 	}
 
+	public function test__match_array__reports_fail_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\match_array( [ 'flim' => 'flam' ] ) );
+		$spy( 'foo', [ 'bar' => 'baz', 'foo' => 'bar' ] );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments: ( "foo", MatchArray({"flim":"flam"}) )', $expectation->get_fail_message() );
+	}
+
 	public function test__with__and__any__is_met_if_the_spy_is_called_with_any_arguments() {
 		$spy = \Spies\make_spy();
 		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\any() );
 		$spy( 'foo', 'bar' );
 		$this->assertTrue( $expectation->met_expectations() );
+	}
+
+	public function test__any__reports_fail_message_on_fail() {
+		$spy = \Spies\make_spy();
+		$expectation = \Spies\expect_spy( $spy )->to_have_been_called->with( 'foo', \Spies\any() );
+		$spy( 'bar' );
+		$this->assertContains( 'Failed asserting that a spy is called with arguments: ( "foo", AnyValue )', $expectation->get_fail_message() );
 	}
 
 	public function test__with__is_not_met_if_the_spy_is_called_with_no_arguments() {
