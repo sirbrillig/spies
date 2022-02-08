@@ -96,6 +96,9 @@ class GlobalSpies {
 		foreach ( array_values( self::$redefined_functions ) as $handle ) {
 			\Patchwork\restore( $handle );
 		}
+		
+		// forget the name of the global functions we already defined.
+		self::$global_functions = [];
 	}
 
 	public static function call_original_global_function( $function_name, $args ) {
