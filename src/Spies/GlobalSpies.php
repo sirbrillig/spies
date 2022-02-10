@@ -12,6 +12,9 @@ class GlobalSpies {
 	// A record of all the existing functions that have been redefined
 	public static $redefined_functions = [];
 
+	// A record of all functions that did not have a definition and we generated one.
+	public static $generated_functions = [];
+
 	public static function create_global_spy( $function_name ) {
 		$spy = new Spy( $function_name );
 		self::create_global_function( $function_name );
@@ -84,6 +87,7 @@ class GlobalSpies {
 		} else {
 			$function_eval = self::generate_function_with( $function_name );
 			eval( $function_eval );
+			self::$generated_functions[ $function_name ] = true;
 		}
 		// Save the name of this function so we know that we already defined it.
 		self::$global_functions[ $function_name ] = true;
@@ -105,6 +109,12 @@ class GlobalSpies {
 		if ( ! isset( self::$redefined_functions[ $function_name ] ) ) {
 			return;
 		}
+
+		// skip if the function did not exist before (i.e. had no "original" function)
+		if ( isset( self::$generated_functions[ $function_name ] )) {
+			return;
+		}
+
 		if ( ! function_exists( 'Patchwork\restore' ) ) {
 			return;
 		}
@@ -121,10 +131,7 @@ class GlobalSpies {
 		}
 		self::$redefined_functions[ $function_name ] = \Patchwork\redefine( $function_name, function() use ( $function_name ) {
 			$value = \Spies\GlobalSpies::handle_call_for( $function_name, func_get_args(), [ 'return_falsey_objects' => true ] );
-			if ( isset( $value ) ) {
-				return self::filter_return_for( $value );
-			}
-			return \Patchwork\relay();
+			return self::filter_return_for( $value );
 		} );
 	}
 
