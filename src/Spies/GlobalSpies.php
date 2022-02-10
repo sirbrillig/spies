@@ -111,7 +111,7 @@ class GlobalSpies {
 		}
 
 		// skip if the function did not exist before (i.e. had no "original" function)
-		if ( isset( self::$generated_functions[ $function_name ] )) {
+		if ( isset( self::$generated_functions[ $function_name ] ) ) {
 			return;
 		}
 
