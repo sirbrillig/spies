@@ -2,6 +2,8 @@
 namespace Spies;
 
 class MatchArray {
+	private $expected_array;
+
 	public function __construct( $array ) {
 		$this->expected_array = $array;
 	}

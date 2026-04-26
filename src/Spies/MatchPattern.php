@@ -2,6 +2,8 @@
 namespace Spies;
 
 class MatchPattern {
+	private $expected_pattern;
+
 	public function __construct( $pattern ) {
 		$this->expected_pattern = $pattern;
 	}

@@ -6,7 +6,7 @@ function global_function_bar() {
 }
 
 class ConsecutiveExecutionTest extends \Spies\TestCase {
-	function tearDown() {
+	function tearDown(): void {
 		\Spies\finish_spying();
 	}
 

@@ -1,7 +1,7 @@
 <?php
 
-class ArgumentFormatterTest extends PHPUnit_Framework_TestCase {
-	public function tearDown() {
+class ArgumentFormatterTest extends \PHPUnit\Framework\TestCase {
+	public function tearDown(): void {
 		\Spies\finish_spying();
 	}
 

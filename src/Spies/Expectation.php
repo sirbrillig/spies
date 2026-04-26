@@ -12,6 +12,7 @@ class Expectation {
 	private $spy = null;
 	private $negation = null;
 	private $expected_args = null;
+	private $expected_function = null;
 	private $delayed_expectations = [];
 
 	public function __construct( $spy ) {
