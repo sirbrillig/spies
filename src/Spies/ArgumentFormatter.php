@@ -17,6 +17,9 @@ class ArgumentFormatter {
 
 	private function get_args_as_array() {
 		$stringify_argument = function ( $argument ) {
+			if(is_array($argument)) {
+				return json_encode($argument);
+			}
 			if ( method_exists( $argument, '__toString' ) ) {
 				return $argument->__toString();
 			}
