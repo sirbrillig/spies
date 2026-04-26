@@ -1,11 +1,11 @@
 <?php
 namespace Spies;
 
-if ( ! class_exists( '\PHPUnit_Framework_TestCase' ) ) {
+if ( ! class_exists( '\PHPUnit\Framework\TestCase' ) ) {
 	return;
 }
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase {
+abstract class TestCase extends \PHPUnit\Framework\TestCase {
 
 	public static function wasCalled() {
 		return new PHPUnit\ConstraintWrapper( new SpiesConstraintWasCalled() );

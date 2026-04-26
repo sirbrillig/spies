@@ -1,25 +1,26 @@
 <?php
 namespace Spies\PHPUnit;
 
-class ConstraintWrapper extends \PHPUnit_Framework_Constraint {
+class ConstraintWrapper extends \PHPUnit\Framework\Constraint\Constraint {
+	private $wrapped_constraint;
+
 	public function __construct( $constraint ) {
-		parent::__construct();
 		$this->wrapped_constraint = $constraint;
 	}
 
-	public function matches( $other ) {
+	public function matches( $other ): bool {
 		return $this->wrapped_constraint->matches( $other );
 	}
 
-	public function failureDescription( $other ) {
+	public function failureDescription( $other ): string {
 		return $this->wrapped_constraint->failureDescription( $other );
 	}
 
-	public function additionalFailureDescription( $other ) {
+	public function additionalFailureDescription( $other ): string {
 		return $this->wrapped_constraint->additionalFailureDescription( $other );
 	}
 
-	public function toString() {
+	public function toString(): string {
 		return $this->wrapped_constraint->toString();
 	}
 }

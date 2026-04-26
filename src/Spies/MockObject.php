@@ -6,6 +6,7 @@ class MockObject {
 	private $class_name = null;
 	private $delegate_instance = null;
 	private $ignore_missing_methods = false;
+	private $methods = [];
 
 	/**
 	 * Create a new MockObject
@@ -63,13 +64,13 @@ class MockObject {
 	}
 
 	public function __call( $function_name, $args ) {
-		if ( ! isset( $this->$function_name ) || ! is_callable( $this->$function_name ) ) {
+		if ( ! isset( $this->methods[ $function_name ] ) || ! is_callable( $this->methods[ $function_name ] ) ) {
 			if ( $this->ignore_missing_methods ) {
 				return;
 			}
 			throw new UndefinedFunctionException( 'Attempted to call un-mocked method "' . $function_name . '" with arguments ' . json_encode( $args ) );
 		}
-		return call_user_func_array( $this->$function_name, $args );
+		return call_user_func_array( $this->methods[ $function_name ], $args );
 	}
 
 	/**
@@ -105,7 +106,7 @@ class MockObject {
 	 */
 	public function add_method( $function_name, $function = null ) {
 		if ( ! isset( $function ) ) {
-			$function = isset( $this->$function_name ) ? $this->$function_name : new Spy();
+			$function = $this->methods[ $function_name ] ?? new Spy();
 		}
 		$reserved_method_names = [
 			'add_method',
@@ -125,7 +126,7 @@ class MockObject {
 			$function = Helpers::make_spy_from_function( $function );
 		}
 		$function->set_function_name( $function_name );
-		$this->$function_name = $function;
+		$this->methods[ $function_name ] = $function;
 		return $function;
 	}
 
